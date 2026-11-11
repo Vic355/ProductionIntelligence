@@ -1,0 +1,184 @@
+@page "/shift-leader"
+
+<PageTitle>Shift leader · live board</PageTitle>
+
+<div class="page">
+    <div class="page-head">
+        <h1>Converting hall · Shift A</h1>
+        <span class="muted">Wed 11 Nov · 11:46 · 2 h 14 min to handover</span>
+    </div>
+
+    <div class="tabs" role="tablist">
+        <button class="tab @(tab == Tab.Board ? "active" : "")" role="tab" aria-selected="@(tab == Tab.Board)" @onclick="() => tab = Tab.Board">Live board</button>
+        <button class="tab @(tab == Tab.Fixes ? "active" : "")" role="tab" aria-selected="@(tab == Tab.Fixes)" @onclick="() => tab = Tab.Fixes">Fix approvals (@PendingCount)</button>
+        <button class="tab @(tab == Tab.Handover ? "active" : "")" role="tab" aria-selected="@(tab == Tab.Handover)" @onclick="() => tab = Tab.Handover">Handover and reports</button>
+    </div>
+
+    @if (tab == Tab.Board)
+    {
+        <div class="row">
+            <section class="main-col">
+                <div class="summary">
+                    <span><b style="color:var(--good);">@SampleData.Lines.Count(l => l.Tone == Tone.Good)</b> running</span>
+                    <span><b style="color:var(--crit);">@SampleData.Lines.Count(l => l.Tone == Tone.Crit)</b> stopped</span>
+                    <span><b style="color:var(--warn);">@SampleData.Lines.Count(l => l.Tone == Tone.Warn)</b> behind pace</span>
+                    <span><b>@SampleData.Lines.Count(l => l.Tone == Tone.Idle)</b> planned changeover</span>
+                    <span>Hall pace <b class="num" style="font-size:17px;color:var(--ink);">96%</b> of plan so far</span>
+                </div>
+                <div class="grid-auto">
+                    @foreach (var l in SampleData.Lines)
+                    {
+                        var t = l.Tone.Css();
+                        <article class="card linecard @(l.Tone == Tone.Crit ? "crit" : "")">
+                            <div class="head"><span class="name">@l.Name</span><span class="pill t-@t">@l.State</span></div>
+                            <span class="small muted">@l.Product</span>
+                            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                                <span class="pace" style="color:@(l.Tone is Tone.Warn or Tone.Crit ? $"var(--{t})" : "var(--ink)");">@l.Pace</span>
+                                <span class="small muted">of pace · @l.Rate</span>
+                            </div>
+                            <div class="bar"><div class="bg-@t" style="width:@(l.PacePercent)%;"></div></div>
+                            <div class="small" style="color:#33403C;">@l.Detail</div>
+                            <div class="foot">
+                                <span>@l.Crew</span>
+                                @if (l.EscalateTo is not null)
+                                {
+                                    var done = escalated.Contains(l.Id);
+                                    <button class="btn @(done ? "done" : "")" disabled="@done" @onclick="() => escalated.Add(l.Id)">
+                                        @(done ? "Escalated 11:46" : $"Escalate to {l.EscalateTo}")
+                                    </button>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+
+            <aside class="side-col">
+                <section class="card">
+                    <h2>Patrol next</h2>
+                    <ol class="patrol">
+                        <li><span class="rank" style="background:var(--crit);">1</span><div><b>Line 3: stopped 6 min, web break at embosser.</b> Third this shift. Jumbos 4471–4473 all from the same supplier batch.</div></li>
+                        <li><span class="rank" style="background:var(--warn);">2</span><div><b>Line 4: 88% of pace.</b> Log saw jammed 4 times since 08:00. Needs 52 boxes/min, running 47.</div></li>
+                        <li><span class="rank" style="background:var(--idle);">3</span><div><b>Line 2: maintenance ticket M-3381 still open.</b> Wrapper film jam, 18 min, restarted 10:55.</div></li>
+                    </ol>
+                </section>
+                <section class="card">
+                    <h2>Manpower</h2>
+                    <div class="flag">
+                        <span><b>Line 3 lacks embosser experience.</b> Chidi and Ana have not closed an embosser web break this month. Kofi A. on Line 1 has closed 11.</span>
+                        <div><button class="btn @(askedKofi ? "done" : "")" disabled="@askedKofi" @onclick="() => askedKofi = true">@(askedKofi ? "Kofi asked to help on Line 3" : "Ask Kofi to help on Line 3")</button></div>
+                    </div>
+                    <table class="tbl">
+                        <tbody>
+                            @foreach (var (line, people) in SampleData.Roster)
+                            {
+                                <tr><td style="font-weight:600;padding-left:0;">@line</td><td>@people</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </section>
+            </aside>
+        </div>
+    }
+    else if (tab == Tab.Fixes)
+    {
+        <section style="display:flex;flex-direction:column;gap:12px;max-width:920px;">
+            <p class="muted" style="margin:0;max-width:70ch;">New fixes from voice logs and “what fixed it?” answers. Operators see a fix only after you approve it.</p>
+            @foreach (var p in SampleData.Proposals)
+            {
+                decisions.TryGetValue(p.Id, out var d);
+                <article class="card">
+                    <div class="spread">
+                        <span class="small muted">@p.Meta</span>
+                        @if (d == "ok") { <span class="pill t-good">Approved · now shown to operators</span> }
+                        else if (d == "no") { <span class="pill t-idle">Rejected</span> }
+                        else { <span class="pill t-warn">Waiting for you</span> }
+                    </div>
+                    <h3>@p.Title</h3>
+                    <p class="small" style="color:#33403C;">@p.Body</p>
+                    <span class="xs muted">Source: @p.Source</span>
+                    @if (d is null)
+                    {
+                        <div class="btns">
+                            <button class="btn go" @onclick='() => decisions[p.Id] = "ok"'>Approve for operators</button>
+                            <button class="btn">Edit wording</button>
+                            <button class="btn" @onclick='() => decisions[p.Id] = "no"'>Reject</button>
+                        </div>
+                    }
+                </article>
+            }
+            <article class="card blocked">
+                <div class="spread">
+                    <span class="small muted">Line 2 · voice log 06:48 · Ben T.</span>
+                    <span class="pill" style="color:#FFFFFF;background:var(--crit);">Blocked by safety rule</span>
+                </div>
+                <h3>“Reach in past the side guard to clear the core while the loader runs”</h3>
+                <p class="small" style="color:#33403C;">This bypasses a guard, so the system will not offer it as a fix and it cannot be approved. The approved fix for core jams (stop, lock out, reseat cores) is linked to this stop instead.</p>
+                <div><button class="btn @(safetySent ? "done" : "")" disabled="@safetySent" @onclick="() => safetySent = true">@(safetySent ? "Safety reminder sent" : "Send safety reminder to Line 2")</button></div>
+            </article>
+        </section>
+    }
+    else
+    {
+        <div class="row">
+            <section class="card main-col" style="padding:24px;gap:14px;">
+                <div class="spread">
+                    <h2 style="font-size:20px;">Handover to Shift B, 14:00</h2>
+                    @if (handoverSent) { <span class="pill t-good">Sent to P. Mwangi, Shift B</span> }
+                    else { <span class="pill t-warn">Draft</span> }
+                </div>
+                <p class="small muted">Drafted from PLC counts, voice stop logs and the roster. Check it, change anything, then send.</p>
+                @if (editing)
+                {
+                    <label for="handover-text" class="small" style="font-weight:600;">Edit handover</label>
+                    <textarea id="handover-text" @bind="handoverText" rows="14" style="font:inherit;font-size:15px;line-height:1.6;padding:12px;border:1px solid #C5CFCB;border-radius:8px;"></textarea>
+                }
+                else
+                {
+                    <div style="font-size:15px;line-height:1.6;max-width:72ch;white-space:pre-line;">@handoverText@EscalationLine</div>
+                }
+                <div class="btns">
+                    <button class="btn" @onclick="() => editing = !editing">@(editing ? "Done editing" : "Edit draft")</button>
+                    <button class="btn primary" @onclick="() => { handoverSent = true; editing = false; }">Checked, send to Shift B</button>
+                </div>
+            </section>
+            <aside class="side-col">
+                <section class="card">
+                    <h2>Also drafted for you</h2>
+                    <div class="spread small"><span>Shift report (output, waste, stops)</span><span class="xs muted">Ready at 13:45</span></div>
+                    <div class="spread small"><span>Maintenance request: Line 3 embosser</span><span class="xs muted">Draft</span></div>
+                    <div class="spread small"><span>Note to QA: jumbo batch 4471–79</span><span class="xs muted">Draft</span></div>
+                    <p class="xs muted">Waste by cause comes from the weighing reports after the shift, so the report fills it in at 13:45.</p>
+                </section>
+            </aside>
+        </div>
+    }
+</div>
+
+@code {
+    private enum Tab { Board, Fixes, Handover }
+
+    private Tab tab = Tab.Board;
+    private readonly HashSet<string> escalated = new();
+    private readonly Dictionary<string, string> decisions = new();
+    private bool askedKofi, safetySent, handoverSent, editing;
+
+    private int PendingCount => SampleData.Proposals.Count(p => !decisions.ContainsKey(p.Id));
+
+    private string handoverText =
+        "Output: Hall at 96% of plan. Lines 1 and 6 ahead. Line 4 about 900 boxes short; Line 3 about 300 packs short after web breaks.\n\n" +
+        "Open issues: Line 3 embosser web breaks (3 this shift) on jumbos 4471–4473. Rolls 4474–4479 from the same batch are staged next. QA asked to check moisture. Line 2 wrapper ticket M-3381 still open.\n\n" +
+        "Watch out: Line 4 log saw, new blade supplier since Monday. Clamp torque fix waiting for approval. Line 5 back on 2-ply napkins after the 11:30 changeover.\n\n" +
+        "People: Tom R. covered Line 4 from Line 6. Chidi O. (3 weeks in) would benefit from an embosser walk-through.";
+
+    private string EscalationLine
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (escalated.Contains("L3")) parts.Add("Line 3 embosser to maintenance at 11:46");
+            if (escalated.Contains("L4")) parts.Add("Line 4 pace to section head at 11:46");
+            return "\n\nEscalated: " + (parts.Count > 0 ? string.Join("; ", parts) + "." : "nothing this shift.");
+        }
+    }
+}

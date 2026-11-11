@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Production Intelligence</title>
+    <script>
+        // GitHub Pages serves this for deep links like /ProductionIntelligence/operator.
+        // Save the path, then load the app root, which restores it.
+        sessionStorage.setItem('pi-redirect', location.pathname + location.search + location.hash);
+        var segments = location.pathname.split('/').filter(Boolean);
+        var isProjectSite = location.hostname.endsWith('github.io') && segments.length > 0;
+        location.replace(isProjectSite ? '/' + segments[0] + '/' : '/');
+    </script>
+</head>
+<body></body>
+</html>
