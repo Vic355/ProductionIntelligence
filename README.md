@@ -34,8 +34,8 @@ Connect this repository in Cloudflare (Workers & Pages → Create → Import a r
 
 | Setting | Value |
 | --- | --- |
-| Build command | `./build.sh` |
-| Deploy command (Workers) | `npx wrangler deploy` |
+| Build command | leave empty (Workers) or `./build.sh` (Pages) |
+| Deploy command (Workers) | `npx wrangler deploy` (runs `./build.sh` itself via `wrangler.jsonc`) |
 | Build output directory (Pages only) | `output/wwwroot` |
 
 `build.sh` installs the .NET 8 SDK (the Cloudflare build image does not include it) and publishes the app to `output/wwwroot`. `wrangler.jsonc` tells `wrangler deploy` to serve that folder as static assets, with single-page-app fallback so deep links like `/operator` work. The `name` in `wrangler.jsonc` must match your Worker's name in the dashboard.
