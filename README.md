@@ -28,14 +28,14 @@ dotnet publish src/ProductionIntelligence.Web -c Release -o publish
 
 The static site is in `publish/wwwroot`. Any static host works (GitHub Pages, Azure Static Web Apps, IIS).
 
-### Cloudflare Pages
+### Cloudflare (Workers or Pages)
 
-Connect this repository in Cloudflare Pages (Workers & Pages → Create → Pages → Connect to Git) and use:
+Connect this repository in Cloudflare (Workers & Pages → Create → Import a repository) and use:
 
 | Setting | Value |
 | --- | --- |
-| Framework preset | None |
 | Build command | `./build.sh` |
-| Build output directory | `output/wwwroot` |
+| Deploy command (Workers) | `npx wrangler deploy` |
+| Build output directory (Pages only) | `output/wwwroot` |
 
-`build.sh` installs the .NET 8 SDK (the Cloudflare build image does not include it) and publishes the app. Deep links such as `/operator` work because the site has no `404.html`, so Cloudflare Pages serves `index.html` for unknown paths.
+`build.sh` installs the .NET 8 SDK (the Cloudflare build image does not include it) and publishes the app to `output/wwwroot`. `wrangler.jsonc` tells `wrangler deploy` to serve that folder as static assets, with single-page-app fallback so deep links like `/operator` work. The `name` in `wrangler.jsonc` must match your Worker's name in the dashboard.

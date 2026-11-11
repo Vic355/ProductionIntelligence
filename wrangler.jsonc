@@ -1,0 +1,11 @@
+// Cloudflare Workers static-assets config.
+// "name" must match the Worker name in your Cloudflare dashboard.
+// Build command: ./build.sh   Deploy command: npx wrangler deploy
+{
+  "name": "productionintelligence",
+  "compatibility_date": "2025-11-01",
+  "assets": {
+    "directory": "./output/wwwroot",
+    "not_found_handling": "single-page-application"
+  }
+}
