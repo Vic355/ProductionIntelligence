@@ -9,13 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="icon-192.png" />
-    <script>
-        // GitHub Pages: 404.html stores the deep link, we restore it here before Blazor starts.
-        (function () {
-            var redirect = sessionStorage.getItem('pi-redirect');
-            if (redirect) { sessionStorage.removeItem('pi-redirect'); history.replaceState(null, '', redirect); }
-        })();
-    </script>
 </head>
 <body>
     <div id="app">

@@ -28,6 +28,14 @@ dotnet publish src/ProductionIntelligence.Web -c Release -o publish
 
 The static site is in `publish/wwwroot`. Any static host works (GitHub Pages, Azure Static Web Apps, IIS).
 
-### GitHub Pages
+### Cloudflare Pages
 
-`.github/workflows/deploy-pages.yml` builds and deploys on every push. One-time setup: in the repository go to **Settings → Pages** and set **Source** to **GitHub Actions**. The site then appears at `https://<owner>.github.io/<repo>/`.
+Connect this repository in Cloudflare Pages (Workers & Pages → Create → Pages → Connect to Git) and use:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | None |
+| Build command | `./build.sh` |
+| Build output directory | `output/wwwroot` |
+
+`build.sh` installs the .NET 8 SDK (the Cloudflare build image does not include it) and publishes the app. Deep links such as `/operator` work because the site has no `404.html`, so Cloudflare Pages serves `index.html` for unknown paths.
