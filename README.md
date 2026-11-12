@@ -3,9 +3,9 @@
 A clickable mockup for an Indonesian tissue converting mill (UI in Bahasa Indonesia), styled like a machine HMI. 51 machines in 6 sections, 41 running.
 
 - **Kepala Produksi** (`#head`): plant target vs actual, a panel per section with its shift leader and machine tiles, an alarm list (with acknowledge), a suggested actions tab, and a machine detail panel with the running SKU's spec sheet.
-- **Operator** (`#operator`): the operator's machine, target vs actual, the running SKU's spec sheet, sensors per station (jumbo camera, rotary knife chaining camera, interfolder fold camera, log saw cut/compression camera, packing camera, motion sensor for output, acoustic and vibration sensors), trends, defect detection, and an assistant for defect steps, HMI settings, and calling the shift leader or a mechanic.
+- **Operator** (`#operator`): the operator's machine, target vs actual and the running SKU's spec sheet; a card per add-on sensor (A fold camera, B jumbo camera, C sound sensor, D log saw camera, E chaining camera, F motion sensor, G packing camera) saying where it sits, what it does and what it detected, with an example snapshot and event log; and an assistant that explains machine parameters (meaning, recipe value, effect of setting higher or lower, checks a typed value), gives defect troubleshooting steps, and calls a mechanic or the shift leader.
 
-Everything is one static file, `public/index.html`. Sensor data is simulated in the browser and the assistant is scripted. All names, numbers, SKUs, specs and procedures are examples.
+Everything is one static file, `public/index.html`. Sensor events are simulated in the browser and the snapshots are illustrations and the assistant is scripted. All names, numbers, SKUs, specs and procedures are examples.
 
 ## Run locally
 

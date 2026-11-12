@@ -138,30 +138,38 @@ tr.unack td:first-child{box-shadow:inset 4px 0 0 var(--crit)}
 .spec>div:first-child{flex:0 0 auto}
 .spec .k{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase}
 .spec .v{font-family:var(--mono);font-size:15px;font-weight:600}
-.op-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:10px;align-items:start}
+.op-grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:10px;align-items:start}
 @media (max-width:1100px){.op-grid{grid-template-columns:1fr}}
-.stations{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
-.stn .flow{font-family:var(--mono);color:#aab3bb}
-.srow{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:baseline;width:100%;border:0;border-bottom:1px solid #c9ced2;background:transparent;padding:4px 6px;text-align:left}
-.srow:hover{background:#d8dde1}
-.srow .l{font-size:12.5px}
-.srow .l small{display:block;color:var(--muted);font-size:11px}
-.srow .val{font-family:var(--mono);font-weight:600;font-size:14px;padding:1px 5px;min-width:72px;text-align:right}
-.srow .val.warn{background:var(--warn);color:var(--warn-ink)}
-.srow .val.crit{background:var(--crit);color:#fff}
-.srow.sel{background:#cfdcea;box-shadow:inset 3px 0 0 var(--accent)}
-.cam{display:inline-block;font-size:10px;font-weight:700;border:1px solid var(--muted);padding:0 3px;margin-right:4px;vertical-align:1px;color:var(--muted)}
-.lower{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px}
-@media (max-width:760px){.lower{grid-template-columns:1fr}}
-.trend svg{width:100%;height:190px;display:block;background:#fbfbfc;border:1px solid var(--line)}
-.det{display:grid;grid-template-columns:1fr 110px 44px;gap:6px;align-items:center;padding:5px 8px;border-bottom:1px solid #c9ced2;font-size:13px}
-.det .meter{height:10px;background:#cdd2d6;border:1px solid var(--line);position:relative}
-.det .meter i{position:absolute;inset:0 auto 0 0;background:var(--idle)}
-.det.warn .meter i{background:var(--warn)} .det.crit .meter i{background:var(--crit)}
-.det small{display:block;color:var(--muted);font-size:11.5px}
+.flowline{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);background:var(--cell)}
+.flowline span{padding:4px 10px;font-size:12.5px;font-weight:600;border-right:1px solid var(--line);display:flex;align-items:center;gap:6px}
+.flowline b{font-family:var(--mono);background:var(--strip);color:#fff;padding:0 5px}
+.flowline span.bad b{background:var(--crit)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:8px}
+@media (max-width:520px){.sgrid{grid-template-columns:1fr}}
+.sc .hd .code{font-family:var(--mono);background:#fff;color:var(--strip);padding:0 6px;margin-right:8px}
+.sc.alert>.hd{background:var(--crit)}
+.sc .body{display:grid;grid-template-columns:200px 1fr;gap:10px;padding:8px}
+@media (max-width:520px){.sc .body{grid-template-columns:1fr}}
+.snap{display:grid;gap:3px}
+.snap svg{width:100%;height:auto;display:block;border:1px solid #20262c;background:#11161b}
+.snap .cap{font-size:11px;color:var(--muted)}
+.sc dl{margin:0;display:grid;grid-template-columns:62px 1fr;gap:3px 8px;font-size:12.5px}
+.sc dt{color:var(--muted);font-weight:600}
+.sc dd{margin:0}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:6px}
+.counts>div{background:#fff;padding:3px 6px}
+.counts .k{font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase}
+.counts .v{font-family:var(--mono);font-weight:600;font-size:15px}
+.counts>.bad{background:var(--crit);color:#fff}
+.counts .bad .k{color:#fde3e1}
+.evlog{border-top:1px solid var(--line);font-size:12.5px}
+.evlog div{display:grid;grid-template-columns:44px 1fr;gap:6px;padding:3px 8px;border-bottom:1px solid #d3d7db}
+.evlog .t{font-family:var(--mono);color:var(--muted)}
+.evlog .x{color:var(--crit);font-weight:600}
+.sc .foot{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:5px 8px;background:#d8dce0;flex-wrap:wrap}
 
 /* Assistant console */
-.con{display:grid;grid-template-rows:auto 1fr auto auto;height:calc(100vh - 120px);min-height:560px;position:sticky;top:52px}
+.con{display:grid;grid-template-rows:auto 1fr auto auto auto;height:calc(100vh - 120px);min-height:560px;position:sticky;top:52px}
 @media (max-width:1100px){.con{position:static;height:640px}}
 .con-log{background:#f9fafb;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:auto;border-bottom:1px solid var(--line)}
 .msg{border:1px solid var(--line);background:var(--cell);padding:6px 8px;font-size:13.5px}
@@ -227,31 +235,28 @@ footer{padding:0 14px 16px;font-size:12px;color:var(--muted)}
     <div style="display:grid;gap:8px">
       <div class="mstrip" id="op-strip"></div>
       <div class="spec" id="op-spec"></div>
-      <div class="stations" id="op-stations"></div>
-      <div class="lower">
-        <div class="fp trend"><div class="hd"><span>Tren</span><span class="sub" id="trend-title"></span></div><div class="bd" id="trend"></div></div>
-        <div class="fp"><div class="hd"><span>Deteksi cacat</span><span class="sub">gabungan kamera + sensor</span></div><div id="op-detect"></div></div>
-      </div>
+      <div class="fp"><div class="hd"><span>Sensor tambahan di mesin ini</span><span class="sub">urutan sesuai alur produksi</span></div><div class="flowline" id="op-flow"></div></div>
+      <div class="sgrid" id="op-sensors"></div>
     </div>
     <section class="fp con" aria-label="Asisten mesin">
       <div class="hd"><span>Asisten mesin</span><span class="sub">jawaban demo (skrip)</span></div>
       <div class="con-log" id="log" aria-live="polite"></div>
       <div class="qbtns">
+        <button class="sbtn" type="button" data-q="params">Jelaskan parameter mesin</button>
         <button class="sbtn" type="button" data-q="defect">Ada cacat, harus apa?</button>
-        <button class="sbtn" type="button" data-q="hmi">Setelan HMI untuk SKU ini</button>
-        <button class="sbtn" type="button" data-q="karu">Panggil Kepala Regu</button>
         <button class="sbtn" type="button" data-q="mech">Panggil mekanik</button>
+        <button class="sbtn" type="button" data-q="karu">Panggil Kepala Regu</button>
       </div>
       <form class="cform" id="cform" autocomplete="off">
         <label for="cin" style="position:absolute;left:-9999px">Tanya asisten</label>
-        <input id="cin" placeholder="Tulis, mis. 'seal kemasan terbuka'">
+        <input id="cin" placeholder="Mis. 'tekanan nip 3 bar' atau 'apa itu vakum folding'">
         <button class="sbtn pr" type="submit">Kirim</button>
       </form>
     </section>
   </div>
 </section>
 </main>
-<footer>Mockup. Semua nama, angka, SKU, spesifikasi, setelan dan prosedur adalah contoh. Data sensor disimulasikan di browser.</footer>
+<footer>Mockup. Semua nama, angka, SKU, spesifikasi, setelan dan prosedur adalah contoh. Gambar sensor adalah ilustrasi; di sistem nyata diganti foto/video dari kamera. Data disimulasikan di browser.</footer>
 
 <script>
 "use strict";
@@ -264,79 +269,99 @@ const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 const pick = a => a[Math.floor(Math.random()*a.length)];
 
 /* ================= reference data ================= */
-// SKU spec sheets (contoh)
 const SKU = {
-  TR10:{n:"Toilet Roll 2 ply · isi 10",kind:"roll",gsm:16.5,ply:2,lebar:100,panjang:110,lembar:250,dia:118,core:40,isi:"10 roll",pk:6,emb:"Point-to-point"},
-  TR4:{n:"Toilet Roll 2 ply · isi 4",kind:"roll",gsm:16.5,ply:2,lebar:100,panjang:110,lembar:300,dia:124,core:40,isi:"4 roll",pk:12,emb:"Point-to-point"},
-  TR12:{n:"Toilet Roll 1 ply Ekonomis · isi 12",kind:"roll",gsm:18,ply:1,lebar:100,panjang:110,lembar:400,dia:105,core:40,isi:"12 roll",pk:4,emb:"Micro"},
-  KT2:{n:"Kitchen Towel 2 ply · isi 2",kind:"roll",gsm:21,ply:2,lebar:230,panjang:230,lembar:60,dia:132,core:42,isi:"2 roll",pk:12,emb:"Nested"},
-  JR:{n:"Jumbo Roll 2 ply 300 m",kind:"roll",gsm:17,ply:2,lebar:95,panjang:0,lembar:0,dia:230,core:76,isi:"1 roll",pk:12,emb:"Micro",nop:true},
-  FB250:{n:"Facial Box 2 ply · 250 lbr",kind:"fold",gsm:14,ply:2,lebar:190,panjang:180,lembar:250,isi:"1 box",pk:48,emb:"Tanpa emboss"},
-  SP250:{n:"Facial Soft Pack · 250 lbr",kind:"fold",gsm:13.5,ply:2,lebar:180,panjang:180,lembar:250,isi:"1 pack",pk:30,emb:"Tanpa emboss"},
-  TP50:{n:"Travel Pack · 50 lbr",kind:"fold",gsm:14,ply:2,lebar:180,panjang:150,lembar:50,isi:"1 pack",pk:96,emb:"Edge"},
-  NP30:{n:"Napkin 30×30 · 50 lbr",kind:"fold",gsm:17,ply:1,lebar:300,panjang:300,lembar:50,isi:"1 pack",pk:60,emb:"Edge"},
-  NP25:{n:"Napkin 25×25 · 100 lbr",kind:"fold",gsm:17,ply:1,lebar:250,panjang:250,lembar:100,isi:"1 pack",pk:40,emb:"Edge"},
-  HT150:{n:"Hand Towel Interfold · 150 lbr",kind:"fold",gsm:21,ply:1,lebar:210,panjang:230,lembar:150,isi:"1 pack",pk:25,emb:"Micro"},
-  HT200:{n:"Hand Towel Multifold · 200 lbr",kind:"fold",gsm:20,ply:1,lebar:225,panjang:230,lembar:200,isi:"1 pack",pk:20,emb:"Micro"}
+  TR10:{n:"Toilet Roll 2 ply · isi 10",kind:"roll",gsm:16.5,ply:2,lebar:100,panjang:110,lembar:250,dia:118,core:40,isi:"10 roll",pk:6,emb:"Point-to-point",speed:420},
+  TR4:{n:"Toilet Roll 2 ply · isi 4",kind:"roll",gsm:16.5,ply:2,lebar:100,panjang:110,lembar:300,dia:124,core:40,isi:"4 roll",pk:12,emb:"Point-to-point",speed:400},
+  TR12:{n:"Toilet Roll 1 ply Ekonomis · isi 12",kind:"roll",gsm:18,ply:1,lebar:100,panjang:110,lembar:400,dia:105,core:40,isi:"12 roll",pk:4,emb:"Micro",speed:450},
+  KT2:{n:"Kitchen Towel 2 ply · isi 2",kind:"roll",gsm:21,ply:2,lebar:230,panjang:230,lembar:60,dia:132,core:42,isi:"2 roll",pk:12,emb:"Nested",speed:300},
+  JR:{n:"Jumbo Roll 2 ply 300 m",kind:"roll",gsm:17,ply:2,lebar:95,panjang:0,lembar:0,dia:230,core:76,isi:"1 roll",pk:12,emb:"Micro",speed:350},
+  FB250:{n:"Facial Box 2 ply · 250 lbr",kind:"fold",gsm:14,ply:2,lebar:190,panjang:180,lembar:250,isi:"1 box",pk:48,emb:"Tanpa emboss",speed:180},
+  SP250:{n:"Facial Soft Pack · 250 lbr",kind:"fold",gsm:13.5,ply:2,lebar:180,panjang:180,lembar:250,isi:"1 pack",pk:30,emb:"Tanpa emboss",speed:190},
+  TP50:{n:"Travel Pack · 50 lbr",kind:"fold",gsm:14,ply:2,lebar:180,panjang:150,lembar:50,isi:"1 pack",pk:96,emb:"Edge",speed:170},
+  NP30:{n:"Napkin 30×30 · 50 lbr",kind:"fold",gsm:17,ply:1,lebar:300,panjang:300,lembar:50,isi:"1 pack",pk:60,emb:"Edge",speed:220},
+  NP25:{n:"Napkin 25×25 · 100 lbr",kind:"fold",gsm:17,ply:1,lebar:250,panjang:250,lembar:100,isi:"1 pack",pk:40,emb:"Edge",speed:220},
+  HT150:{n:"Hand Towel Interfold · 150 lbr",kind:"fold",gsm:21,ply:1,lebar:210,panjang:230,lembar:150,isi:"1 pack",pk:25,emb:"Micro",speed:250},
+  HT200:{n:"Hand Towel Multifold · 200 lbr",kind:"fold",gsm:20,ply:1,lebar:225,panjang:230,lembar:200,isi:"1 pack",pk:20,emb:"Micro",speed:240}
 };
-// Sensors: k, label, unit, nom, lo, hi, loLo, hiHi, dec, noise, src(cam|snd|mot)
-const S = (k,l,u,nom,lo,hi,ll,hh,d,nz,src) => ({k,l,u,nom,lo,hi,ll,hh,d,nz,src});
-function stationsFor(m){
-  const s=SKU[m.sku], roll=s.kind==="roll";
-  const st=[];
-  st.push(["Unwind (jumbo)",[
-    S("jumbo","Sisa jumbo","%",60,10,null,4,null,0,0,"cam"),
-    S("jeta","Perkiraan ganti jumbo","menit",50,8,null,3,null,0,0,"cam"),
-    S("tension","Tegangan web","N",roll?28:18,roll?25:15,roll?31:21,roll?22:12,roll?34:24,1,0.25),
-    S("moist","Kelembaban jumbo","%",6.5,5,8,4,9,1,0.05)]]);
-  st.push(["Emboss",[
-    S("nip","Tekanan nip emboss","bar",roll?2.4:1.6,roll?2.1:1.3,roll?2.7:1.9,roll?1.8:1.0,roll?3.0:2.2,2,0.01),
-    S("glue","Level lem laminasi","%",70,30,null,15,null,0,0.2)]]);
-  if(roll){
-    if(!s.nop) st.push(["Perforasi (rotary knife)",[
-      S("pitch","Jarak perforasi","mm",s.panjang,s.panjang-1,s.panjang+1,s.panjang-2,s.panjang+2,1,0.05),
-      S("perfq","Kualitas perforasi","%",98.5,96,null,93,null,1,0.1,"cam"),
-      S("chain","Chaining","/jam",0.5,null,2,null,5,1,0.08,"cam")]]);
-    st.push(["Rewinder",[
-      S("logd","Diameter log (laser)","mm",s.dia,s.dia-1.5,s.dia+1.5,s.dia-3,s.dia+3,1,0.1),
-      S("tail","Tekanan lem ekor","bar",1.8,1.5,2.1,1.2,2.4,2,0.01)]]);
-  } else {
-    st.push(["Interfolder",[
-      S("vac","Vakum folding roll","kPa",55,48,62,42,68,0,0.3),
-      S("sheet","Panjang lembar","mm",s.panjang,s.panjang-1,s.panjang+1,s.panjang-2,s.panjang+2,1,0.05),
-      S("foldbad","Lipatan buruk","/1000",1.2,null,5,null,12,1,0.1,"cam"),
-      S("chain","Lembar menyambung","/jam",0.4,null,2,null,5,1,0.08,"cam")]]);
-  }
-  st.push([roll?"Log saw":"Log saw / bandsaw",[
-    S("blade","Keausan pisau","%",35,null,70,null,85,0,0.1),
-    S("cutskew","Potongan miring","mm",0.4,null,1.5,null,3,1,0.04,"cam"),
-    S("compress","Kompresi log saat potong","%",2,null,6,null,10,1,0.1,"cam"),
-    S("clamp","Tekanan clamp","bar",5.0,4.5,5.5,4.0,6.0,1,0.02)]]);
-  st.push(["Packing",[
-    S("seal","Suhu jaw seal","°C",roll?150:135,roll?145:130,roll?155:140,roll?140:125,roll?160:145,0,0.4),
-    S("packmis","Misalignment kemasan","mm",0.8,null,3,null,5,1,0.05,"cam"),
-    S("ink","Tinta luntur / cetak","/1000",0.5,null,3,null,6,1,0.05,"cam"),
-    S("reject","Reject kemasan","%",0.6,null,1.5,null,3,1,0.04,"cam"),
-    S("cw","Deviasi checkweigher","g",0,-12,12,-20,20,0,0.6)]]);
-  st.push(["Output",[
-    S("rate","Output (sensor gerak)","karton/jam",m.rate,m.rate*0.8,null,m.rate*0.5,null,0,0,"mot"),
-    S("lastc","Karton terakhir","detik lalu",30,null,90,null,180,0,0,"mot")]]);
-  st.push(["Drive & suara",[
-    S("vib","Getaran bearing (ISO 10816)","mm/s",2.1,null,4.5,null,7.1,1,0.05),
-    S("btemp","Suhu bearing","°C",55,null,70,null,80,0,0.2),
-    S("sound","Anomali suara (akustik)","skor",0.12,null,0.5,null,0.8,2,0.01,"snd"),
-    S("dba","Tingkat suara","dB(A)",84,null,90,null,95,0,0.2,"snd")]]);
-  return st;
-}
+/* The seven add-on sensors (A–G). No PLC or temperature data is used. */
+const SENS = {
+  B:{n:"Kamera jumbo",area:"Unwind",kind:"cam",loc:"Di samping unwind stand, melihat sisi jumbo roll.",fn:"Mengukur diameter jumbo dari gambar untuk memperkirakan sisa kertas, dan mendeteksi saat jumbo diganti.",finds:["Ganti jumbo","Sisa jumbo menipis"],unit:"jumbo"},
+  E:{n:"Kamera chaining",area:"Rotary knife (perforasi / potong)",kind:"cam",loc:"Tepat setelah rotary knife, melihat web yang sudah diperforasi atau dipotong.",fn:"Mencari lembar yang masih menyambung karena perforasi atau potongan tidak tembus.",finds:["Chaining (lembar menyambung)","Perforasi tidak tembus"],issue:"chaining",unit:"lembar"},
+  A:{n:"Kamera lipatan",area:"Interfolder",kind:"cam",loc:"Di atas keluaran interfolder, menghadap tumpukan lembar yang baru dilipat.",fn:"Memotret setiap tumpukan dan membandingkan dengan pola lipatan yang benar.",finds:["Lipatan tidak mengunci","Lembar terlipat dobel","Sudut terlipat"],issue:"lipatan",unit:"tumpukan"},
+  D:{n:"Kamera log saw",area:"Log saw / bandsaw",kind:"cam",loc:"Setelah pisau log saw, melihat permukaan potongan roll atau log.",fn:"Memeriksa setiap potongan: bentuknya bulat atau gepeng (tertekan), dan potongannya rata atau miring.",finds:["Log tertekan (gepeng)","Potongan miring","Pinggir potongan berbulu"],issue:"potong",unit:"potongan"},
+  G:{n:"Kamera packing",area:"Packing / wrapper",kind:"cam",loc:"Setelah wrapper / bundler, melihat bagian atas dan samping kemasan.",fn:"Memeriksa setiap kemasan: posisi cetakan, seal, dan tinta.",finds:["Kemasan miring","Seal terbuka","Tinta luntur"],issue:"kemasan",unit:"kemasan"},
+  F:{n:"Sensor gerak output",area:"Konveyor karton",kind:"mot",loc:"Di konveyor akhir sebelum palet.",fn:"Menghitung setiap karton yang lewat. Jika 3 menit tidak ada karton, mesin dicatat stop.",finds:["Mesin stop (3 menit tanpa karton)"],unit:"karton"},
+  C:{n:"Sensor suara",area:"Seluruh mesin",kind:"snd",loc:"Mikrofon industri di rangka mesin, dekat drive dan log saw.",fn:"Mendengarkan suara mesin terus-menerus dan membandingkan dengan suara normal mesin ini. Memberi tanda bila ada bunyi yang tidak biasa.",finds:["Bunyi gesekan / decit","Bunyi ketukan berulang","Bunyi web sobek"],issue:"suara",unit:"menit"}
+};
 const ISSUES = {
-  chaining:{l:"Chaining",d:"Lembar/gulungan masih menyambung setelah dipotong rotary knife",fx:{chain:6.5,perfq:-3},st:"Perforasi (rotary knife)",kinds:["roll","fold"]},
-  kemasan:{l:"Cacat kemasan",d:"Seal terbuka / kemasan miring di packing",fx:{seal:-12,packmis:3.6,reject:3},st:"Packing",kinds:["roll","fold"]},
-  tinta:{l:"Tinta luntur",d:"Cetakan kemasan luntur atau tidak rata",fx:{ink:5,reject:1.8},st:"Packing",kinds:["roll","fold"]},
-  potong:{l:"Potongan / kompresi buruk",d:"Log tertekan atau terpotong miring di log saw",fx:{cutskew:2.4,compress:8,blade:42},st:"Log saw",kinds:["roll","fold"]},
-  longgar:{l:"Gulungan longgar",d:"Diameter log di bawah spesifikasi, gulungan lembek",fx:{logd:-3.4,tension:-5},st:"Rewinder",kinds:["roll"]},
-  lipatan:{l:"Lipatan buruk",d:"Lipatan tidak rapi / tidak saling mengunci di interfolder",fx:{foldbad:10,vac:-10},st:"Interfolder",kinds:["fold"]},
-  bearing:{l:"Bunyi / getaran abnormal",d:"Sensor suara dan getaran mendeteksi kemungkinan bearing rusak",fx:{sound:0.65,vib:3.6,btemp:16,dba:6},st:"Drive & suara",kinds:["roll","fold"]}
+  chaining:{l:"Chaining",sens:"E",types:["Chaining (lembar menyambung)","Perforasi tidak tembus"],kinds:["roll"]},
+  lipatan:{l:"Lipatan buruk",sens:"A",types:["Lipatan tidak mengunci","Lembar terlipat dobel","Sudut terlipat"],kinds:["fold"]},
+  potong:{l:"Potongan / log tertekan",sens:"D",types:["Log tertekan (gepeng)","Potongan miring","Pinggir potongan berbulu"],kinds:["roll","fold"]},
+  kemasan:{l:"Cacat kemasan",sens:"G",types:["Kemasan miring","Seal terbuka"],kinds:["roll","fold"]},
+  tinta:{l:"Tinta luntur",sens:"G",types:["Tinta luntur"],kinds:["roll","fold"]},
+  suara:{l:"Bunyi abnormal",sens:"C",types:["Bunyi gesekan / decit","Bunyi ketukan berulang"],kinds:["roll","fold"]}
 };
+const sensorsOf = m => SKU[m.sku].kind==="roll" ? (SKU[m.sku].nop?["B","D","G","F","C"]:["B","E","D","G","F","C"]) : ["B","A","D","G","F","C"];
+
+/* HMI parameters the operator sets. Used by the assistant to explain. */
+const PARAMS = [
+  {k:"speed",n:"Kecepatan mesin",u:"m/min",al:["kecepatan","speed","laju"],nom:s=>s.speed,tol:s=>Math.round(s.speed*0.05),
+   arti:"Kecepatan web kertas melewati mesin. Menentukan berapa karton per jam.",
+   hi:"Output naik, tapi jumbo lebih mudah putus, perforasi dan lipatan lebih sering meleset, chaining dan cacat kemasan naik.",
+   lo:"Lebih stabil dan cacat turun, tapi target harian tidak tercapai.",sens:["E","A","G","F"]},
+  {k:"tension",n:"Tegangan unwind (tension)",u:"N",al:["tegangan","tension","unwind"],nom:s=>s.kind==="roll"?28:18,tol:()=>3,
+   arti:"Seberapa kencang kertas ditarik dari jumbo ke mesin.",
+   hi:"Web mudah sobek / putus, gulungan terlalu keras, lembar menyempit.",
+   lo:"Web bergelombang dan melenceng, gulungan longgar, lipatan tidak rapi.",sens:["B","A","C"]},
+  {k:"nip",n:"Tekanan nip emboss",u:"bar",al:["nip","emboss","embos"],nom:s=>s.kind==="roll"?2.4:1.6,tol:()=>0.3,
+   arti:"Tekanan antara roll emboss dan roll karet. Membentuk pola emboss dan menempelkan dua ply.",
+   hi:"Kertas tipis/bolong di titik emboss, debu naik, ply bisa sobek.",
+   lo:"Pola emboss samar, ply lepas (delaminasi), gulungan terasa tipis.",sens:["C"]},
+  {k:"pitch",n:"Jarak perforasi",u:"mm",al:["perforasi","pitch","jarak perfor","panjang lembar roll"],only:"roll",nom:s=>s.panjang,tol:()=>1,
+   arti:"Jarak antar garis perforasi = panjang satu lembar pada gulungan.",
+   hi:"Lembar lebih panjang, jumlah lembar per roll tidak sesuai spec.",
+   lo:"Lembar lebih pendek, jumlah lembar per roll tidak sesuai spec.",sens:["E"]},
+  {k:"gap",n:"Celah pisau rotary knife",u:"mm",al:["celah","gap","rotary","pisau perfor","blade perfor"],only:"roll",nom:()=>0.08,tol:()=>0.03,dec:2,
+   arti:"Jarak antara blade dan anvil di rotary knife. Menentukan perforasi tembus atau tidak.",
+   hi:"Perforasi tidak tembus → chaining (lembar menyambung).",
+   lo:"Blade menyentuh anvil, cepat tumpul, bunyi ketukan, perforasi terlalu dalam sehingga web mudah putus.",sens:["E","C"]},
+  {k:"sheet",n:"Panjang lembar",u:"mm",al:["panjang lembar","sheet","potong lembar"],only:"fold",nom:s=>s.panjang,tol:()=>1,
+   arti:"Panjang tiap lembar sebelum dilipat di interfolder.",
+   hi:"Lipatan tidak pas di kotak/kemasan, tumpukan terlalu tinggi.",
+   lo:"Lipatan tidak saling mengunci, lembar mudah lepas saat ditarik.",sens:["A"]},
+  {k:"vac",n:"Vakum folding roll",u:"kPa",al:["vakum","vacuum","folding","lipat"],only:"fold",nom:()=>55,tol:()=>7,
+   arti:"Hisapan yang menahan lembar di folding roll saat dilipat.",
+   hi:"Lembar sulit lepas dari roll, sobek di garis lipat.",
+   lo:"Lembar lepas terlalu cepat → lipatan tidak mengunci, lembar dobel.",sens:["A"]},
+  {k:"count",n:"Jumlah lembar per tumpukan",u:"lbr",al:["jumlah lembar","isi","count","hitungan"],only:"fold",nom:s=>s.lembar,tol:()=>0,
+   arti:"Berapa lembar dalam satu tumpukan sebelum dipotong log saw / bandsaw.",
+   hi:"Isi lebih dari spec (rugi kertas), kemasan sesak dan seal bisa terbuka.",
+   lo:"Isi kurang dari spec (komplain pelanggan).",sens:["G"]},
+  {k:"logd",n:"Target diameter log",u:"mm",al:["diameter","log","gulungan"],only:"roll",nom:s=>s.dia,tol:()=>1.5,
+   arti:"Diameter gulungan yang dituju rewinder sebelum log dipotong.",
+   hi:"Roll terlalu besar, tidak muat di kemasan, seal terbuka.",
+   lo:"Roll terlihat kecil / longgar, komplain pelanggan.",sens:["D","G"]},
+  {k:"clamp",n:"Tekanan clamp log saw",u:"bar",al:["clamp","jepit","log saw","bandsaw"],nom:()=>5.0,tol:()=>0.5,
+   arti:"Tekanan penjepit yang menahan log/tumpukan saat dipotong.",
+   hi:"Log tertekan / gepeng (terlihat di kamera log saw).",
+   lo:"Log bergeser saat dipotong → potongan miring, pinggir berbulu.",sens:["D"]},
+  {k:"grind",n:"Interval asah pisau log saw",u:"potongan",al:["asah","grind","interval"],nom:()=>400,tol:()=>100,
+   arti:"Setiap berapa potongan pisau log saw diasah otomatis.",
+   hi:"Pisau lebih lama tumpul → pinggir berbulu, log tertekan, bunyi kasar.",
+   lo:"Pisau cepat habis karena terlalu sering diasah.",sens:["D","C"]},
+  {k:"seal",n:"Setpoint suhu jaw seal",u:"°C",al:["suhu","seal","jaw","panas"],nom:s=>s.kind==="roll"?150:135,tol:()=>5,
+   arti:"Suhu yang diset untuk menyegel plastik kemasan.",
+   hi:"Plastik meleleh / bolong, tinta di dekat seal bisa luntur.",
+   lo:"Seal tidak menempel → seal terbuka.",sens:["G"]},
+  {k:"dwell",n:"Waktu seal (dwell)",u:"detik",al:["dwell","waktu seal","lama seal"],nom:()=>0.5,tol:()=>0.1,dec:2,
+   arti:"Berapa lama jaw seal menekan plastik.",
+   hi:"Plastik terlalu panas, mengkerut, kecepatan packing turun.",
+   lo:"Seal belum jadi → seal terbuka.",sens:["G"]},
+  {k:"film",n:"Tegangan film kemasan",u:"bar",al:["film","plastik","dancer"],nom:()=>1.5,tol:()=>0.3,
+   arti:"Seberapa kencang film plastik ditarik di wrapper.",
+   hi:"Film sobek, kemasan mengkerut.",
+   lo:"Film kendor → kemasan miring, cetakan tidak di tengah.",sens:["G"]}
+];
 const SECTIONS = [
   {id:"S1",n:"Seksi 1 · Toilet Roll",karu:"Pak Darmawan"},
   {id:"S2",n:"Seksi 2 · Kitchen Towel & Jumbo Roll",karu:"Pak Suparman"},
@@ -347,8 +372,6 @@ const SECTIONS = [
 ];
 const NAMES = ["Agus Salim","Budi Santoso","Joko Prasetyo","Slamet Riyadi","Rudi Hartono","Hendra Wijaya","Wahyu Nugroho","Dedi Kurniawan","Eko Saputra","Bambang Sutrisno","Andi Firmansyah","Fajar Ramadhan","Rizki Pratama","Yusuf Hidayat","Ahmad Fauzi","Dimas Aditya","Teguh Santoso","Sugeng Riyanto","Iwan Setiawan","Arif Rahman","Bayu Saputra","Hadi Susanto","Imam Syafii","Joni Iskandar","Lukman Hakim","Muhammad Ridwan","Nanang Kosim","Oki Setiadi","Purnomo","Rahmat Hidayat","Tri Wibowo","Udin Saprudin","Wawan Gunawan","Yanto Sumarno","Zainal Abidin","Asep Sunandar","Cecep Supriadi","Dodi Irawan","Erwin Syahputra","Ferry Gunadi","Gilang Ramadhan"];
 const MECH = "Pak Sarwono (mekanik jaga)";
-
-// machine plan: [id, section, sku, rate karton/jam, idleReason]
 const PLAN = [
   ["TR-01","S1","TR10",82],["TR-02","S1","TR10",82],["TR-03","S1","TR4",95],["TR-04","S1","TR4",95],["TR-05","S1","TR12",70],
   ["TR-06","S1","TR12",70],["TR-07","S1","TR10",80],["TR-08","S1","TR4",92],["TR-09","S1","TR10",80,"PM terjadwal"],["TR-10","S1","TR12",70,"Tidak dijadwalkan"],
@@ -361,10 +384,10 @@ const PLAN = [
   ["HT-01","S6","HT150",58],["HT-02","S6","HT150",58],["HT-03","S6","HT200",52],["HT-04","S6","HT200",52],["HT-05","S6","HT150",56],["HT-06","S6","HT200",50],["HT-07","S6","HT150",56,"Tidak dijadwalkan"],["HT-08","S6","HT200",50,"PM terjadwal"]
 ];
 
-/* ================= simulation state ================= */
+/* ================= simulation ================= */
 function wibNowMin(){ const d=new Date(); return ((d.getUTCHours()+7)%24)*60+d.getUTCMinutes()+d.getUTCSeconds()/60; }
-const sim = {t:(wibNowMin()-420+1440)%1440, speed:10, alarms:[], aid:0, acts:{}, rt:"alarm", sel:null, trendKey:null};
-if(sim.t<60) sim.t=60; // keep at least an hour of history for the demo
+const sim = {t:(wibNowMin()-420+1440)%1440, speed:10, alarms:[], aid:0, acts:{}, rt:"alarm", sel:null};
+if(sim.t<60) sim.t=60;
 const shiftOf = t => { const c=(t+420)%1440; return c>=420&&c<900?1:c>=900&&c<1380?2:3; };
 const clockOf = t => { const c=Math.floor(t+420)%1440; return String(Math.floor(c/60)).padStart(2,"0")+":"+String(c%60).padStart(2,"0"); };
 const remH = () => Math.max(0,(1440-sim.t)/60);
@@ -372,32 +395,19 @@ const remH = () => Math.max(0,(1440-sim.t)/60);
 let ni=0;
 const machines = PLAN.map(([id,sec,sku,rate,idle])=>{
   const m={id,sec,sku,rate,idle:idle||null,op:idle?null:NAMES[ni++],eff:rnd(0.9,0.96),downMin:Math.round(rnd(0,25)),
-    target:idle?0:Math.round(rate*24*0.9/10)*10,down:false,stoppedAt:null,cause:null,restartAt:null,issue:null,flags:{},jumbo:rnd(20,95),jumboRun:rnd(75,110),change:false};
+    target:idle?0:Math.round(rate*24*0.9/10)*10,down:false,stoppedAt:null,restartAt:null,issue:null,flags:{},
+    jumbo:rnd(20,95),jumboRun:rnd(75,110),change:false,changes:Math.floor(sim.t/95),lastCarton:sim.t,ev:{}};
   m.output=idle?0:Math.max(0,rate*m.eff*sim.t/60 - rate*m.downMin/60);
-  m.st=stationsFor(m); m.s={}; m.h={};
-  for(const [,list] of m.st) for(const x of list){ m.s[x.k]=x.nom; m.h[x.k]=[]; }
+  for(const c of sensorsOf(m)) m.ev[c]=[];
   return m;
 });
 const byId = id => machines.find(m=>m.id===id);
 const running = () => machines.filter(m=>!m.idle);
-const sensorDef = (m,k) => { for(const [,l] of m.st) for(const x of l) if(x.k===k) return x; return null; };
-function sevOf(x,v){
-  if(x.hh!=null&&v>=x.hh) return "crit"; if(x.ll!=null&&v<=x.ll) return "crit";
-  if(x.hi!=null&&v>=x.hi) return "warn"; if(x.lo!=null&&v<=x.lo) return "warn"; return "ok";
-}
+const recent = (m,c,mins) => (m.ev[c]||[]).filter(e=>e.bad&&sim.t-e.t<=mins).length;
+const today = (m,c) => (m.ev[c]||[]).filter(e=>e.bad).length + (m.base&&m.base[c]||0);
 function stopped(m){ return m.down && (sim.t-m.stoppedAt)>=3; }
 function projected(m){ return m.output + ((m.down||m.idle)?0:m.rate*m.eff*remH()); }
-function issueScore(m,key){
-  const is=ISSUES[key]; if(!is.kinds.includes(SKU[m.sku].kind)) return null;
-  const ks=Object.keys(is.fx).filter(k=>k in m.s); if(!ks.length) return null;
-  const nomOf=k=>sensorDef(m,k).nom;
-  return ks.reduce((a,k)=>a+clamp((m.s[k]-nomOf(k))/is.fx[k],0,1),0)/ks.length;
-}
-function suspected(m){
-  let best=null,bs=0;
-  for(const k in ISSUES){ const sc=issueScore(m,k); if(sc!=null&&sc>bs){bs=sc;best=k;} }
-  return bs>=0.6?best:null;
-}
+function suspected(m){ if(!m.issue) return null; return recent(m,ISSUES[m.issue].sens,20)>=3?m.issue:null; }
 function mstate(m){
   if(m.idle) return {cls:"idle",t:m.idle};
   if(m.change) return {cls:"chg",t:"Ganti jumbo"};
@@ -406,54 +416,37 @@ function mstate(m){
   if(projected(m)<m.target*0.97) return {cls:"warn",t:"Di bawah target"};
   return {cls:"run",t:"Jalan"};
 }
-
-/* ================= alarms ================= */
-function alarm(mid,pri,msg){ sim.alarms.unshift({id:++sim.aid,t:sim.t,mid,pri,msg,ack:false,clr:false}); if(sim.alarms.length>80) sim.alarms.pop(); renderRail(); }
+function alarm(mid,pri,msg){ sim.alarms.unshift({id:++sim.aid,t:sim.t,mid,pri,msg,ack:false,clr:false}); if(sim.alarms.length>80) sim.alarms.pop(); }
 function clearAlarms(mid,match){ for(const a of sim.alarms) if(a.mid===mid&&!a.clr&&a.msg.startsWith(match)) a.clr=true; }
+function addEv(m,c,type,bad=true){ const l=m.ev[c]; if(!l) return; l.push({t:sim.t,type,bad}); if(l.length>60) l.shift(); }
 
-/* ================= tick ================= */
-function tick(){
-  const dt=sim.speed/60; // sim minutes per real second
-  sim.t=Math.min(1439.9,sim.t+dt);
-  for(const m of machines){
-    if(m.idle) continue;
-    // jumbo usage (camera estimate)
-    if(!m.down&&!m.change){ m.jumbo-=dt/m.jumboRun*100; }
-    if(m.jumbo<=0&&!m.change){ m.change=true; m.changeEnd=sim.t+rnd(5,8); m.jumbo=0; alarm(m.id,3,"Ganti jumbo terdeteksi kamera"); }
-    if(m.change&&sim.t>=m.changeEnd){ m.change=false; m.jumbo=100; m.jumboRun=rnd(75,110); m.downMin+=0; alarm(m.id,3,"Jumbo baru terpasang, mesin jalan"); }
-    if(m.down||m.change){
-      m.downMin+=dt;
-      if(stopped(m)&&!m.flags.down){ m.flags.down=true; alarm(m.id,1,"Tidak ada karton 3 menit (sensor gerak). Mesin stop."); }
-      if(m.restartAt!=null&&sim.t>=m.restartAt){ m.down=false; m.restartAt=null; m.flags.down=false; clearAlarms(m.id,"Tidak ada karton"); alarm(m.id,3,"Karton terhitung lagi. Mesin jalan."); }
-    } else {
-      m.output+=m.rate*m.eff*dt/60*rnd(0.85,1.15);
-    }
-    // sensors
-    for(const [,list] of m.st) for(const x of list){
-      let v=m.s[x.k];
-      if(x.k==="jumbo") v=Math.max(0,m.jumbo);
-      else if(x.k==="jeta") v=Math.max(0,m.jumbo/100*m.jumboRun);
-      else if(x.k==="rate") v=(m.down||m.change)?0:m.rate*m.eff*rnd(0.92,1.06);
-      else if(x.k==="lastc") v=(m.down||m.change)?Math.min(999,(sim.t-(m.stoppedAt??m.changeEnd-6))*60):rnd(20,45);
-      else {
-        const off=m.issue&&ISSUES[m.issue].fx[x.k]!=null?ISSUES[m.issue].fx[x.k]*1.15:0;
-        const tgt=x.nom+off;
-        v+= (tgt-v)*0.2 + rnd(-1,1)*x.nz;
-        if(x.k==="blade"&&!m.issue) v=x.nom+((sim.t*0.37+m.id.charCodeAt(4)*7)%30);
-      }
-      m.s[x.k]=v; const h=m.h[x.k]; h.push(v); if(h.length>90) h.shift();
-      const sv=sevOf(x,v), key="s:"+x.k;
-      if(sv==="crit"&&!m.flags[key]&&!(x.k==="rate"||x.k==="lastc")&&!(m.change&&(x.k==="jumbo"||x.k==="jeta"))){ m.flags[key]=true; alarm(m.id,1,`${x.l} ${num(v,x.d)} ${x.u} (batas ${x.hh??x.ll})`); }
-      if(sv==="ok"&&m.flags[key]){ m.flags[key]=false; clearAlarms(m.id,x.l); }
-    }
-    const sp=suspected(m);
-    if(sp&&m.flags.issue!==sp){ m.flags.issue=sp; alarm(m.id,2,`Dugaan ${ISSUES[sp].l.toLowerCase()}: ${ISSUES[sp].d.toLowerCase()}`); }
-    if(!sp&&m.flags.issue){ clearAlarms(m.id,"Dugaan"); m.flags.issue=null; }
-    if(m.jumbo<10&&m.jumbo>0&&!m.flags.jlow){ m.flags.jlow=true; }
-    if(m.jumbo>=10) m.flags.jlow=false;
+function step(m,dt){
+  if(m.idle) return;
+  if(!m.down&&!m.change) m.jumbo-=dt/m.jumboRun*100;
+  if(m.jumbo<=0&&!m.change){ m.change=true; m.changeEnd=sim.t+rnd(5,8); m.jumbo=0; m.changes++; addEv(m,"B","Ganti jumbo",false); alarm(m.id,3,"Kamera jumbo: ganti jumbo dimulai"); }
+  if(m.change&&sim.t>=m.changeEnd){ m.change=false; m.jumbo=100; m.jumboRun=rnd(75,110); addEv(m,"B","Jumbo baru terpasang",false); }
+  if(m.jumbo<10&&m.jumbo>0&&!m.flags.jlow){ m.flags.jlow=true; addEv(m,"B","Sisa jumbo menipis",false); }
+  if(m.jumbo>=10) m.flags.jlow=false;
+  if(m.down||m.change){
+    m.downMin+=dt;
+    if(stopped(m)&&!m.flags.down){ m.flags.down=true; addEv(m,"F","Mesin stop (3 menit tanpa karton)"); alarm(m.id,1,"Sensor gerak: 3 menit tanpa karton. Mesin stop."); }
+    if(m.restartAt!=null&&sim.t>=m.restartAt){ m.down=false; m.restartAt=null; m.flags.down=false; clearAlarms(m.id,"Sensor gerak"); addEv(m,"F","Karton terhitung lagi",false); alarm(m.id,3,"Sensor gerak: karton terhitung lagi, mesin jalan"); }
+  } else {
+    m.output+=m.rate*m.eff*dt/60*rnd(0.85,1.15); m.lastCarton=sim.t-rnd(0,0.5);
   }
-  renderAll();
+  if(!m.down&&!m.change){
+    for(const c of sensorsOf(m)){
+      const s=SENS[c]; if(!s.issue&&c!=="G") continue;
+      const iss=m.issue&&ISSUES[m.issue].sens===c?ISSUES[m.issue]:null;
+      const p=(iss?0.55:0.004)*dt; // events per sim minute
+      if(Math.random()<p) addEv(m,c,iss?pick(iss.types):pick(s.finds));
+    }
+  }
+  const sp=suspected(m);
+  if(sp&&m.flags.issue!==sp){ m.flags.issue=sp; alarm(m.id,2,`${SENS[ISSUES[sp].sens].n}: ${ISSUES[sp].l.toLowerCase()} terdeteksi berulang (${recent(m,ISSUES[sp].sens,20)}× dalam 20 menit)`); }
+  if(!sp&&m.flags.issue){ clearAlarms(m.id,SENS[ISSUES[m.flags.issue].sens].n); m.flags.issue=null; }
 }
+function tick(){ const dt=sim.speed/60; sim.t=Math.min(1439.9,sim.t+dt); for(const m of machines) step(m,dt); renderAll(); }
 
 /* ================= HEAD ================= */
 function renderSum(){
@@ -492,26 +485,22 @@ function tileHTML(m){
     <span class="bar"><i style="width:${pct}%"></i><b style="left:${exp}%"></b></span>
     <span class="st">${st.t}</span></button>`;
 }
-// Suggested actions (Saran tindakan)
+const ACT_TEXT = {
+  chaining:"Cek blade dan celah rotary knife (0,05–0,10 mm). Bersihkan debu di area perforasi.",
+  lipatan:"Cek vakum folding roll dan panjang lembar. Bersihkan lubang vakum yang tersumbat.",
+  potong:"Cek ketajaman pisau log saw / bandsaw dan tekanan clamp. Jadwalkan asah atau ganti pisau.",
+  kemasan:"Cek setpoint suhu dan waktu seal, tegangan film. Bersihkan jaw seal.",
+  tinta:"Cek lot film cetak yang sedang dipakai. Pisahkan karton terdampak untuk QC.",
+  suara:"Kirim mekanik untuk cari sumber bunyi sebelum jadi kerusakan."
+};
 function buildActions(){
   const L=[];
   for(const m of running()){
     const sec=SECTIONS.find(s=>s.id===m.sec);
-    if(stopped(m)){ const n=Math.round(sim.t-m.stoppedAt); L.push({id:"down-"+m.id,pri:1,m,imp:m.rate*n/60,ttl:`Kirim mekanik ke ${m.id}`,txt:`Stop ${n} menit sejak ${clockOf(m.stoppedAt)}, sudah hilang ±${num(m.rate*n/60)} karton (±${num(m.rate/6)} tiap 10 menit). Operator: ${m.op}.`,karu:sec.karu}); }
+    if(stopped(m)){ const n=Math.round(sim.t-m.stoppedAt); L.push({id:"down-"+m.id,pri:1,m,imp:m.rate*n/60,ttl:`Kirim mekanik ke ${m.id}`,txt:`Sensor gerak: tidak ada karton sejak ${clockOf(m.stoppedAt)} (${n} menit), sudah hilang ±${num(m.rate*n/60)} karton. Operator: ${m.op}.`,karu:sec.karu}); }
     const sp=suspected(m);
-    if(sp){
-      const tx={
-        chaining:`Chaining ${num(m.s.chain,1)}/jam (batas 2). Cek pisau perforasi dan celah rotary knife di ${m.id} sebelum reject naik.`,
-        kemasan:`Reject kemasan ${num(m.s.reject,1)}%, suhu jaw seal ${num(m.s.seal)} °C (resep ${sensorDef(m,"seal").nom}). Minta operator bersihkan jaw dan cek suhu.`,
-        tinta:`Tinta luntur ${num(m.s.ink,1)}/1000 kemasan. Cek film cetak dari supplier dan suhu jaw. Pisahkan karton terdampak untuk QC.`,
-        potong:`Potongan miring ${num(m.s.cutskew,1)} mm, kompresi ${num(m.s.compress,1)}%, keausan pisau ${num(m.s.blade)}%. Jadwalkan asah/ganti pisau log saw.`,
-        longgar:`Diameter log ${num(m.s.logd,1)} mm (resep ${SKU[m.sku].dia}). Cek tegangan web dan kelembaban jumbo yang sedang jalan.`,
-        lipatan:`Lipatan buruk ${num(m.s.foldbad,1)}/1000, vakum ${num(m.s.vac)} kPa. Bersihkan lubang vakum folding roll.`,
-        bearing:`Skor suara ${num(m.s.sound,2)}, getaran ${num(m.s.vib,1)} mm/s, suhu bearing ${num(m.s.btemp)} °C. Jadwalkan cek bearing oleh mekanik sebelum rusak.`
-      }[sp];
-      L.push({id:`iss-${m.id}-${sp}`,pri:sp==="bearing"?2:2,m,imp:m.rate*0.5,ttl:`${ISSUES[sp].l} di ${m.id}`,txt:tx,karu:sec.karu});
-    }
-    if(!m.change&&m.jumbo<10&&m.jumbo>0) L.push({id:"jmb-"+m.id,pri:3,m,imp:5,ttl:`Siapkan jumbo untuk ${m.id}`,txt:`Kamera: sisa jumbo ${num(m.jumbo)}%, habis ±${num(m.s.jeta)} menit lagi. Siapkan forklift dan jumbo ${SKU[m.sku].gsm} gsm ${SKU[m.sku].ply} ply.`,karu:sec.karu});
+    if(sp){ const c=ISSUES[sp].sens; L.push({id:`iss-${m.id}-${sp}`,pri:2,m,imp:m.rate*0.5,ttl:`${ISSUES[sp].l} di ${m.id}`,txt:`${SENS[c].n} mendeteksi ${recent(m,c,20)}× dalam 20 menit terakhir. ${ACT_TEXT[sp]}`,karu:sec.karu}); }
+    if(!m.change&&m.jumbo<10&&m.jumbo>0) L.push({id:"jmb-"+m.id,pri:3,m,imp:5,ttl:`Siapkan jumbo untuk ${m.id}`,txt:`Kamera jumbo: sisa ±${num(m.jumbo)}%, habis ±${num(m.jumbo/100*m.jumboRun)} menit lagi. Siapkan jumbo ${SKU[m.sku].gsm} gsm ${SKU[m.sku].ply} ply lebar sesuai mesin.`,karu:sec.karu});
   }
   for(const s of SECTIONS){
     const R=running().filter(m=>m.sec===s.id), tgt=R.reduce((a,m)=>a+m.target,0), proj=R.reduce((a,m)=>a+projected(m),0);
@@ -519,7 +508,7 @@ function buildActions(){
       const idle=machines.filter(m=>m.sec===s.id&&m.idle&&m.idle!=="PM terjadwal");
       const slow=R.filter(m=>!m.down&&m.eff<0.9).map(m=>m.id);
       L.push({id:"sec-"+s.id,pri:2,imp:tgt-proj,ttl:`${s.n.split(" · ")[0]} diproyeksi ${num(proj/tgt*100,1)}% target`,
-        txt:`Kurang ±${num(tgt-proj)} karton sampai 07:00.${slow.length?` Mesin lambat: ${slow.join(", ")}, kembalikan kecepatan ke resep.`:""}${idle.length?` Mesin ${idle.map(m=>m.id).join(", ")} tidak jalan (${idle[0].idle.toLowerCase()}), bisa dijalankan bila ada operator.`:""}`,karu:s.karu});
+        txt:`Kurang ±${num(tgt-proj)} karton sampai 07:00.${slow.length?` Mesin lambat: ${slow.join(", ")}, cek kecepatan sesuai resep.`:""}${idle.length?` Mesin ${idle.map(m=>m.id).join(", ")} tidak jalan (${idle[0].idle.toLowerCase()}), bisa dijalankan bila ada operator.`:""}`,karu:s.karu});
     }
   }
   return L.filter(a=>!(sim.acts[a.id]&&sim.acts[a.id].done)).sort((a,b)=>a.pri-b.pri||b.imp-a.imp);
@@ -531,29 +520,27 @@ function renderRail(){
   const r=$("rail");
   if(sim.rt==="alarm"){
     const list=sim.alarms.filter(a=>!a.clr||sim.t-a.t<60).slice(0,60);
-    r.innerHTML=`<div class="toolbar"><span class="muted" style="font-size:12.5px">Prioritas 1 = stop / batas HH · 2 = dugaan cacat · 3 = info</span><button class="sbtn" type="button" data-ackall>Akui semua</button></div>
+    r.innerHTML=`<div class="toolbar"><span class="muted" style="font-size:12.5px">Prioritas 1 = mesin stop · 2 = cacat berulang / panggilan · 3 = info</span><button class="sbtn" type="button" data-ackall>Akui semua</button></div>
     <table class="tbl"><thead><tr><th>Jam</th><th>Mesin</th><th>P</th><th>Pesan</th><th></th></tr></thead><tbody>${list.length?list.map(a=>`<tr class="${!a.ack&&!a.clr?"unack":""}"><td class="mono">${clockOf(a.t)}</td><td class="mono"><a href="#head" data-m="${a.mid}" style="color:inherit">${a.mid}</a></td><td><span class="pri p${a.pri}">${a.pri}</span></td><td>${esc(a.msg)}${a.clr?' <span class="muted">· normal</span>':""}</td><td>${!a.ack&&!a.clr?`<button class="sbtn" type="button" data-ack="${a.id}">Akui</button>`:'<span class="muted" style="font-size:12px">'+(a.clr?"normal":"diakui")+"</span>"}</td></tr>`).join(""):`<tr><td colspan="5" class="muted">Tidak ada alarm.</td></tr>`}</tbody></table>`;
   } else if(sim.rt==="act"){
-    r.innerHTML=`<div class="toolbar"><span class="muted" style="font-size:12.5px">Diurutkan menurut prioritas dan dampak karton. Dibuat otomatis dari data sensor.</span></div>`+
+    r.innerHTML=`<div class="toolbar"><span class="muted" style="font-size:12.5px">Diurutkan menurut prioritas dan dampak karton. Dibuat dari data sensor tambahan.</span></div>`+
       (A.length?A.map(a=>{const s=sim.acts[a.id]; return `<div class="act"><span class="pri p${a.pri}">${a.pri}</span><div><h3>${esc(a.ttl)}</h3><p>${esc(a.txt)}</p><div class="btns">
         ${s&&s.to?`<span class="asg">Ditugaskan ke ${esc(s.to)} · ${clockOf(s.t)}</span>`:`<button class="sbtn pr" type="button" data-assign="${a.id}" data-karu="${esc(a.karu)}">Tugaskan ke ${esc(a.karu)}</button>`}
         <button class="sbtn" type="button" data-done="${a.id}">Selesai</button>${a.m?`<button class="sbtn" type="button" data-m="${a.m.id}">Lihat ${a.m.id}</button>`:""}</div></div></div>`;}).join(""):`<div class="toolbar">Tidak ada saran saat ini.</div>`);
-  } else {
-    r.innerHTML=detailHTML();
-  }
+  } else r.innerHTML=detailHTML();
 }
 function detailHTML(){
   if(!sim.sel) return `<div class="toolbar">Klik salah satu mesin untuk melihat detail.</div>`;
   const m=byId(sim.sel), s=SKU[m.sku], st=mstate(m), sec=SECTIONS.find(x=>x.id===m.sec);
-  if(m.idle) return `<div class="bd" style="padding:10px"><h2 class="mono">${m.id}</h2><p>${m.idle}. Tidak ada target hari ini.</p><p class="muted">${sec.n} · Kepala Regu ${sec.karu}</p></div>`;
-  const abn=[]; for(const [stn,l] of m.st) for(const x of l){ const sv=sevOf(x,m.s[x.k]); if(sv!=="ok") abn.push([stn,x,sv]); }
+  if(m.idle) return `<div style="padding:10px"><h2 class="mono">${m.id}</h2><p>${m.idle}. Tidak ada target hari ini.</p><p class="muted">${sec.n} · Kepala Regu ${sec.karu}</p></div>`;
   const need=remH()>0?Math.max(0,(m.target-m.output)/remH()):0;
   return `<div style="padding:8px;display:grid;gap:8px">
     <div style="display:flex;justify-content:space-between;align-items:center"><h2 class="mono" style="font-size:22px">${m.id}</h2><span class="pri ${st.cls==="crit"?"p1":st.cls==="warn"?"p2":"p3"}" style="width:auto;padding:0 6px">${st.t}</span></div>
-    <dl class="kv" style="margin:0"><dt>Operator</dt><dd>${esc(m.op)}</dd><dt>Kepala Regu</dt><dd>${esc(sec.karu)} (shift ${shiftOf(sim.t)})</dd><dt>Target / aktual</dt><dd>${num(m.target)} / ${num(m.output)} karton</dd><dt>Butuh</dt><dd>${num(need)} karton/jam sampai 07:00</dd><dt>Downtime hari ini</dt><dd>${num(m.downMin)} menit</dd><dt>Sisa jumbo</dt><dd>${num(m.jumbo)}% (±${num(m.jumbo/100*m.jumboRun)} menit)</dd></dl>
+    <dl class="kv" style="margin:0"><dt>Operator</dt><dd>${esc(m.op)}</dd><dt>Kepala Regu</dt><dd>${esc(sec.karu)} (shift ${shiftOf(sim.t)})</dd><dt>Target / aktual</dt><dd>${num(m.target)} / ${num(m.output)} karton</dd><dt>Butuh</dt><dd>${num(need)} karton/jam sampai 07:00</dd><dt>Downtime hari ini</dt><dd>${num(m.downMin)} menit</dd></dl>
     <div class="fp"><div class="hd"><span>SKU jalan</span><span class="sub">${s.n}</span></div>${specHTML(s,"kv")}</div>
-    <div class="fp"><div class="hd"><span>Sensor di luar batas</span><span class="sub">${abn.length}</span></div>
-      <table class="tbl"><tbody>${abn.length?abn.map(([stn,x,sv])=>`<tr><td>${stn}</td><td>${x.l}</td><td class="num"><span class="pri ${sv==="crit"?"p1":"p2"}" style="width:auto;padding:0 4px">${num(m.s[x.k],x.d)} ${x.u}</span></td></tr>`).join(""):`<tr><td class="muted">Semua sensor normal.</td></tr>`}</tbody></table></div>
+    <div class="fp"><div class="hd"><span>Deteksi sensor</span><span class="sub">1 jam · hari ini</span></div>
+      <table class="tbl"><tbody>${sensorsOf(m).map(c=>{const h=c==="B"?"–":recent(m,c,60), d=c==="B"?m.changes+" ganti":c==="F"?num(m.output)+" karton":today(m,c);
+        return `<tr><td class="mono">${c}</td><td>${SENS[c].n}</td><td class="num">${h>=3?`<span class="pri p2" style="width:auto;padding:0 4px">${h}</span>`:h}</td><td class="num">${d}</td></tr>`;}).join("")}</tbody></table></div>
     <button class="sbtn pr" type="button" data-openop="${m.id}">Buka tampilan operator ${m.id}</button></div>`;
 }
 function specRows(s){
@@ -565,18 +552,19 @@ function specHTML(s,mode){
   if(mode==="kv") return `<dl class="kv" style="margin:0;border:0">${r.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
   return r.map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
 }
-// head events
 const secEl=$("sections");
 secEl.addEventListener("pointerdown",()=>{holdTiles=true;});
 ["pointerup","pointercancel","pointerleave"].forEach(ev=>secEl.addEventListener(ev,()=>setTimeout(()=>{holdTiles=false;},60)));
+let holdOp=false;
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-m],[data-rt],[data-ack],[data-ackall],[data-assign],[data-done],[data-openop]"); if(!t) return;
+  const t=e.target.closest("[data-m],[data-rt],[data-ack],[data-ackall],[data-assign],[data-done],[data-openop],[data-askc]"); if(!t) return;
   if(t.dataset.rt){ sim.rt=t.dataset.rt; renderRail(); return; }
   if(t.hasAttribute("data-ackall")){ sim.alarms.forEach(a=>a.ack=true); renderAll(); return; }
   if(t.dataset.ack){ const a=sim.alarms.find(x=>x.id===+t.dataset.ack); if(a) a.ack=true; renderAll(); return; }
   if(t.dataset.assign){ sim.acts[t.dataset.assign]={to:t.dataset.karu,t:sim.t}; renderRail(); return; }
   if(t.dataset.done){ sim.acts[t.dataset.done]={...(sim.acts[t.dataset.done]||{}),done:true}; renderRail(); return; }
   if(t.dataset.openop){ setOp(t.dataset.openop); location.hash="operator"; return; }
+  if(t.dataset.askc){ say(`<div class="who">Operator</div>Apa yang harus saya lakukan untuk deteksi ${esc(SENS[t.dataset.askc].n.toLowerCase())}?`,"me"); askSensor(t.dataset.askc); return; }
   if(t.dataset.m){ e.preventDefault(); holdTiles=false; sim.sel=t.dataset.m; sim.rt="det"; renderSections(); renderRail(); }
 });
 
@@ -585,8 +573,28 @@ let opId="TR-02";
 const sel=$("op-select");
 sel.innerHTML=running().map(m=>`<option value="${m.id}">${esc(m.op)} — ${m.id}</option>`).join("");
 sel.addEventListener("change",()=>setOp(sel.value));
-function setOp(id){ opId=id; sel.value=id; sim.trendKey=null; resetBot(); renderOperator(); }
+function setOp(id){ opId=id; sel.value=id; resetBot(); renderOperator(); }
+
+/* Illustrations of what each sensor sees. In the real system these are camera stills or short clips. */
+function snap(c,bad,m){
+  const box=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#ff3b30" stroke-width="2.5" stroke-dasharray="6 3"/>`;
+  const tag=(t,ok)=>`<rect x="6" y="6" width="${t.length*6.4+12}" height="17" fill="${ok?"#21a038":"#d0261d"}"/><text x="12" y="18.5" font-size="11" fill="#fff" font-family="IBM Plex Mono,monospace">${t}</text>`;
+  const ts=`<text x="214" y="124" text-anchor="end" font-size="9" fill="#9aa4ad" font-family="IBM Plex Mono,monospace">${m.id} · CAM ${c} · ${clockOf(sim.t)}</text>`;
+  let g="";
+  if(c==="B"){ const p=clamp(m.jumbo,0,100), r=12+44*p/100;
+    g=`<rect x="0" y="0" width="220" height="130" fill="#1a2128"/><circle cx="95" cy="66" r="${r.toFixed(1)}" fill="#e9e2d0" stroke="#c9bfa6"/>${[...Array(5)].map((_,i)=>`<circle cx="95" cy="66" r="${(r*(i+1)/6).toFixed(1)}" fill="none" stroke="#d6cdb5"/>`).join("")}<circle cx="95" cy="66" r="11" fill="#8a6d3b"/><line x1="95" y1="66" x2="${95+r}" y2="66" stroke="#2b9bff" stroke-width="2"/><text x="160" y="60" font-size="12" fill="#fff" font-family="IBM Plex Mono,monospace">Ø ${num(400+1800*p/100)}</text><text x="160" y="76" font-size="12" fill="#2b9bff" font-family="IBM Plex Mono,monospace">${num(p)}%</text>`+tag(m.change?"GANTI JUMBO":p<10?"SISA TIPIS":"OK",!m.change&&p>=10); }
+  else if(c==="E"){ g=`<rect width="220" height="130" fill="#1a2128"/><rect x="20" y="20" width="180" height="96" fill="#f1ede3"/>${[...Array(6)].map((_,i)=>`<line x1="${20+i*30+30}" y1="20" x2="${20+i*30+30}" y2="116" stroke="#9c958a" stroke-width="1.5" stroke-dasharray="3 3"/>`).join("")}`+(bad?`<line x1="110" y1="20" x2="110" y2="116" stroke="#f1ede3" stroke-width="4"/><line x1="110" y1="20" x2="110" y2="58" stroke="#9c958a" stroke-dasharray="3 3"/>${box(96,52,28,66)}`:"")+tag(bad?"CHAINING":"OK",!bad); }
+  else if(c==="A"){ const z=[...Array(8)].map((_,i)=>`<polyline points="30,${30+i*10} 190,${34+i*10} 30,${38+i*10}" fill="none" stroke="#f1ede3" stroke-width="2"/>`).join("");
+    g=`<rect width="220" height="130" fill="#1a2128"/>${z}`+(bad?`<polyline points="30,72 150,60 120,82" fill="none" stroke="#ffd34d" stroke-width="2.5"/>${box(100,52,70,36)}`:"")+tag(bad?"LIPATAN BURUK":"OK",!bad); }
+  else if(c==="D"){ g=`<rect width="220" height="130" fill="#1a2128"/>${[0,1,2].map(i=>{const cx=50+i*60,f=bad&&i===1; return `<ellipse cx="${cx}" cy="66" rx="${f?28:24}" ry="${f?16:24}" fill="#e9e2d0" stroke="#c9bfa6"/><circle cx="${cx}" cy="66" r="7" fill="#8a6d3b"/>`;}).join("")}`+(bad?box(76,44,68,44):"")+tag(bad?"LOG TERTEKAN":"OK",!bad); }
+  else if(c==="G"){ g=`<rect width="220" height="130" fill="#1a2128"/><rect x="34" y="26" width="150" height="80" fill="#2f8fd6"/><g transform="${bad?"rotate(-6 110 66)":""}"><rect x="66" y="48" width="${bad?100:86}" height="36" fill="#fff"/><text x="${bad?116:109}" y="71" text-anchor="middle" font-size="11" fill="#2f8fd6" font-weight="700" font-family="IBM Plex Sans Condensed,sans-serif">LOGO</text></g>`+(bad?box(60,40,116,52):"")+tag(bad?"KEMASAN MIRING":"OK",!bad); }
+  else if(c==="F"){ g=`<rect width="220" height="130" fill="#1a2128"/><rect x="0" y="86" width="220" height="10" fill="#4b5560"/>${[20,90,160].map(x=>`<rect x="${x}" y="56" width="40" height="30" fill="#b48a55" stroke="#7d5c32"/>`).join("")}<line x1="132" y1="30" x2="132" y2="96" stroke="${m.down?"#d0261d":"#21a038"}" stroke-width="2" stroke-dasharray="4 3"/><rect x="126" y="22" width="12" height="10" fill="#9aa4ad"/>`+tag(m.down?"TIDAK ADA KARTON":"KARTON LEWAT",!m.down); }
+  else if(c==="C"){ const pts=[...Array(44)].map((_,i)=>{const x=10+i*4.6, spike=bad&&i>26&&i<32; const a=spike?rnd(26,40):rnd(4,12); return `${x.toFixed(1)},${(66+(i%2?a:-a)).toFixed(1)}`;}).join(" ");
+    g=`<rect width="220" height="130" fill="#1a2128"/><line x1="10" y1="66" x2="212" y2="66" stroke="#39434d"/><polyline points="${pts}" fill="none" stroke="#2b9bff" stroke-width="1.5"/>`+(bad?box(130,20,32,92):"")+tag(bad?"BUNYI ABNORMAL":"NORMAL",!bad); }
+  return `<svg viewBox="0 0 220 130" role="img" aria-label="Ilustrasi ${esc(SENS[c].n)}">${g}${ts}</svg>`;
+}
 function renderOperator(){
+  if(holdOp) return;
   const m=byId(opId), s=SKU[m.sku], st=mstate(m), sec=SECTIONS.find(x=>x.id===m.sec);
   const plan=m.target*sim.t/1440, gap=m.output-plan, need=remH()>0?Math.max(0,(m.target-m.output)/remH()):0;
   $("op-strip").innerHTML=`
@@ -597,106 +605,118 @@ function renderOperator(){
     <div><div class="k">Butuh / jam</div><div class="v">${num(need)}</div></div>
     <div><div class="k">Downtime hari ini</div><div class="v">${num(m.downMin)}<small style="font-size:13px"> mnt</small></div></div>`;
   $("op-spec").innerHTML=`<div style="background:var(--strip);color:#fff;display:flex;align-items:center"><div class="k" style="color:#fff">Spec sheet</div></div>`+specHTML(s);
-  // stations
-  if(!sim.trendKey){ let w=null,ws=-1; for(const [,l] of m.st) for(const x of l){ const sv=sevOf(x,m.s[x.k]); const r=sv==="crit"?2:sv==="warn"?1:0; if(r>ws&&!(x.k==="rate"||x.k==="lastc"||x.k==="jeta")){ws=r;w=x.k;} } sim.trendKey=ws>0?w:"rate"; }
-  $("op-stations").innerHTML=m.st.map(([name,list],i)=>`<section class="fp stn"><div class="hd"><span>${i+1}. ${name}</span><span class="flow">${i<m.st.length-1?"→":""}</span></div>
-    ${list.map(x=>{const v=m.s[x.k], sv=sevOf(x,v); const lim=[x.ll!=null?"LL "+num(x.ll,x.d):"",x.lo!=null?"L "+num(x.lo,x.d):"",x.hi!=null?"H "+num(x.hi,x.d):"",x.hh!=null?"HH "+num(x.hh,x.d):""].filter(Boolean).join(" · ");
-      return `<button type="button" class="srow ${sim.trendKey===x.k?"sel":""}" data-tk="${x.k}"><span class="l">${x.src?`<span class="cam">${x.src==="cam"?"KAM":x.src==="snd"?"AKU":"GRK"}</span>`:""}${x.l}<small>${lim||"&nbsp;"}</small></span><span class="val ${sv==="ok"?"":sv}">${num(v,x.d)} <small style="font-weight:500">${x.u}</small></span></button>`;}).join("")}</section>`).join("");
-  renderTrend(m); renderDetect(m);
+  const cs=sensorsOf(m);
+  const isBad=c=> c==="F"?stopped(m): c==="B"?(m.change||m.jumbo<10): recent(m,c,20)>=3;
+  $("op-flow").innerHTML=cs.map((c,i)=>`<span class="${isBad(c)?"bad":""}"><b>${c}</b>${SENS[c].area}${i<cs.length-1?" →":""}</span>`).join("");
+  $("op-sensors").innerHTML=cs.map(c=>{
+    const S0=SENS[c], bad=isBad(c), evs=(m.ev[c]||[]).slice(-4).reverse();
+    let counts;
+    if(c==="B") counts=[["Sisa jumbo",num(clamp(m.jumbo,0,100))+"%",m.jumbo<10],["Perkiraan habis",m.change?"ganti":"±"+num(m.jumbo/100*m.jumboRun)+" mnt",m.jumbo<10],["Ganti hari ini",m.changes,false]];
+    else if(c==="F") counts=[["Karton hari ini",num(m.output),false],["Karton terakhir",stopped(m)||m.down||m.change?num((sim.t-(m.stoppedAt??m.changeEnd-6))*1)+" mnt lalu":"< 1 mnt lalu",stopped(m)],["Stop hari ini",(m.ev.F||[]).filter(e=>e.bad).length+(m.baseStops||0),false]];
+    else if(c==="C") counts=[["Status",bad?"ABNORMAL":"Normal",bad],["Tanda 1 jam",recent(m,c,60),bad],["Tanda hari ini",today(m,c),false]];
+    else counts=[["Diperiksa hari ini",num(m.output*(c==="G"?SKU[m.sku].pk:SKU[m.sku].pk*(c==="E"?40:2)))+" "+S0.unit,false],["Terdeteksi 1 jam",recent(m,c,60),bad],["Terdeteksi hari ini",today(m,c),false]];
+    return `<section class="fp sc ${bad?"alert":""}"><div class="hd"><span><span class="code">${c}</span>${S0.n}</span><span class="sub">${S0.area}</span></div>
+      <div class="body"><div class="snap">${snap(c,bad&&c!=="B"&&c!=="F",m)}<span class="cap">${bad?"Gambar deteksi terakhir":"Gambar terbaru"} · ilustrasi</span></div>
+        <div><dl><dt>Letak</dt><dd>${S0.loc}</dd><dt>Fungsi</dt><dd>${S0.fn}</dd><dt>Mendeteksi</dt><dd>${S0.finds.join(" · ")}</dd></dl>
+        <div class="counts">${counts.map(([k,v,b])=>`<div class="${b?"bad":""}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div></div></div>
+      <div class="evlog">${evs.length?evs.map(e=>`<div><span class="t">${clockOf(e.t)}</span><span class="${e.bad?"x":""}">${esc(e.type)}</span></div>`).join(""):`<div><span class="t">–</span><span class="muted">Belum ada kejadian hari ini.</span></div>`}</div>
+      ${S0.issue||c==="F"?`<div class="foot"><span class="muted" style="font-size:12px">${bad?"Deteksi berulang. Ikuti langkah perbaikan.":"Normal."}</span><button class="sbtn ${bad?"pr":""}" type="button" data-askc="${c}">Langkah bila terdeteksi</button></div>`:""}
+    </section>`;
+  }).join("");
 }
-function renderTrend(m){
-  const x=sensorDef(m,sim.trendKey)||sensorDef(m,"rate"), h=m.h[x.k];
-  $("trend-title").textContent=`${x.l} (${x.u}) · ${h.length} sampel terakhir`;
-  const W=600,H=190,P={l:46,r:10,t:10,b:20};
-  const lims=[x.ll,x.lo,x.hi,x.hh].filter(v=>v!=null);
-  let lo=Math.min(...h,x.nom,...lims), hi=Math.max(...h,x.nom,...lims); if(hi-lo<1e-6){hi+=1;lo-=1;} const pad=(hi-lo)*0.08; lo-=pad; hi+=pad;
-  const X=i=>P.l+(W-P.l-P.r)*(h.length<2?0:i/(h.length-1)), Y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
-  const line=(v,c,dash,lbl)=>`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${c}" stroke-width="1.2" ${dash?'stroke-dasharray="5 4"':""}/><text x="${P.l-4}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="${c}" font-family="IBM Plex Mono,monospace">${lbl}</text>`;
-  let g=line(x.nom,"#7b838b",true,num(x.nom,x.d));
-  if(x.hi!=null) g+=line(x.hi,"#b88a00",false,"H"); if(x.lo!=null) g+=line(x.lo,"#b88a00",false,"L");
-  if(x.hh!=null) g+=line(x.hh,"#d0261d",false,"HH"); if(x.ll!=null) g+=line(x.ll,"#d0261d",false,"LL");
-  const pts=h.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
-  const last=h[h.length-1], sv=sevOf(x,last);
-  $("trend").innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Tren ${esc(x.l)}">${g}<polyline points="${pts}" fill="none" stroke="#15191d" stroke-width="1.8"/>${h.length?`<circle cx="${X(h.length-1)}" cy="${Y(last)}" r="4" fill="${sv==="crit"?"#d0261d":sv==="warn"?"#f2b705":"#21a038"}" stroke="#15191d"/>`:""}<text x="${W-P.r}" y="${H-5}" text-anchor="end" font-size="11" fill="#525a62">sekarang ${num(last,x.d)} ${esc(x.u)}</text></svg>`;
-}
-function renderDetect(m){
-  const rows=[];
-  for(const k in ISSUES){ const sc=issueScore(m,k); if(sc==null) continue; rows.push([k,sc]); }
-  rows.sort((a,b)=>b[1]-a[1]);
-  $("op-detect").innerHTML=rows.map(([k,sc])=>{const is=ISSUES[k], cls=sc>=0.6?"crit":sc>=0.3?"warn":"";
-    const srcs=Object.keys(is.fx).filter(x=>x in m.s).map(x=>sensorDef(m,x).l).join(", ");
-    return `<div class="det ${cls}"><span><strong>${is.l}</strong><small>${is.st} · ${srcs}</small></span><span class="meter"><i style="width:${Math.round(sc*100)}%"></i></span><span class="mono" style="text-align:right">${Math.round(sc*100)}%</span></div>`;}).join("")+
-    `<div style="padding:5px 8px;font-size:11.5px" class="muted">Nilai = seberapa jauh sensor terkait bergeser ke arah cacat. ≥60% = dugaan kuat.</div>`;
-}
-$("op-stations").addEventListener("click",e=>{const b=e.target.closest("[data-tk]"); if(!b) return; sim.trendKey=b.dataset.tk; renderOperator();});
+$("op-sensors").addEventListener("pointerdown",()=>{holdOp=true;});
+["pointerup","pointercancel","pointerleave"].forEach(ev=>$("op-sensors").addEventListener(ev,()=>setTimeout(()=>{holdOp=false;},60)));
 
 /* ================= Assistant ================= */
 const CL = {
-  chaining:[["Hentikan mesin dan pasang LOTO sebelum menyentuh rotary knife.","Tunggu pisau berhenti penuh."],["Periksa blade perforasi dan anvil.","Ganti blade yang tumpul atau gompal > 1 mm."],["Ukur celah blade ke anvil.","0,05–0,10 mm. Setel ulang bila di luar."],["Bersihkan debu tisu di area perforator.","Debu menumpuk membuat perforasi tidak tembus."],["Jalan 80% kecepatan, cek 10 log.","Kamera chaining harus < 2/jam. Lalu naikkan ke kecepatan resep."]],
-  kemasan:[["Bandingkan suhu jaw seal aktual vs setpoint di HMI.","Selisih maksimal 3 °C."],["Bersihkan jaw seal samping.","Tunggu dingin atau pakai sarung tangan tahan panas. Sikat kuningan, bukan baja."],["Cek tegangan film (dancer).","1,2–1,8 bar. Film harus rata di forming box."],["Cek posisi film / register mark.","Kamera misalignment harus < 3 mm."],["Ambil 20 pack, tekan tiap pack.","Tidak boleh ada seal terbuka. Reject harus < 1,5% dalam 10 menit."]],
-  tinta:[["Cek roll film cetak yang sedang dipakai.","Catat nomor lot film."],["Cek suhu jaw seal tidak terlalu tinggi.","Suhu berlebih bisa membuat tinta luntur."],["Pisahkan karton sejak alarm muncul.","Tandai untuk diperiksa QC."],["Ganti roll film bila luntur di seluruh roll.","Laporkan nomor lot ke Kepala Regu."]],
-  potong:[["Hentikan log saw, pasang LOTO.",""],["Periksa mata pisau log saw / bandsaw.","Asah bila keausan > 70%, ganti bila > 85% atau gompal."],["Ukur tekanan clamp log.","4,5–5,5 bar. Clamp terlalu kencang = log tertekan."],["Cek interval asah otomatis di HMI.","Standar: setiap 400 potongan."],["Jalankan dan cek 10 roll/log.","Kamera: potongan miring < 1,5 mm, kompresi < 6%."]],
-  longgar:[["Bandingkan diameter log di HMI dengan resep.","Toleransi ±1,5 mm."],["Cek tegangan web unwind.","±3 N dari resep."],["Cek tekanan nip emboss.","±0,3 bar dari resep."],["Periksa jumbo: basah, lembek, sambungan jelek.","Kelembaban 5–8%. Lapor KaRu bila jumbo di luar spesifikasi."],["Ukur 5 gulungan dengan pi tape.","Semua dalam ±1,5 mm."]],
-  lipatan:[["Cek vakum folding roll di HMI.","48–62 kPa."],["Bersihkan lubang vakum yang tersumbat debu.","Matikan dan LOTO dulu."],["Cek panjang lembar.","±1 mm dari resep."],["Cek pisau potong lembar (cut-off knife).","Lembar harus terpotong bersih, tidak sobek."],["Cek 5 pack secara manual.","Lipatan harus saling mengunci (interfold) dan rata."]],
-  bearing:[["Jangan buka guard saat mesin jalan.",""],["Cek suhu bearing dengan termometer IR.","> 70 °C = lapor mekanik segera."],["Dengarkan sumber bunyi (stetoskop mekanik).","Catat lokasi: drive, emboss, log saw atau packing."],["Cek pelumasan sesuai jadwal.","Jangan menambah grease berlebihan."],["Panggil mekanik untuk jadwal ganti bearing.","Getaran > 4,5 mm/s: ganti saat pergantian shift. > 7,1 mm/s: stop mesin."]]
+  chaining:[["Hentikan mesin dan pasang LOTO sebelum menyentuh rotary knife.","Tunggu pisau berhenti penuh."],["Periksa blade perforasi dan anvil.","Ganti blade yang tumpul atau gompal lebih dari 1 mm."],["Ukur celah blade ke anvil dengan feeler gauge.","0,05–0,10 mm. Setel ulang bila di luar."],["Bersihkan debu tisu di area rotary knife.","Debu menumpuk membuat perforasi tidak tembus."],["Jalankan di 80% kecepatan, lihat kamera E selama 5 menit.","Tidak boleh ada deteksi chaining baru. Lalu naikkan ke kecepatan resep."]],
+  lipatan:[["Lihat gambar kamera A: jenis lipatan yang salah.","Tidak mengunci, dobel, atau sudut terlipat."],["Cek setelan vakum folding roll di HMI.","48–62 kPa sesuai resep."],["Matikan, LOTO, bersihkan lubang vakum yang tersumbat debu.",""],["Cek panjang lembar di HMI.","±1 mm dari spec sheet."],["Jalankan, cek 5 tumpukan secara manual.","Lipatan rata dan saling mengunci."]],
+  potong:[["Lihat gambar kamera D: log gepeng atau potongan miring?","Gepeng → clamp terlalu kencang. Miring/berbulu → pisau tumpul atau log bergeser."],["Cek tekanan clamp di HMI.","4,5–5,5 bar."],["Hentikan log saw, LOTO, periksa mata pisau.","Asah bila tumpul, ganti bila gompal."],["Cek interval asah otomatis di HMI.","Standar 400 potongan."],["Jalankan dan lihat kamera D 5 menit.","Tidak ada deteksi baru."]],
+  kemasan:[["Lihat gambar kamera G: miring atau seal terbuka?",""],["Miring: cek tegangan film dan posisi register mark.","Tegangan film 1,2–1,8 bar."],["Seal terbuka: cek setpoint suhu dan waktu seal di HMI.","Lihat setelan resep di tombol Jelaskan parameter."],["Bersihkan jaw seal.","Tunggu dingin atau pakai sarung tangan tahan panas. Sikat kuningan, bukan baja."],["Ambil 20 pack, periksa manual.","Tidak boleh ada seal terbuka atau cetakan miring."]],
+  tinta:[["Catat nomor lot film cetak yang sedang dipakai.",""],["Pisahkan karton sejak deteksi pertama.","Tandai untuk QC."],["Ganti roll film bila luntur di seluruh roll.","Lapor nomor lot ke Kepala Regu."]],
+  suara:[["Jangan buka guard saat mesin jalan.",""],["Dengarkan dari luar guard: dari mana sumber bunyinya?","Drive, emboss, rotary knife, log saw, atau packing."],["Bila bunyi ketukan keras atau makin keras: stop mesin.",""],["Panggil mekanik dan sebutkan lokasi bunyi.","Mekanik memutuskan ganti bearing / setel ulang."]],
+  stop:[["Lihat layar alarm HMI mesin: kode stop apa?",""],["Bila web putus: sambung ulang web sesuai SOP threading.",""],["Bila macet di packing: LOTO, keluarkan kemasan yang tersangkut.",""],["Bila tidak tahu penyebabnya dalam 5 menit: panggil mekanik.",""]]
 };
 const log=$("log");
 function say(html,who){ const d=document.createElement("div"); d.className="msg "+(who||""); d.innerHTML=html; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
-function bot(html,delay=500){ const d=say(`<div class="who">Asisten</div>…`); setTimeout(()=>{d.innerHTML=`<div class="who">Asisten</div>`+html; log.scrollTop=log.scrollHeight;},delay); }
+function bot(html,delay=450){ const d=say(`<div class="who">Asisten</div>…`); setTimeout(()=>{d.innerHTML=`<div class="who">Asisten</div>`+html; log.scrollTop=log.scrollHeight;},delay); }
+function paramsFor(m){ const k=SKU[m.sku].kind; return PARAMS.filter(p=>!p.only||p.only===k).filter(p=>!(p.k==="pitch"&&SKU[m.sku].nop)); }
 function resetBot(){
   log.innerHTML=""; const m=byId(opId), sp=suspected(m);
-  say(`<div class="who">Asisten</div><p>Selamat bekerja, Pak ${esc(m.op.split(" ")[0])}. Mesin <strong>${m.id}</strong>, SKU <strong>${SKU[m.sku].n}</strong>, target hari ini <strong>${num(m.target)}</strong> karton.</p>${sp?`<p><strong>Perhatian:</strong> sensor menduga <strong>${ISSUES[sp].l.toLowerCase()}</strong> (${ISSUES[sp].d.toLowerCase()}).</p><p><button class="sbtn pr" type="button" data-q="fix:${sp}">Buka langkah perbaikan ${ISSUES[sp].l.toLowerCase()}</button></p>`:"<p>Pilih tombol di bawah atau tulis pertanyaan.</p>"}`);
+  say(`<div class="who">Asisten</div><p>Selamat bekerja, Pak ${esc(m.op.split(" ")[0])}. Mesin <strong>${m.id}</strong>, SKU <strong>${SKU[m.sku].n}</strong>.</p><p>Saya bisa menjelaskan parameter mesin (artinya, nilai resep, dan akibatnya kalau dinaikkan atau diturunkan), memberi langkah perbaikan cacat, dan memanggil mekanik atau Kepala Regu.</p>${sp?`<p><strong>Perhatian:</strong> ${SENS[ISSUES[sp].sens].n} mendeteksi <strong>${ISSUES[sp].l.toLowerCase()}</strong> berulang.</p><p><button class="sbtn pr" type="button" data-q="fix:${sp}">Langkah perbaikan ${ISSUES[sp].l.toLowerCase()}</button></p>`:""}`);
 }
-function handle(k){
+function paramCard(m,p,val){
+  const s=SKU[m.sku], nom=p.nom(s), tol=p.tol(s), d=p.dec??(nom%1?1:0);
+  let verdict="";
+  if(val!=null){
+    if(val>nom+tol) verdict=`<p><strong>${num(val,d)} ${p.u} terlalu tinggi</strong> (resep ${num(nom,d)} ±${num(tol,d)}). Akibatnya: ${p.hi}</p>`;
+    else if(val<nom-tol) verdict=`<p><strong>${num(val,d)} ${p.u} terlalu rendah</strong> (resep ${num(nom,d)} ±${num(tol,d)}). Akibatnya: ${p.lo}</p>`;
+    else verdict=`<p><strong>${num(val,d)} ${p.u} masih dalam batas resep.</strong> Tidak perlu diubah kecuali ada cacat.</p>`;
+  }
+  return `<p><strong>${p.n}</strong></p>${verdict}<table class="tbl"><tbody>
+    <tr><td style="width:96px"><strong>Artinya</strong></td><td>${p.arti}</td></tr>
+    <tr><td><strong>Resep SKU ini</strong></td><td class="mono">${num(nom,d)} ${p.u} · batas ${num(nom-tol,d)}–${num(nom+tol,d)}</td></tr>
+    <tr><td><strong>Kalau dinaikkan</strong></td><td>${p.hi}</td></tr>
+    <tr><td><strong>Kalau diturunkan</strong></td><td>${p.lo}</td></tr>
+    <tr><td><strong>Terlihat di sensor</strong></td><td>${p.sens.filter(c=>sensorsOf(m).includes(c)).map(c=>c+" · "+SENS[c].n).join("<br>")||"–"}</td></tr></tbody></table>
+    <p class="muted" style="font-size:12px">Nilai contoh. Sistem nyata mengambil dari resep resmi per SKU. Tulis nilai yang sedang diset, mis. "${p.al[0]} ${num(nom+tol*2,d)}", untuk saya cek.</p>`;
+}
+function askSensor(c){
+  const m=byId(opId);
+  if(c==="F") return handle("fix:stop");
+  const key=Object.keys(ISSUES).find(k=>ISSUES[k].sens===c&&ISSUES[k].kinds.includes(SKU[m.sku].kind)&&(m.issue===k||!m.issue))||Object.keys(ISSUES).find(k=>ISSUES[k].sens===c);
+  handle("fix:"+key);
+}
+function handle(k,val){
   const m=byId(opId), kind=SKU[m.sku].kind, sec=SECTIONS.find(x=>x.id===m.sec);
-  if(k==="defect"){
-    const sp=suspected(m), opts=Object.keys(ISSUES).filter(x=>ISSUES[x].kinds.includes(kind));
-    bot(`<p>Cacat apa yang terlihat?${sp?` Sensor menduga <strong>${ISSUES[sp].l.toLowerCase()}</strong>.`:""}</p><p style="display:flex;gap:5px;flex-wrap:wrap">${opts.map(x=>`<button class="sbtn ${x===sp?"pr":""}" type="button" data-q="fix:${x}">${ISSUES[x].l}</button>`).join("")}</p>`);
+  if(k==="params"){
+    bot(`<p>Parameter mana yang mau dijelaskan? (setelan di HMI ${m.id})</p><p style="display:flex;gap:5px;flex-wrap:wrap">${paramsFor(m).map(p=>`<button class="sbtn" type="button" data-q="p:${p.k}">${p.n}</button>`).join("")}</p>`);
+  } else if(k.startsWith("p:")){
+    const p=PARAMS.find(x=>x.k===k.slice(2)); bot(paramCard(m,p,val),600);
+  } else if(k==="defect"){
+    const opts=Object.keys(ISSUES).filter(x=>ISSUES[x].kinds.includes(kind)), sp=suspected(m);
+    bot(`<p>Cacat apa yang terlihat?${sp?` Sensor ${ISSUES[sp].sens} mendeteksi <strong>${ISSUES[sp].l.toLowerCase()}</strong>.`:""}</p><p style="display:flex;gap:5px;flex-wrap:wrap">${opts.map(x=>`<button class="sbtn ${x===sp?"pr":""}" type="button" data-q="fix:${x}">${ISSUES[x].l}</button>`).join("")}<button class="sbtn" type="button" data-q="fix:stop">Mesin stop</button></p>`);
   } else if(k.startsWith("fix:")){
-    const d=k.slice(4), list=CL[d];
-    bot(`<p><strong>Langkah perbaikan: ${ISSUES[d].l} · ${m.id}</strong><br><span class="muted">Area: ${ISSUES[d].st}. Kerjakan berurutan, centang tiap langkah.</span></p>
+    const d=k.slice(4), list=CL[d], lbl=d==="stop"?"Mesin stop":ISSUES[d].l;
+    bot(`<p><strong>Langkah perbaikan: ${lbl} · ${m.id}</strong><br><span class="muted">Kerjakan berurutan, centang tiap langkah.</span></p>
       <ul class="steps">${list.map(([a,b],i)=>`<li><label><input type="checkbox"><span>${i+1}. ${a}${b?`<span class="m">${b}</span>`:""}</span></label></li>`).join("")}</ul>
-      <p style="display:flex;gap:5px;flex-wrap:wrap"><button class="sbtn pr" type="button" data-q="ok:${d}">Selesai, mesin normal</button><button class="sbtn" type="button" data-q="mech">Masih bermasalah, panggil mekanik</button></p>`,700);
+      <p style="display:flex;gap:5px;flex-wrap:wrap"><button class="sbtn pr" type="button" data-q="ok:${d}">Selesai, mesin normal</button><button class="sbtn" type="button" data-q="mech">Masih bermasalah, panggil mekanik</button></p>`,650);
   } else if(k.startsWith("ok:")){
     const d=k.slice(3); if(m.issue===d) m.issue=null;
-    alarm(m.id,3,`${m.op} menyelesaikan langkah perbaikan ${ISSUES[d].l.toLowerCase()}`);
-    bot(`<p>Tercatat dan sudah tampil di layar Kepala Produksi. Sensor tetap dipantau. Bila muncul lagi, alarm akan menyala.</p>`); renderAll();
-  } else if(k==="hmi"){
-    const s=SKU[m.sku], rows=[];
-    for(const [stn,l] of m.st) for(const x of l){ if(x.src||x.k==="blade"||x.k==="moist"||x.k==="glue"||x.k==="btemp") continue; rows.push([stn,x]); }
-    bot(`<p><strong>Setelan resep ${s.n}</strong> (${s.gsm} gsm · ${s.ply} ply · lebar ${s.lebar} mm)</p>
-      <table class="tbl"><thead><tr><th>Area</th><th>Setelan</th><th>Nilai</th><th>Batas</th></tr></thead><tbody>${rows.map(([stn,x])=>`<tr><td>${stn}</td><td>${x.l}</td><td class="num">${num(x.nom,x.d)} ${x.u}</td><td class="mono" style="font-size:12px">${x.lo!=null?num(x.lo,x.d):"–"} – ${x.hi!=null?num(x.hi,x.d):"–"}</td></tr>`).join("")}</tbody></table>
-      <p class="muted" style="font-size:12px">Contoh nilai. Sistem nyata mengambil dari resep resmi per SKU.</p>`,700);
+    alarm(m.id,3,`${m.op} menyelesaikan langkah perbaikan: ${d==="stop"?"mesin stop":ISSUES[d].l.toLowerCase()}`);
+    bot(`<p>Tercatat dan tampil di layar Kepala Produksi. Kamera tetap memantau; bila terdeteksi lagi, alarm menyala.</p>`); renderAll();
   } else if(k==="karu"||k==="mech"){
-    const who=k==="karu"?sec.karu:MECH;
-    const sp=suspected(m), reason=stopped(m)?"mesin stop":sp?ISSUES[sp].l.toLowerCase():"butuh bantuan";
-    alarm(m.id,2,`${m.op} memanggil ${k==="karu"?"Kepala Regu":"mekanik"} (${reason})`);
+    const who=k==="karu"?sec.karu:MECH, sp=suspected(m), reason=stopped(m)?"mesin stop":sp?ISSUES[sp].l.toLowerCase():"butuh bantuan";
+    alarm(m.id,2,`${m.op} memanggil ${k==="karu"?"Kepala Regu":"mekanik"} (${reason})`); renderAll();
     say(`Panggilan dikirim ke layar Kepala Produksi`,"sys");
     bot(`<p>Panggilan ke <strong>${esc(who)}</strong> sudah masuk ke daftar alarm Kepala Produksi: “${esc(m.id)} – ${reason}”.</p><p>Menunggu konfirmasi…</p>`,400);
-    setTimeout(()=>{ say(`<div class="who">${esc(who)}</div>${k==="karu"?"Siap, saya ke mesin 5 menit lagi.":"Siap, bawa toolkit. Sampai ±8 menit."}`); },4000);
+    setTimeout(()=>say(`<div class="who">${esc(who)}</div>${k==="karu"?"Siap, saya ke mesin 5 menit lagi.":"Siap, bawa toolkit. Sampai ±8 menit."}`),4000);
   }
 }
 function route(t){
-  t=t.toLowerCase();
-  if(/chain|nyambung|menyambung|perfor/.test(t)) return "fix:chaining";
-  if(/tinta|luntur|cetak/.test(t)) return "fix:tinta";
-  if(/seal|segel|kemasan|plastik|bungkus|film|miring kemas/.test(t)) return "fix:kemasan";
-  if(/potong|kompres|gepeng|pisau|saw/.test(t)) return "fix:potong";
-  if(/longgar|lembek|kendor|diameter/.test(t)) return "fix:longgar";
-  if(/lipat|fold/.test(t)) return "fix:lipatan";
-  if(/bunyi|suara|getar|bearing|panas/.test(t)) return "fix:bearing";
-  if(/setel|parameter|hmi|resep|setting|gsm/.test(t)) return "hmi";
-  if(/mekanik|rusak|perbaik/.test(t)) return "mech";
-  if(/karu|kepala|regu|atasan|supervisor/.test(t)) return "karu";
-  if(/cacat|masalah|defect|reject/.test(t)) return "defect";
+  const m=byId(opId), low=t.toLowerCase();
+  const val=(low.match(/-?\d+(?:[.,]\d+)?/)||[])[0];
+  const p=paramsFor(m).find(p=>p.al.some(a=>low.includes(a)));
+  if(p&&!/chain|nyambung|bunyi|suara|miring|terbuka|luntur|gepeng/.test(low)) return ["p:"+p.k, val!=null?parseFloat(val.replace(",",".")):undefined];
+  if(/chain|nyambung|menyambung|tidak tembus/.test(low)) return ["fix:chaining"];
+  if(/tinta|luntur|cetak/.test(low)) return ["fix:tinta"];
+  if(/seal|segel|kemasan|plastik|bungkus|miring/.test(low)) return ["fix:kemasan"];
+  if(/potong|gepeng|tertekan|berbulu|log saw|bandsaw/.test(low)) return ["fix:potong"];
+  if(/lipat|fold|dobel/.test(low)) return ["fix:lipatan"];
+  if(/bunyi|suara|decit|ketuk/.test(low)) return ["fix:suara"];
+  if(/stop|mati|macet|putus/.test(low)) return ["fix:stop"];
+  if(/parameter|setel|setting|hmi|resep/.test(low)) return ["params"];
+  if(/mekanik|rusak|perbaik/.test(low)) return ["mech"];
+  if(/karu|kepala|regu|atasan/.test(low)) return ["karu"];
+  if(/cacat|masalah|defect|reject/.test(low)) return ["defect"];
   return null;
 }
 document.querySelector(".con").addEventListener("click",e=>{const b=e.target.closest("[data-q]"); if(!b) return; if(b.closest(".qbtns")) say(`<div class="who">Operator</div>${esc(b.textContent)}`,"me"); handle(b.dataset.q);});
-$("cform").addEventListener("submit",e=>{e.preventDefault(); const i=$("cin"), v=i.value.trim(); if(!v) return; say(`<div class="who">Operator</div>${esc(v)}`,"me"); i.value=""; const k=route(v); if(k) handle(k); else bot(`<p>Maaf, belum paham. Saya bisa bantu cacat, setelan HMI, atau memanggil Kepala Regu / mekanik.</p><p class="muted" style="font-size:12px">Asisten nyata memakai model AI yang membaca SOP pabrik, jadi pertanyaan bebas akan lebih baik dipahami.</p>`);});
+$("cform").addEventListener("submit",e=>{e.preventDefault(); const i=$("cin"), v=i.value.trim(); if(!v) return; say(`<div class="who">Operator</div>${esc(v)}`,"me"); i.value=""; const r=route(v); if(r) handle(r[0],r[1]); else bot(`<p>Maaf, belum paham. Coba sebut nama parameter (mis. "tekanan nip", "vakum folding") atau jenis cacat (mis. "seal terbuka").</p><p class="muted" style="font-size:12px">Asisten nyata memakai model AI yang membaca manual mesin dan SOP pabrik, jadi pertanyaan bebas akan jauh lebih baik dipahami.</p>`);});
 
 /* ================= demo + routing ================= */
-$("demo-stop").addEventListener("click",()=>{ const c=running().filter(m=>!m.down&&!m.change); const m=pick(c); m.down=true; m.stoppedAt=sim.t; m.restartAt=sim.t+rnd(12,25); renderAll(); });
-$("demo-defect").addEventListener("click",()=>{ const c=running().filter(m=>!m.issue&&!m.down); const m=pick(c); const ks=Object.keys(ISSUES).filter(k=>ISSUES[k].kinds.includes(SKU[m.sku].kind)&&issueScore(m,k)!=null); m.issue=pick(ks); renderAll(); });
+$("demo-stop").addEventListener("click",()=>{ const m=pick(running().filter(m=>!m.down&&!m.change)); m.down=true; m.stoppedAt=sim.t; m.restartAt=sim.t+rnd(12,25); renderAll(); });
+$("demo-defect").addEventListener("click",()=>{ const m=pick(running().filter(m=>!m.issue&&!m.down)); const ks=Object.keys(ISSUES).filter(k=>ISSUES[k].kinds.includes(SKU[m.sku].kind)&&sensorsOf(m).includes(ISSUES[k].sens)); m.issue=pick(ks); for(let i=0;i<3;i++) addEv(m,ISSUES[m.issue].sens,pick(ISSUES[m.issue].types)); renderAll(); });
 const SPEEDS=[1,10,60];
 $("demo-speed").addEventListener("click",e=>{ sim.speed=SPEEDS[(SPEEDS.indexOf(sim.speed)+1)%SPEEDS.length]; e.target.textContent=`Kecepatan ${sim.speed}×`; });
 function renderAll(){
@@ -715,26 +735,20 @@ window.addEventListener("hashchange",routeView);
 /* ================= seed ================= */
 (function seed(){
   const set=(id,f)=>f(byId(id));
-  set("TR-04",m=>{m.down=true;m.stoppedAt=sim.t-12;m.restartAt=sim.t+14;m.downMin+=12;});
+  for(const m of running()){ m.base={}; for(const c of sensorsOf(m)) if(SENS[c].issue) m.base[c]=Math.floor(rnd(0,4)); m.baseStops=Math.floor(rnd(0,3)); }
+  // a few old events so logs aren't empty
+  for(const m of running()) for(const c of sensorsOf(m)){ if(c==="B"){ m.ev.B.push({t:sim.t-rnd(30,80),type:"Ganti jumbo",bad:false}); continue; } if(SENS[c].issue&&Math.random()<0.4) m.ev[c].push({t:sim.t-rnd(70,200),type:pick(SENS[c].finds),bad:true}); }
+  set("TR-04",m=>{m.down=true;m.stoppedAt=sim.t-12;m.restartAt=sim.t+14;m.downMin+=12;m.flags.down=true;m.ev.F.push({t:sim.t-9,type:"Mesin stop (3 menit tanpa karton)",bad:true});});
   set("NP-03",m=>{m.down=true;m.stoppedAt=sim.t-1.5;m.restartAt=sim.t+20;});
-  set("TR-02",m=>m.issue="chaining");
-  set("FB-05",m=>m.issue="kemasan");
-  set("KT-03",m=>m.issue="longgar");
-  set("HT-04",m=>m.issue="bearing");
-  set("SP-02",m=>m.issue="lipatan");
-  set("TR-06",m=>m.issue="potong");
+  const iss={"TR-02":"chaining","FB-05":"kemasan","HT-04":"suara","SP-02":"lipatan","TR-06":"potong","KT-03":"tinta"};
+  for(const id in iss){ const m=byId(id); m.issue=iss[id]; const c=ISSUES[m.issue].sens; for(let i=0;i<5;i++) m.ev[c].push({t:sim.t-14+i*2.6+rnd(0,1),type:pick(ISSUES[m.issue].types),bad:true}); m.flags.issue=m.issue; }
   set("SP-05",m=>{m.eff=0.78;}); set("NP-05",m=>{m.eff=0.8;}); set("NP-06",m=>{m.eff=0.82;});
-  set("KT-05",m=>{m.jumbo=7;}); set("FB-02",m=>{m.jumbo=0.3;});
-  // warm up sensors and history quietly
-  const sp=sim.speed; sim.speed=0;
-  for(let i=0;i<60;i++){ for(const m of running()){ for(const [,l] of m.st) for(const x of l){ let v=m.s[x.k]; if(["jumbo","jeta","rate","lastc"].includes(x.k)){ v=x.k==="jumbo"?m.jumbo:x.k==="jeta"?m.jumbo/100*m.jumboRun:x.k==="rate"?(m.down?0:m.rate*m.eff*rnd(0.92,1.06)):(m.down?(sim.t-m.stoppedAt)*60:rnd(20,45)); } else { const off=m.issue&&ISSUES[m.issue].fx[x.k]!=null?ISSUES[m.issue].fx[x.k]*1.15*Math.min(1,i/30):0; v+=(x.nom+off-v)*0.2+rnd(-1,1)*x.nz; } m.s[x.k]=v; m.h[x.k].push(v); } } }
-  sim.speed=sp;
-  // seed alarms (already present before page open)
+  set("KT-05",m=>{m.jumbo=7;m.flags.jlow=true;m.ev.B.push({t:sim.t-3,type:"Sisa jumbo menipis",bad:false});}); set("FB-02",m=>{m.jumbo=0.4;});
+  for(const m of running()) for(const c in m.ev) m.ev[c].sort((a,b)=>a.t-b.t);
   sim.alarms=[];
-  const pre=[["TR-04",1,"Tidak ada karton 3 menit (sensor gerak). Mesin stop.",-9],["TR-02",2,"Dugaan chaining: lembar/gulungan masih menyambung setelah dipotong rotary knife",-6],["HT-04",2,"Dugaan bunyi / getaran abnormal: sensor suara dan getaran mendeteksi kemungkinan bearing rusak",-20],["KT-01",3,"Jumbo baru terpasang, mesin jalan",-31]];
-  for(const [mid,p,msg,dt] of pre){ sim.alarms.push({id:++sim.aid,t:sim.t+dt,mid,pri:p,msg,ack:p===3,clr:false}); }
+  const pre=[["TR-04",1,"Sensor gerak: 3 menit tanpa karton. Mesin stop.",-9],["TR-02",2,"Kamera chaining: chaining terdeteksi berulang (5× dalam 20 menit)",-4],["HT-04",2,"Sensor suara: bunyi abnormal terdeteksi berulang (5× dalam 20 menit)",-3],["FB-05",2,"Kamera packing: cacat kemasan terdeteksi berulang (5× dalam 20 menit)",-2],["KT-01",3,"Kamera jumbo: ganti jumbo dimulai",-31]];
+  for(const [mid,p,msg,dt] of pre) sim.alarms.push({id:++sim.aid,t:sim.t+dt,mid,pri:p,msg,ack:p===3,clr:false});
   sim.alarms.sort((a,b)=>b.t-a.t);
-  for(const m of running()){ m.flags.issue=suspected(m)||null; if(m.id==="TR-04") m.flags.down=true; for(const [,l] of m.st) for(const x of l) if(sevOf(x,m.s[x.k])==="crit") m.flags["s:"+x.k]=true; }
   sim.sel="TR-04"; sim.rt="alarm";
   sel.value=opId; resetBot(); routeView();
   setInterval(tick,1000);
