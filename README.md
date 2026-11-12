@@ -9,7 +9,7 @@ Everything is one static file, `public/index.html`. Sensor data is simulated in 
 
 ## Run locally
 
-Open `public/index.html` in a browser, or run `npx wrangler dev`.
+Open `public/index.html` in a browser, or run `npx wrangler dev`. Pushing to `main` deploys it.
 
 ## Deploy (Cloudflare Workers)
 
