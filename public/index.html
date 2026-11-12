@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mill Floor: Head and Operator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: app bar with Head/Operator switch. Head = KPI strip, machine grid, right rail (alerts + WhatsApp). Operator = my line + sensors + supervisor msgs | assistant chat. */
+  --bg:#eceff2; --surface:#ffffff; --ink:#16212a; --muted:#5a6873; --line:#d3dae0;
+  --accent:#1c5d88; --accent-ink:#ffffff; --accent-soft:#e2edf5;
+  --ok:#1d7f46; --ok-bg:#e1f2e7; --warn:#a35f00; --warn-bg:#fbefd8; --crit:#bb3324; --crit-bg:#fbe3df;
+  --wa:#1a9e50; --wa-out:#d9f4e1; --wa-in:#ffffff; --chat-bg:#f3f5f7;
+  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161b; --surface:#19222a; --ink:#e4eaee; --muted:#93a2ad; --line:#2b3842;
+    --accent:#62aedc; --accent-ink:#08161f; --accent-soft:#1a3242;
+    --ok:#4fc483; --ok-bg:#14301f; --warn:#f0a83c; --warn-bg:#382811; --crit:#f06c5d; --crit-bg:#3c1916;
+    --wa:#3fce78; --wa-out:#1b3a27; --wa-in:#222e37; --chat-bg:#141c22;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161b; --surface:#19222a; --ink:#e4eaee; --muted:#93a2ad; --line:#2b3842;
+  --accent:#62aedc; --accent-ink:#08161f; --accent-soft:#1a3242;
+  --ok:#4fc483; --ok-bg:#14301f; --warn:#f0a83c; --warn-bg:#382811; --crit:#f06c5d; --crit-bg:#3c1916;
+  --wa:#3fce78; --wa-out:#1b3a27; --wa-in:#222e37; --chat-bg:#141c22;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+
+/* App bar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.brand{font-family:var(--display);font-weight:700;font-size:20px}
+.brand small{font-weight:500;color:var(--muted);font-size:15px;margin-left:6px}
+.switch{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.switch a{padding:7px 16px;text-decoration:none;color:var(--ink);font-weight:600}
+.switch a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.clock{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock .num{font-size:20px;font-weight:600}
+.demo{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 11px;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.btn.small{padding:4px 9px;font-size:13px}
+
+main{padding:16px 20px 28px;display:grid;gap:16px}
+.view[hidden]{display:none}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi .lbl{font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .val{font-size:30px;font-weight:700;line-height:1.1}
+.kpi .sub{font-size:13px;color:var(--muted)}
+
+.head-layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+@media (max-width:1020px){.head-layout{grid-template-columns:1fr}}
+
+/* Machine cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:10px;padding:12px 14px;display:grid;gap:8px;text-align:left}
+.card.warn{border-left-color:var(--warn)}
+.card.crit{border-left-color:var(--crit)}
+.card.sel{box-shadow:0 0 0 2px var(--accent)}
+.card-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h3{font-size:22px}
+.card .sku{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.crit{background:var(--crit-bg);color:var(--crit)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.out{display:flex;align-items:baseline;gap:6px}
+.out .big{font-size:28px;font-weight:700}
+.prog{height:8px;background:var(--bg);border-radius:4px;position:relative;overflow:hidden}
+.prog i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+.prog b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:13.5px}
+.issue{font-size:13.5px;padding:6px 8px;border-radius:6px}
+.issue.warn{background:var(--warn-bg)}
+.issue.crit{background:var(--crit-bg)}
+.issue strong{display:block}
+.reply{font-size:13.5px;border-left:3px solid var(--wa);padding:2px 0 2px 8px}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;display:grid}
+.panel>header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.panel>header h2{font-size:19px}
+.feed{max-height:260px;overflow:auto;padding:4px 0;margin:0;list-style:none}
+.feed li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:7px 14px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.feed li:last-child{border-bottom:0}
+.feed .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.sev{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.sev.crit{background:var(--crit)} .sev.warn{background:var(--warn)} .sev.ok{background:var(--ok)} .sev.info{background:var(--accent)} .sev.wa{background:var(--wa)}
+.rail{display:grid;gap:16px}
+
+/* WhatsApp */
+.wa-head{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--display)}
+.wa-msgs{background:var(--chat-bg);padding:12px;display:flex;flex-direction:column;gap:6px;height:260px;overflow:auto}
+.bub{max-width:85%;padding:6px 10px;border-radius:9px;font-size:14px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.bub.out{align-self:flex-end;background:var(--wa-out)}
+.bub.in{align-self:flex-start;background:var(--wa-in);border:1px solid var(--line)}
+.bub .meta{display:block;text-align:right;font-size:11.5px;color:var(--muted);margin-top:2px}
+.ticks.read{color:#3b8fd9}
+.typing{font-size:13px;color:var(--muted);font-style:italic;align-self:flex-start}
+.templates{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px 0}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:13px}
+.chip:hover{border-color:var(--accent)}
+.compose{display:flex;gap:8px;padding:10px 12px}
+.compose input{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font:inherit;background:var(--surface);color:var(--ink)}
+.empty{padding:22px 14px;color:var(--muted);font-size:14px}
+
+/* Operator */
+.op-pick{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.op-pick select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink)}
+.op-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:16px;align-items:start}
+@media (max-width:920px){.op-layout{grid-template-columns:1fr}}
+.op-left{display:grid;gap:16px}
+.target{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--ok);border-radius:10px;padding:16px 18px;display:grid;gap:12px}
+.target.warn{border-left-color:var(--warn)} .target.crit{border-left-color:var(--crit)}
+.target h2{font-size:28px}
+.target-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.target-nums div{display:grid}
+.target-nums .lbl{font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.target-nums .v{font-size:34px;font-weight:700;line-height:1.1}
+.target .prog{height:14px;border-radius:7px}
+.sensors{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding:12px 14px}
+.sensor{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:2px;background:var(--surface)}
+.sensor.ok{border-top:4px solid var(--ok)} .sensor.warn{border-top:4px solid var(--warn);background:var(--warn-bg)} .sensor.crit{border-top:4px solid var(--crit);background:var(--crit-bg)}
+.sensor .lbl{font-size:13px;color:var(--muted);font-weight:600}
+.sensor .v{font-size:26px;font-weight:700}
+.sensor .lim{font-size:12px;color:var(--muted)}
+
+/* Assistant */
+.bot{display:grid;grid-template-rows:auto 1fr auto auto;height:calc(100vh - 150px);min-height:520px;position:sticky;top:76px}
+@media (max-width:920px){.bot{position:static;height:640px}}
+.bot-msgs{background:var(--chat-bg);padding:14px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.b{max-width:92%;padding:9px 12px;border-radius:10px;font-size:14.5px}
+.b.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.b.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line)}
+.b.sys{align-self:center;background:var(--accent-soft);color:var(--ink);font-size:13px;border-radius:999px;padding:4px 12px}
+.b p{margin:0 0 6px} .b p:last-child{margin:0}
+.b table{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0}
+.b th,.b td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.b td.num{text-align:right}
+.tasks{list-style:none;padding:0;margin:6px 0;display:grid;gap:6px}
+.tasks label{display:grid;grid-template-columns:20px 1fr;gap:6px;align-items:start;cursor:pointer}
+.tasks input{margin-top:3px;accent-color:var(--ok)}
+.tasks .m{display:block;font-size:12.5px;color:var(--muted)}
+.tasks input:checked + span{color:var(--muted);text-decoration:line-through}
+.b .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px 0;border-top:1px solid var(--line)}
+.note{font-size:12.5px;color:var(--muted);padding:0 2px}
+footer.note{padding:0 20px 20px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:600px){.bar{padding:10px 16px} main{padding:12px 16px 24px} .clock{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="brand">Mill Floor<small>Converting hall · mockup</small></div>
+  <nav class="switch" aria-label="View">
+    <a href="#head" id="tab-head">Head</a>
+    <a href="#operator" id="tab-operator">Operator</a>
+  </nav>
+  <div class="clock">
+    <span class="muted">Production day 06:00 to 06:00 · now</span>
+    <span class="num" id="clock">13:40</span>
+    <div class="demo" aria-label="Demo controls">
+      <button class="btn small" id="demo-stop" type="button">Demo: stop a line</button>
+      <button class="btn small" id="demo-defect" type="button">Demo: inject defect</button>
+      <button class="btn small" id="demo-speed" type="button">Speed 1×</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- HEAD VIEW -->
+  <section class="view" id="view-head" aria-label="Head view">
+    <div class="kpis" id="kpis"></div>
+    <div class="head-layout" style="margin-top:16px">
+      <div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="rail">
+        <section class="panel" aria-label="WhatsApp">
+          <header>
+            <div class="wa-head" id="wa-head"><h2>WhatsApp</h2></div>
+            <span class="pill info" id="wa-mode">Simulated</span>
+          </header>
+          <div id="wa-body"><div class="empty">Pick a machine and press <strong>Message operator</strong> to open the WhatsApp thread with the operator on that line.</div></div>
+        </section>
+        <section class="panel" aria-label="Live alerts">
+          <header><h2>Live alerts</h2><span class="muted" style="font-size:13px">from sensors, operators and WhatsApp</span></header>
+          <ul class="feed" id="feed"></ul>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATOR VIEW -->
+  <section class="view" id="view-operator" aria-label="Operator view" hidden>
+    <div class="op-pick">
+      <label for="op-select"><strong>Signed in as</strong></label>
+      <select id="op-select"></select>
+      <span class="muted" style="font-size:13px">In the real app this comes from the operator's login or badge scan.</span>
+    </div>
+    <div class="op-layout" style="margin-top:14px">
+      <div class="op-left">
+        <div class="target" id="op-target"></div>
+        <section class="panel" aria-label="My line sensors">
+          <header><h2>My line sensors</h2><span class="muted" style="font-size:13px" id="op-sensor-note"></span></header>
+          <div class="sensors" id="op-sensors"></div>
+        </section>
+        <section class="panel" aria-label="Messages with supervisor">
+          <header><h2>Supervisor messages</h2><span class="pill info">Same WhatsApp thread the Head sees</span></header>
+          <div class="wa-msgs" id="op-wa" style="height:200px"></div>
+        </section>
+      </div>
+      <section class="panel bot" aria-label="Line assistant">
+        <header><h2>Line assistant</h2><span class="pill info">Scripted demo replies</span></header>
+        <div class="bot-msgs" id="bot-msgs" aria-live="polite"></div>
+        <div class="quick" id="bot-quick"></div>
+        <form class="compose" id="bot-form" autocomplete="off">
+          <label for="bot-input" class="muted" style="position:absolute;left:-9999px">Ask the assistant</label>
+          <input id="bot-input" placeholder="Ask, e.g. 'packs not sealing' or 'settings for this SKU'">
+          <button class="btn primary" type="submit">Send</button>
+        </form>
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="note">All numbers, people, phone numbers, recipes and checklists here are invented for the mockup. Sensor data is simulated in your browser. Nothing is sent over WhatsApp.</footer>
+
+<script>
+"use strict";
+/* ---------- reference data ---------- */
+const ISSUES = {
+  chaining:{label:"Chaining", detail:"Rolls still joined after the log saw cut", sensor:"chain"},
+  pack:{label:"Pack defect", detail:"Open side seal or torn wrap at the bundler", sensor:"reject"},
+  loose:{label:"Loose wind", detail:"Soft rolls, diameter under spec", sensor:"dim"}
+};
+const SKUS = {
+  "TR2-12":{name:"Bathroom 2-ply · 12 rolls", kind:"roll", dim:118, seal:150, params:[["Line speed","420","m/min","±10"],["Unwind tension","28","N","±2"],["Emboss nip","2.4","bar","±0.2"],["Perforation pitch","110","mm","±1"],["Log diameter","118","mm","±1.5"],["Log saw clamp","5.0","bar","±0.5"],["Wrapper seal temp","150","°C","±5"],["Seal dwell","0.50","s","±0.1"]]},
+  "TR3-06":{name:"Bathroom 3-ply · 6 rolls", kind:"roll", dim:124, seal:155, params:[["Line speed","360","m/min","±10"],["Unwind tension","24","N","±2"],["Emboss nip","2.8","bar","±0.2"],["Perforation pitch","115","mm","±1"],["Log diameter","124","mm","±1.5"],["Log saw clamp","5.2","bar","±0.5"],["Wrapper seal temp","155","°C","±5"],["Seal dwell","0.55","s","±0.1"]]},
+  "TR1-24":{name:"Economy 1-ply · 24 rolls", kind:"roll", dim:105, seal:145, params:[["Line speed","480","m/min","±10"],["Unwind tension","32","N","±2"],["Emboss nip","1.8","bar","±0.2"],["Perforation pitch","100","mm","±1"],["Log diameter","105","mm","±1.5"],["Log saw clamp","4.6","bar","±0.5"],["Wrapper seal temp","145","°C","±5"],["Seal dwell","0.45","s","±0.1"]]},
+  "KT2-04":{name:"Kitchen towel 2-ply · 4 rolls", kind:"roll", dim:132, seal:150, params:[["Line speed","300","m/min","±10"],["Unwind tension","34","N","±2"],["Emboss nip","3.2","bar","±0.2"],["Perforation pitch","230","mm","±1"],["Log diameter","132","mm","±1.5"],["Log saw clamp","5.5","bar","±0.5"],["Wrapper seal temp","150","°C","±5"],["Seal dwell","0.50","s","±0.1"]]},
+  "FT-150":{name:"Facial tissue box · 150 sheets", kind:"fold", dim:62, seal:135, params:[["Folder speed","180","m/min","±8"],["Unwind tension","18","N","±2"],["Sheet length","210","mm","±1"],["Stack count","150","sheets","exact"],["Stack height","62","mm","±1.5"],["Cartoner glue temp","165","°C","±5"],["Overwrap seal temp","135","°C","±5"],["Seal dwell","0.40","s","±0.1"]]},
+  "NP-50":{name:"Dinner napkin 33 cm · 50s", kind:"fold", dim:48, seal:140, params:[["Folder speed","220","m/min","±8"],["Unwind tension","20","N","±2"],["Emboss nip","1.6","bar","±0.2"],["Fold plate gap","0.8","mm","±0.1"],["Stack height","48","mm","±1.5"],["Wrapper seal temp","140","°C","±5"],["Seal dwell","0.45","s","±0.1"],["Count check","50","pcs","exact"]]},
+  "HT-200":{name:"Interfold hand towel · 200s", kind:"fold", dim:95, seal:145, params:[["Folder speed","250","m/min","±8"],["Unwind tension","26","N","±2"],["Sheet length","230","mm","±1"],["Interfold vacuum","-0.55","bar","±0.05"],["Stack height","95","mm","±1.5"],["Wrapper seal temp","145","°C","±5"],["Seal dwell","0.50","s","±0.1"],["Count check","200","pcs","exact"]]}
+};
+const START = 7*60+40; // 13:40 in minutes since 06:00
+const sim = {t:START, speed:0.5, alerts:[], threads:{}, sel:null, typing:{}};
+const mk = (id,name,sku,target,rate,op,phone,eff,extra={}) => ({id,name,sku,target,rate,op,phone,eff,output:Math.round(rate*eff*START/60),
+  down:false, stoppedAt:null, downMin:extra.downMin||0, issue:null, lastReply:null, cause:null, restartAt:null,
+  s:{reject:0.6, chain:0.5, seal:SKUS[sku].seal, dim:SKUS[sku].dim}, ...extra});
+const machines = [
+  mk("TR-1","Toilet roll line 1","TR2-12",1900,86,"Ramon D.","+1 555-0141",0.94),
+  mk("TR-2","Toilet roll line 2","TR3-06",2400,108,"Aisha K.","+1 555-0142",0.93),
+  mk("TR-3","Toilet roll line 3","TR1-24",1300,59,"Tomás R.","+1 555-0143",0.95),
+  mk("KT-1","Kitchen towel line","KT2-04",1500,68,"Wei L.","+1 555-0144",0.92),
+  mk("FT-1","Facial tissue line","FT-150",2000,92,"Priya N.","+1 555-0145",0.93),
+  mk("NP-1","Napkin line","NP-50",1100,50,"Kofi A.","+1 555-0146",0.9,{downMin:26}),
+  mk("HT-1","Hand towel line","HT-200",1200,55,"Lena M.","+1 555-0147",0.78,{downMin:58})
+];
+const byId = id => machines.find(m=>m.id===id);
+const MECH = {name:"Joel (mechanic on duty)", phone:"+1 555-0190"};
+const SUP = {name:"Shift head", phone:"+1 555-0100"};
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = t => { const m=Math.floor(6*60+t)%1440; return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0"); };
+const n0 = v => Math.round(v).toLocaleString("en-US");
+const rnd = (a,b) => a+Math.random()*(b-a);
+const firstName = m => m.op.split(" ")[0];
+const remainingH = () => Math.max(0,(1440-sim.t)/60);
+function projected(m){ return m.output + (m.down?0:m.rate*m.eff*remainingH()); }
+function sensorState(m,key){
+  const v=m.s[key], sku=SKUS[m.sku];
+  if(key==="reject") return v>=3?"crit":v>=1.5?"warn":"ok";
+  if(key==="chain") return v>=5?"crit":v>=2?"warn":"ok";
+  if(key==="seal"){const d=Math.abs(v-sku.seal); return d>=10?"crit":d>=5?"warn":"ok";}
+  if(key==="dim"){const d=Math.abs(v-sku.dim); return d>=3?"crit":d>=1.5?"warn":"ok";}
+  return "ok";
+}
+function noOutput(m){ return m.down && (sim.t - m.stoppedAt) >= 3; }
+function status(m){
+  if(noOutput(m)) return {cls:"crit", label:"Down · no cartons"};
+  if(m.issue) return {cls:"warn", label:"Quality alert"};
+  if(projected(m) < m.target*0.97) return {cls:"warn", label:"Behind target"};
+  return {cls:"ok", label:"On target"};
+}
+function addAlert(mid,sev,text){ sim.alerts.unshift({t:sim.t,mid,sev,text}); sim.alerts=sim.alerts.slice(0,40); renderFeed(); }
+function thread(mid){ return sim.threads[mid] || (sim.threads[mid]=[]); }
+
+/* ---------- WhatsApp (simulated) ---------- */
+function waSend(mid,text){
+  const msg={dir:"out",text,t:sim.t,status:"sent"}; thread(mid).push(msg);
+  addAlert(mid,"wa",`WhatsApp sent to ${byId(mid).op} (${mid})`);
+  renderWA(); renderOpWA();
+  setTimeout(()=>{msg.status="delivered";renderWA();renderOpWA();},700);
+  setTimeout(()=>{msg.status="read";sim.typing[mid]=true;renderWA();renderOpWA();},1800);
+  setTimeout(()=>{sim.typing[mid]=false;operatorReply(mid);},4200);
+}
+function operatorReply(mid){
+  const m=byId(mid); let text;
+  if(m.down){
+    const c=m.cause||{text:"Wrapper film splice broke. Re-threading now.",eta:10};
+    text=`${c.text} Back running in about ${c.eta} min.`;
+    m.restartAt=sim.t+c.eta;
+  } else if(m.issue==="chaining"){ text="Seen it. Following the chaining checklist, checking saw blade and clamp pressure. Will confirm in 10 min.";
+  } else if(m.issue==="pack"){ text="Yes, open seals on the side. Seal temp reads low, raising it to recipe and cleaning jaws. 5 min.";
+  } else if(m.issue==="loose"){ text="Rolls feel soft. Checking unwind tension and parent roll now.";
+  } else if(projected(m)<m.target*0.97){ text=`Running ${Math.round(m.rate*0.95)}/hr now. Lost time earlier on a parent roll change, will push speed back to recipe.`;
+  } else { text=`All good here, running steady at about ${Math.round(m.rate)}/hr.`; }
+  thread(mid).push({dir:"in",text,t:sim.t});
+  m.lastReply={text,t:sim.t};
+  addAlert(mid,"wa",`${m.op} replied: “${text}”`);
+  renderAll();
+}
+
+/* ---------- simulation ---------- */
+function tick(){
+  const dt=sim.speed; sim.t=Math.min(1439,sim.t+dt);
+  for(const m of machines){
+    if(m.down){
+      m.downMin+=dt;
+      if(noOutput(m) && !m.alertedDown){ m.alertedDown=true; addAlert(m.id,"crit",`${m.id} no cartons counted for 3 min. Marked as down.`); }
+      if(m.restartAt!==null && sim.t>=m.restartAt){ m.down=false; m.restartAt=null; m.alertedDown=false; m.cause=null; addAlert(m.id,"ok",`${m.id} cartons counting again. Back running.`); }
+    } else {
+      m.output += m.rate*m.eff*dt/60*rnd(0.85,1.15);
+    }
+    // sensor drift toward normal or toward fault
+    const sku=SKUS[m.sku];
+    const tgt = {reject:m.issue==="pack"?3.6:0.6, chain:m.issue==="chaining"?6.5:0.5, seal:m.issue==="pack"?sku.seal-11:sku.seal, dim:m.issue==="loose"?sku.dim-3.4:sku.dim};
+    for(const k in tgt){ m.s[k] += (tgt[k]-m.s[k])*0.25 + rnd(-1,1)*(k==="seal"?0.6:k==="dim"?0.15:0.08); if(k!=="seal"&&k!=="dim") m.s[k]=Math.max(0,m.s[k]); }
+    if(m.issue && !m.alertedIssue && sensorState(m,ISSUES[m.issue].sensor)!=="ok"){ m.alertedIssue=true; addAlert(m.id,"warn",`${m.id} suspected ${ISSUES[m.issue].label.toLowerCase()}: ${ISSUES[m.issue].detail.toLowerCase()}.`); }
+  }
+  renderAll(true);
+}
+
+/* ---------- Head view ---------- */
+function renderKPIs(){
+  const out=machines.reduce((a,m)=>a+m.output,0), tgt=machines.reduce((a,m)=>a+m.target,0);
+  const proj=machines.reduce((a,m)=>a+projected(m),0);
+  const down=machines.filter(noOutput), q=machines.filter(m=>m.issue);
+  const waiting=machines.filter(m=>{const th=sim.threads[m.id]; return th&&th.length&&th[th.length-1].dir==="out";});
+  const expected=tgt*sim.t/1440;
+  document.getElementById("kpis").innerHTML=`
+    <div class="kpi"><div class="lbl">Cartons today</div><div class="val num">${n0(out)}</div><div class="sub">of ${n0(tgt)} target · ${out>=expected?"ahead of":"behind"} pace by ${n0(Math.abs(out-expected))}</div></div>
+    <div class="kpi"><div class="lbl">Projected end of day</div><div class="val num" style="color:var(--${proj>=tgt*0.97?"ok":"warn"})">${Math.round(proj/tgt*100)}%</div><div class="sub">${n0(proj)} cartons if lines hold current rate</div></div>
+    <div class="kpi"><div class="lbl">Lines running</div><div class="val num">${machines.length-down.length} / ${machines.length}</div><div class="sub">${down.length?"Down: "+down.map(m=>m.id).join(", "):"No line down"}</div></div>
+    <div class="kpi"><div class="lbl">Quality alerts</div><div class="val num" style="color:var(--${q.length?"warn":"ok"})">${q.length}</div><div class="sub">${q.length?q.map(m=>m.id+" "+ISSUES[m.issue].label.toLowerCase()).join(" · "):"Sensors normal"}</div></div>
+    <div class="kpi"><div class="lbl">Awaiting operator reply</div><div class="val num">${waiting.length}</div><div class="sub">${waiting.length?waiting.map(m=>m.id).join(", "):"No open questions"}</div></div>`;
+}
+let gridHold=false;
+function renderGrid(){
+  const g=document.getElementById("grid");
+  if(gridHold) return;
+  g.innerHTML=machines.map(m=>{
+    const st=status(m), pct=Math.min(100,m.output/m.target*100), exp=Math.min(100,sim.t/1440*100);
+    const need=remainingH()>0?Math.max(0,(m.target-m.output)/remainingH()):0;
+    let issue="";
+    if(noOutput(m)) issue=`<div class="issue crit"><strong>No output for ${Math.round(sim.t-m.stoppedAt)} min</strong>Carton counter idle since ${fmt(m.stoppedAt)}</div>`;
+    if(m.issue) issue+=`<div class="issue warn"><strong>Suspected: ${ISSUES[m.issue].label}</strong>${ISSUES[m.issue].detail}</div>`;
+    const rep=m.lastReply?`<div class="reply"><span class="muted">${fmt(m.lastReply.t)} ${esc(firstName(m))}:</span> ${esc(m.lastReply.text)}</div>`:"";
+    return `<article class="card ${st.cls==="ok"?"":st.cls} ${sim.sel===m.id?"sel":""}">
+      <div class="card-top"><h3>${m.id}</h3><span class="pill ${st.cls}">${st.label}</span></div>
+      <div class="sku">${m.name} · ${SKUS[m.sku].name}</div>
+      <div class="out"><span class="big num">${n0(m.output)}</span><span class="muted">/ ${n0(m.target)} cartons</span></div>
+      <div class="prog" title="Output vs day target. Marker = where it should be now."><i style="width:${pct}%"></i><b style="left:${exp}%"></b></div>
+      <div class="row"><span class="muted">Needs</span><span class="num">${n0(need)}/hr for rest of day</span></div>
+      <div class="row"><span class="muted">Downtime today</span><span class="num">${Math.round(m.downMin)} min</span></div>
+      ${issue}${rep}
+      <div class="row"><span class="muted">Operator</span><span>${esc(m.op)} · ${m.phone}</span></div>
+      <div class="card-actions"><button class="btn wa small" type="button" data-wa="${m.id}">Message operator</button></div>
+    </article>`;
+  }).join("");
+}
+function renderFeed(){
+  const f=document.getElementById("feed");
+  f.innerHTML=sim.alerts.length?sim.alerts.map(a=>`<li><span class="t">${fmt(a.t)}</span><span><span class="sev ${a.sev}"></span><strong>${a.mid}</strong> ${esc(a.text.replace(new RegExp("^"+a.mid+" "),""))}</span></li>`).join(""):`<li><span></span><span class="muted">No alerts yet.</span></li>`;
+}
+const TEMPLATES = m => {
+  const t=["Quick check: how is the line running?"];
+  if(noOutput(m)) t.unshift(`${m.id} has had no cartons for ${Math.round(sim.t-m.stoppedAt)} min. What happened and what's the ETA?`);
+  if(m.issue) t.unshift(`Sensors show possible ${ISSUES[m.issue].label.toLowerCase()} on ${m.id}. Please check and confirm.`);
+  if(!noOutput(m)&&projected(m)<m.target*0.97) t.push(`You're tracking under target on ${m.id}. Anything slowing you down?`);
+  return t;
+};
+function msgHTML(th,mid,label){
+  return th.map(x=>`<div class="bub ${x.dir}">${esc(x.text)}<span class="meta">${x.who?esc(x.who)+" · ":""}${fmt(x.t)}${x.dir==="out"?` <span class="ticks ${x.status==="read"?"read":""}">${x.status==="sent"?"✓":"✓✓"}</span>`:""}</span></div>`).join("")
+    + (sim.typing[mid]?`<div class="typing">${esc(label)} is typing…</div>`:"");
+}
+function renderWA(){
+  const body=document.getElementById("wa-body"), head=document.getElementById("wa-head");
+  if(!sim.sel){ return; }
+  const m=byId(sim.sel), th=thread(m.id);
+  head.innerHTML=`<div class="avatar">${esc(m.op[0])}</div><div><strong>${esc(m.op)}</strong> · ${m.id}<div class="muted" style="font-size:12.5px">${m.phone}</div></div>`;
+  if(!document.getElementById("wa-msgs")){
+    body.innerHTML=`<div class="wa-msgs" id="wa-msgs"></div><div class="templates" id="wa-templates"></div>
+      <form class="compose" id="wa-form" autocomplete="off"><label for="wa-input" style="position:absolute;left:-9999px">Message</label><input id="wa-input" placeholder="Type a WhatsApp message"><button class="btn wa" type="submit">Send</button></form>`;
+    document.getElementById("wa-form").addEventListener("submit",e=>{e.preventDefault();const i=document.getElementById("wa-input");if(i.value.trim()){waSend(sim.sel,i.value.trim());i.value="";}});
+  }
+  const box=document.getElementById("wa-msgs");
+  box.innerHTML=th.length?msgHTML(th,m.id,firstName(m)):`<div class="muted" style="font-size:13px">No messages with ${esc(firstName(m))} today. Pick a suggested message or type one.</div>`;
+  box.scrollTop=box.scrollHeight;
+  document.getElementById("wa-templates").innerHTML=TEMPLATES(m).map((t,i)=>`<button type="button" class="chip" data-tpl="${i}">${esc(t.length>58?t.slice(0,56)+"…":t)}</button>`).join("");
+}
+const gEl=document.getElementById("grid");
+gEl.addEventListener("pointerdown",()=>{gridHold=true;});
+["pointerup","pointercancel","pointerleave"].forEach(ev=>gEl.addEventListener(ev,()=>setTimeout(()=>{gridHold=false;},60)));
+gEl.addEventListener("click",e=>{
+  gridHold=false;
+  const b=e.target.closest("[data-wa]"); if(!b) return;
+  sim.sel=b.dataset.wa; renderGrid(); renderWA();
+  if(window.innerWidth<1020) document.getElementById("wa-body").scrollIntoView({behavior:"smooth",block:"center"});
+});
+document.getElementById("wa-body").addEventListener("click",e=>{
+  const c=e.target.closest("[data-tpl]"); if(!c) return;
+  waSend(sim.sel,TEMPLATES(byId(sim.sel))[+c.dataset.tpl]);
+});
+
+/* ---------- Operator view ---------- */
+let opId="TR-2";
+const sel=document.getElementById("op-select");
+sel.innerHTML=machines.map(m=>`<option value="${m.id}">${esc(m.op)} on ${m.id} (${m.name})</option>`).join("");
+sel.value=opId;
+sel.addEventListener("change",()=>{opId=sel.value;resetBot();renderOperator();renderOpWA();});
+function renderOperator(){
+  const m=byId(opId), st=status(m), sku=SKUS[m.sku];
+  const pct=Math.min(100,m.output/m.target*100), exp=Math.min(100,sim.t/1440*100);
+  const need=remainingH()>0?Math.max(0,(m.target-m.output)/remainingH()):0;
+  const expected=m.target*sim.t/1440, gap=m.output-expected;
+  const t=document.getElementById("op-target"); t.className="target "+(st.cls==="ok"?"":st.cls);
+  t.innerHTML=`<div class="card-top"><div><h2>${m.id} · ${m.name}</h2><div class="muted">Running SKU: <strong style="color:var(--ink)">${sku.name}</strong></div></div><span class="pill ${st.cls}">${st.label}</span></div>
+    <div class="target-nums">
+      <div><span class="lbl">Made today</span><span class="v num">${n0(m.output)}</span></div>
+      <div><span class="lbl">Target</span><span class="v num">${n0(m.target)}</span></div>
+      <div><span class="lbl">${gap>=0?"Ahead by":"Behind by"}</span><span class="v num" style="color:var(--${gap>=0?"ok":"warn"})">${n0(Math.abs(gap))}</span></div>
+      <div><span class="lbl">Need per hour</span><span class="v num">${n0(need)}</span></div>
+    </div>
+    <div class="prog"><i style="width:${pct}%"></i><b style="left:${exp}%"></b></div>
+    <div class="muted" style="font-size:13px">Cartons counted by the line sensor. The dark marker shows where you should be at ${fmt(sim.t)}.</div>`;
+  const lim=sku.kind==="roll"?"Log diameter":"Stack height";
+  const tiles=[
+    ["Carton rate", m.down?0:m.rate*rnd(0.93,1.05), "/hr", m.down?"crit":"ok", `need ${n0(need)}/hr`, 0],
+    ["Pack reject", m.s.reject, "%", sensorState(m,"reject"), "limit 1.5%", 1],
+    ["Chaining", m.s.chain, "/hr", sensorState(m,"chain"), "limit 2 per hr", 1],
+    ["Seal temp", m.s.seal, "°C", sensorState(m,"seal"), `recipe ${sku.seal} ±5`, 0],
+    [lim, m.s.dim, "mm", sensorState(m,"dim"), `recipe ${sku.dim} ±1.5`, 1]
+  ];
+  document.getElementById("op-sensors").innerHTML=tiles.map(([l,v,u,s,li,d])=>`<div class="sensor ${s}"><span class="lbl">${l}</span><span class="v num">${v.toFixed(d)}<small style="font-size:14px;font-weight:500"> ${u}</small></span><span class="lim">${li}</span></div>`).join("");
+  document.getElementById("op-sensor-note").textContent=m.issue?`Suspected: ${ISSUES[m.issue].label}`:(noOutput(m)?"No cartons counted":"All within limits");
+}
+function renderOpWA(){
+  const m=byId(opId), th=thread(m.id), box=document.getElementById("op-wa");
+  const flipped=th.map(x=>({...x,dir:x.dir==="out"?"in":"out"}));
+  box.innerHTML=th.length?msgHTML(flipped,null,""):`<div class="muted" style="font-size:13px">No messages from the shift head today.</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+
+/* ---------- Assistant (scripted) ---------- */
+const CHECKLISTS = {
+  chaining:[
+    ["Stop the log saw and lock out before touching the blade.","LOTO on saw isolator. Wait for blade to stop fully."],
+    ["Check the blade edge for chips or burrs.","Replace if any chip is over 1 mm. Confirm grinder runs every 400 cuts on the HMI."],
+    ["Check log clamp pressure.","Gauge should read 4.5 to 5.5 bar."],
+    ["Check perforation tails tear cleanly.","Pull 3 sheets by hand on 5 rolls. Perf blade gap 0.05 to 0.10 mm."],
+    ["Restart at 80% speed and inspect 10 logs.","Zero chained rolls allowed. Then return to recipe speed."]
+  ],
+  pack:[
+    ["Compare wrapper seal temp actual vs setpoint.","Actual must be within 3 °C of setpoint. Setpoint for this SKU is in the HMI settings answer."],
+    ["Clean the side seal jaws.","Let jaws cool or use heat gloves. Brass brush only, no steel."],
+    ["Check film tension dancer.","1.2 to 1.8 bar. Film must be flat at the forming box, no wrinkles."],
+    ["Check seal dwell time.","0.4 to 0.6 s on the HMI timing page."],
+    ["Pull 20 packs and squeeze test each one.","Zero open seals. Reject % tile should drop under 1.5% within 10 min."]
+  ],
+  loose:[
+    ["Compare log diameter on HMI vs recipe.","Must be within ±1.5 mm of recipe."],
+    ["Check unwind tension.","Within ±2 N of recipe value."],
+    ["Check emboss nip pressure.","Within ±0.2 bar of recipe value."],
+    ["Inspect the parent roll.","Look for wet patches, soft spots or a bad splice. Tell the head if the parent roll is out of spec."],
+    ["Measure 5 rolls with a pi tape.","All 5 within ±1.5 mm, firmness feels consistent by hand."]
+  ]
+};
+const botMsgs=document.getElementById("bot-msgs"), quick=document.getElementById("bot-quick");
+function say(html,who="ai"){ const d=document.createElement("div"); d.className="b "+who; d.innerHTML=html; botMsgs.appendChild(d); botMsgs.scrollTop=botMsgs.scrollHeight; return d; }
+function botSay(html,delay=650){ const t=say("…","ai"); t.style.opacity=.6; setTimeout(()=>{t.style.opacity=1;t.innerHTML=html;botMsgs.scrollTop=botMsgs.scrollHeight;},delay); }
+function setQuick(list){ quick.innerHTML=list.map(([k,l])=>`<button type="button" class="chip" data-q="${k}">${l}</button>`).join(""); }
+const MAIN_QUICK=[["defect","I have a defect"],["hmi","Ideal HMI settings for my SKU"],["sup","Contact supervisor"],["mech","Call a mechanic"]];
+function resetBot(){
+  botMsgs.innerHTML=""; const m=byId(opId);
+  let hint="";
+  if(m.issue) hint=`<p><strong>Heads up:</strong> your sensors suggest <strong>${ISSUES[m.issue].label.toLowerCase()}</strong> (${ISSUES[m.issue].detail.toLowerCase()}).</p><div class="acts"><button class="btn small primary" type="button" data-q="fix:${m.issue}">Start the ${ISSUES[m.issue].label.toLowerCase()} checklist</button></div>`;
+  say(`<p>Hi ${esc(firstName(m))}. You're on <strong>${m.id}</strong> running <strong>${SKUS[m.sku].name}</strong>. Target today is <strong>${n0(m.target)}</strong> cartons.</p><p>I can walk you through a defect, give you the HMI settings for this SKU, or get the supervisor or a mechanic.</p>${hint}`);
+  setQuick(MAIN_QUICK);
+}
+function handle(k){
+  const m=byId(opId);
+  if(k==="defect"){
+    botSay(`<p>Which defect are you seeing?${m.issue?` Sensors point to <strong>${ISSUES[m.issue].label.toLowerCase()}</strong>.`:""}</p>`);
+    setQuick([["fix:chaining","Chaining"],["fix:pack","Pack defect (seal / wrap)"],["fix:loose","Loose wind / soft roll"],["other","Something else"],["menu","Back"]]);
+  } else if(k.startsWith("fix:")){
+    const d=k.slice(4), list=CHECKLISTS[d];
+    botSay(`<p><strong>${ISSUES[d].label} checklist for ${m.id}</strong>. Do these in order and tick each one.</p>
+      <ul class="tasks">${list.map(([a,b],i)=>`<li><label><input type="checkbox" data-task="${d}"><span>${i+1}. ${a}<span class="m">${b}</span></span></label></li>`).join("")}</ul>
+      <div class="acts"><button class="btn small primary" type="button" data-q="done:${d}">Done, line is OK</button><button class="btn small" type="button" data-q="mech">Still bad, call mechanic</button></div>`,900);
+    setQuick(MAIN_QUICK);
+  } else if(k.startsWith("done:")){
+    const d=k.slice(5);
+    if(m.issue===d){ m.issue=null; m.alertedIssue=false; }
+    addAlert(m.id,"ok",`${m.op} completed the ${ISSUES[d].label.toLowerCase()} checklist. Watching sensors for 10 min.`);
+    botSay(`<p>Logged. I told the shift head you finished the ${ISSUES[d].label.toLowerCase()} checklist. I'll keep watching the sensors and flag it again if it comes back.</p>`);
+    setQuick(MAIN_QUICK); renderAll();
+  } else if(k==="other"){
+    botSay(`<p>Tell me in a few words what you see, for example "glue tail not sticking" or "short count". In the real system I'd search your mill's SOPs for it. In this mockup I only know chaining, pack defects and loose wind.</p>`);
+    setQuick(MAIN_QUICK);
+  } else if(k==="hmi"){
+    const s=SKUS[m.sku];
+    botSay(`<p><strong>Recipe for ${s.name}</strong> on ${m.id}. Set these on the HMI before restart or after a changeover.</p>
+      <table><thead><tr><th>Setting</th><th>Value</th><th>Tolerance</th></tr></thead><tbody>${s.params.map(([a,b,c,d])=>`<tr><td>${a}</td><td class="num">${b} ${c}</td><td>${d}</td></tr>`).join("")}</tbody></table>
+      <p class="muted" style="font-size:12.5px">Example values. The real list comes from your approved recipe for this SKU.</p>`,800);
+    setQuick(MAIN_QUICK);
+  } else if(k==="sup"||k==="mech"){
+    const who=k==="sup"?SUP:MECH;
+    const reason=noOutput(m)?"line is down":m.issue?ISSUES[m.issue].label.toLowerCase():"need help at the line";
+    const text=`${m.id} ${m.op}: ${k==="sup"?"Need supervisor":"Need mechanic"} at the line (${reason}).`;
+    say(`Sent to ${who.name} by WhatsApp`, "sys");
+    thread(m.id).push({dir:"in",text,t:sim.t,who:m.op});
+    addAlert(m.id,k==="sup"?"crit":"warn",`${m.op} asked for ${k==="sup"?"the supervisor":"a mechanic"} (${reason}).`);
+    renderAll();
+    botSay(`<p>Done. I sent this to <strong>${who.name}</strong> (${who.phone}):</p><p style="font-style:italic">“${esc(text)}”</p><p>I'll show their reply here.</p>`,500);
+    setTimeout(()=>{
+      const r=k==="sup"?"On my way, 5 min.":"Got it, bringing the toolkit. ETA 8 min.";
+      if(k==="sup"){ thread(m.id).push({dir:"out",text:r,t:sim.t,status:"read"}); renderAll(); }
+      say(`<p><strong>${who.name}:</strong> ${r}</p>`);
+    },3500);
+    setQuick(MAIN_QUICK);
+  } else if(k==="menu"){ setQuick(MAIN_QUICK); }
+}
+function route(text){
+  const t=text.toLowerCase();
+  if(/chain|joined|not cut|stuck together/.test(t)) return "fix:chaining";
+  if(/seal|wrap|pack|film|open/.test(t)) return "fix:pack";
+  if(/loose|soft|diameter|wind/.test(t)) return "fix:loose";
+  if(/setting|param|hmi|recipe|speed|temp|tension/.test(t)) return "hmi";
+  if(/mechanic|fitter|broken|repair/.test(t)) return "mech";
+  if(/supervisor|head|boss|manager/.test(t)) return "sup";
+  if(/defect|problem|issue|bad|quality/.test(t)) return "defect";
+  return null;
+}
+botMsgs.addEventListener("click",e=>{const b=e.target.closest("[data-q]"); if(b) handle(b.dataset.q);});
+quick.addEventListener("click",e=>{const b=e.target.closest("[data-q]"); if(!b) return; say(esc(b.textContent),"me"); handle(b.dataset.q);});
+document.getElementById("bot-form").addEventListener("submit",e=>{
+  e.preventDefault(); const i=document.getElementById("bot-input"), v=i.value.trim(); if(!v) return;
+  say(esc(v),"me"); i.value="";
+  const k=route(v);
+  if(k) handle(k); else botSay(`<p>I didn't catch that. I can help with a defect, the HMI settings for your SKU, or contacting your supervisor or a mechanic.</p><p class="muted" style="font-size:12.5px">The real assistant would use an AI model grounded in your SOPs, so free text would work much better than this script.</p>`);
+});
+
+/* ---------- demo controls ---------- */
+document.getElementById("demo-stop").addEventListener("click",()=>{
+  const c=machines.filter(m=>!m.down); if(!c.length) return;
+  const m=c[Math.floor(Math.random()*c.length)];
+  const causes=[{text:"Log saw blade broke, swapping it now.",eta:15},{text:"Parent roll ran out, waiting on forklift with the next one.",eta:12},{text:"Bundler jammed on a crushed pack, clearing it.",eta:6}];
+  m.down=true; m.stoppedAt=sim.t; m.cause=causes[Math.floor(Math.random()*causes.length)];
+  renderAll();
+});
+document.getElementById("demo-defect").addEventListener("click",()=>{
+  const c=machines.filter(m=>!m.issue&&!m.down); if(!c.length) return;
+  const m=c[Math.floor(Math.random()*c.length)], keys=SKUS[m.sku].kind==="roll"?["chaining","pack","loose"]:["pack"];
+  m.issue=keys[Math.floor(Math.random()*keys.length)]; m.alertedIssue=false; renderAll();
+});
+const SPEEDS=[0.5,2,6];
+document.getElementById("demo-speed").addEventListener("click",e=>{
+  const i=(SPEEDS.indexOf(sim.speed)+1)%SPEEDS.length; sim.speed=SPEEDS[i]; e.target.textContent=`Speed ${[1,4,12][i]}×`;
+});
+
+/* ---------- routing + render ---------- */
+function renderAll(fromTick){
+  document.getElementById("clock").textContent=fmt(sim.t);
+  renderKPIs(); renderGrid(); renderOperator();
+  if(!fromTick){ renderWA(); renderOpWA(); }
+}
+function route2(){
+  const v=location.hash==="#operator"?"operator":"head";
+  document.getElementById("view-head").hidden=v!=="head";
+  document.getElementById("view-operator").hidden=v!=="operator";
+  document.getElementById("tab-head").toggleAttribute("aria-current",false);
+  document.getElementById("tab-operator").toggleAttribute("aria-current",false);
+  document.getElementById("tab-"+v).setAttribute("aria-current","page");
+}
+window.addEventListener("hashchange",route2);
+
+/* ---------- seed state ---------- */
+(function seed(){
+  const np=byId("NP-1"); np.down=true; np.stoppedAt=sim.t-12; np.alertedDown=true; np.downMin+=12; np.cause={text:"Wrapper film splice broke at the napkin bundler. Re-threading now.",eta:8};
+  const tr2=byId("TR-2"); tr2.issue="chaining"; tr2.s.chain=6.2;
+  const ft=byId("FT-1"); ft.issue="pack"; ft.s.reject=3.4; ft.s.seal=SKUS["FT-150"].seal-10;
+  sim.alerts=[
+    {t:sim.t-1,mid:"FT-1",sev:"warn",text:"suspected pack defect: open side seal or torn wrap at the bundler."},
+    {t:sim.t-4,mid:"TR-2",sev:"warn",text:"suspected chaining: rolls still joined after the log saw cut."},
+    {t:sim.t-9,mid:"NP-1",sev:"crit",text:"no cartons counted for 3 min. Marked as down."},
+    {t:sim.t-55,mid:"HT-1",sev:"ok",text:"cartons counting again after 34 min stop."}
+  ];
+  ftAlerted(); function ftAlerted(){ tr2.alertedIssue=true; ft.alertedIssue=true; }
+  thread("HT-1").push({dir:"out",text:"HT-1 down 30+ min. What's going on?",t:sim.t-70,status:"read"},{dir:"in",text:"Parent roll had a wet streak, had to strip 3 layers and re-splice. Running again now.",t:sim.t-66});
+  byId("HT-1").lastReply={text:"Parent roll had a wet streak, had to strip 3 layers and re-splice. Running again now.",t:sim.t-66};
+  sim.sel="NP-1";
+  route2(); renderAll(); renderFeed();
+  setTimeout(()=>waSend("NP-1","NP-1 has had no cartons for 12 min. What happened and what's the ETA?"),1500);
+  resetBot();
+  setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
