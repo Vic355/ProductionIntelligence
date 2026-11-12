@@ -1,41 +1,23 @@
-# Production Intelligence System (prototype)
+# Production Intelligence (mockup)
 
-A clickable prototype of the three role views from the Production Intelligence System concept brief, for a tissue mill that converts bought-in jumbo rolls into finished rolls and packs. Built with .NET 8 Blazor WebAssembly, so it runs entirely in the browser and can be hosted as static files.
+A clickable mockup for a tissue mill converting hall with two views:
 
-All numbers are **sample data** (`src/ProductionIntelligence.Web/Data/SampleData.cs`). In the real system they would come from the PLC project (counts, speed, stops), the Voice project (stop reasons, transcripts, "what fixed it?"), the planner's daily target and the shift roster.
+- **Head** (`#head`): every line's carton output against the day's target, lines down (no cartons counted for 3 min), suspected quality problems from the extra sensor suite (chaining, pack defect, loose wind), and a WhatsApp thread with each line's operator whose replies show on the board.
+- **Operator** (`#operator`): the operator's own line vs target, that line's sensors, and an assistant that gives defect checklists, the HMI recipe for the running SKU, and contacts the supervisor or a mechanic.
 
-## Views
-
-| Route | Role | What to try |
-| --- | --- | --- |
-| `/operator` | Operator, line-side screen | Pace needed for the rest of the shift. Press **Line stops** in the prototype bar, pick a fix, then **Line running again** and answer "did this fix work?". |
-| `/shift-leader` | Shift leader | Live board of 6 lines, patrol priorities, manpower flag, escalation buttons, fix approvals (including a fix blocked by the safety rule) and a drafted handover you can edit and send. |
-| `/section-head` | Section head | Weekly AI digest, repeat losses judged from PLC data, shift and line comparisons, skills overview, and an Ask tab. |
+Everything is one static file, `public/index.html`. Sensor data is simulated in the browser; the WhatsApp replies and the assistant are scripted. All names, numbers, recipes and checklists are invented.
 
 ## Run locally
 
-```bash
-dotnet run --project src/ProductionIntelligence.Web
-```
+Open `public/index.html` in a browser, or run `npx wrangler dev`.
 
-Then open the URL it prints (for example http://localhost:5000).
+## Deploy (Cloudflare Workers)
 
-## Publish
-
-```bash
-dotnet publish src/ProductionIntelligence.Web -c Release -o publish
-```
-
-The static site is in `publish/wwwroot`. Any static host works (GitHub Pages, Azure Static Web Apps, IIS).
-
-### Cloudflare (Workers or Pages)
-
-Connect this repository in Cloudflare (Workers & Pages → Create → Import a repository) and use:
+The repository is connected to the `productionintelligence` Worker. `wrangler.jsonc` serves `./public` as static assets, so there is no build step:
 
 | Setting | Value |
 | --- | --- |
-| Build command | leave empty (Workers) or `./build.sh` (Pages) |
-| Deploy command (Workers) | `npx wrangler deploy` (runs `./build.sh` itself via `wrangler.jsonc`) |
-| Build output directory (Pages only) | `output/wwwroot` |
+| Build command | leave empty |
+| Deploy command | `npx wrangler deploy` |
 
-`build.sh` installs the .NET 8 SDK (the Cloudflare build image does not include it) and publishes the app to `output/wwwroot`. `wrangler.jsonc` tells `wrangler deploy` to serve that folder as static assets, with single-page-app fallback so deep links like `/operator` work. The `name` in `wrangler.jsonc` must match your Worker's name in the dashboard.
+The earlier Blazor three-view prototype is in the git history (commit `eb47da0`).

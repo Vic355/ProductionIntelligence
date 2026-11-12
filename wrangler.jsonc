@@ -1,14 +1,11 @@
 // Cloudflare Workers static-assets config.
 // "name" must match the Worker name in your Cloudflare dashboard.
-// Deploy command: npx wrangler deploy (it runs ./build.sh first, see "build").
+// No build step: the site is the plain HTML in ./public. Deploy command: npx wrangler deploy
 {
   "name": "productionintelligence",
   "compatibility_date": "2025-11-01",
-  "build": {
-    "command": "./build.sh"
-  },
   "assets": {
-    "directory": "./output/wwwroot",
+    "directory": "./public",
     "not_found_handling": "single-page-application"
   }
 }
