@@ -3,9 +3,15 @@
 A clickable mockup for an Indonesian tissue converting mill (UI in Bahasa Indonesia), styled like a machine HMI. 51 machines in 6 sections, 41 running.
 
 - **Kepala Produksi** (`#head`): plant target vs actual, a panel per section with its shift leader and machine tiles, an alarm list (with acknowledge), a suggested actions tab, and a machine detail panel with the running SKU's spec sheet.
-- **Operator** (`#operator`): the operator's machine, target vs actual and the running SKU's spec sheet; a card per add-on sensor (A fold camera, B jumbo camera, C sound sensor, D log saw camera, E chaining camera, F motion sensor, G packing camera) saying where it sits, what it does and what it detected, with an example snapshot and event log; and an assistant that explains machine parameters (meaning, recipe value, effect of setting higher or lower, checks a typed value), gives defect troubleshooting steps, and calls a mechanic or the shift leader.
+- **Operator** (`#operator`): the operator's machine, target vs actual and the running SKU's spec sheet; a card per add-on sensor (A fold camera, B jumbo camera, C sound sensor, D log saw camera, E chaining camera, F motion sensor, G packing camera) saying where it sits, what it does and what it detected, with an example snapshot and event log; and an **AI assistant demo** as the main panel. It shows how the proposed system answers:
+  - parameter questions from the recipe table (exact values, never generated);
+  - known defects through approved decision trees, with a step progress bar;
+  - free questions (typed or by the demo voice button) as RAG answers with sources and safety checks;
+  - questions with no source in the knowledge base by refusing instead of guessing;
+  - an **AI gateway** switch (Local / Outside model / Auto) that shows what would be sent to an outside model, with names, machine IDs and setpoints removed;
+  - a lessons loop: an operator's fix is saved as a lesson that waits for the shift leader's approval and appears on the Head view.
 
-Everything is one static file, `public/index.html`. Sensor events are simulated in the browser and the snapshots are illustrations and the assistant is scripted. All names, numbers, SKUs, specs and procedures are examples.
+Everything is one static file, `public/index.html`. Sensor events are simulated in the browser and the snapshots are illustrations and the assistant is scripted: it does not call a real AI model. All names, numbers, SKUs, specs and procedures are examples.
 
 ## Run locally
 
