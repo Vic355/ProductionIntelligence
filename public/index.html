@@ -138,7 +138,10 @@ tr.unack td:first-child{box-shadow:inset 4px 0 0 var(--crit)}
 .spec>div:first-child{flex:0 0 auto}
 .spec .k{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase}
 .spec .v{font-family:var(--mono);font-size:15px;font-weight:600}
-.op-grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:10px;align-items:start}
+.op-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(380px,1fr);gap:10px;align-items:start}
+.op-side{display:grid;gap:8px}
+.op-side .sgrid{grid-template-columns:1fr}
+.op-side .sc .body{grid-template-columns:150px 1fr}
 @media (max-width:1100px){.op-grid{grid-template-columns:1fr}}
 .flowline{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);background:var(--cell)}
 .flowline span{padding:4px 10px;font-size:12.5px;font-weight:600;border-right:1px solid var(--line);display:flex;align-items:center;gap:6px}
@@ -168,11 +171,47 @@ tr.unack td:first-child{box-shadow:inset 4px 0 0 var(--crit)}
 .evlog .x{color:var(--crit);font-weight:600}
 .sc .foot{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:5px 8px;background:#d8dce0;flex-wrap:wrap}
 
-/* Assistant console */
-.con{display:grid;grid-template-rows:auto 1fr auto auto auto;height:calc(100vh - 120px);min-height:560px;position:sticky;top:52px}
-@media (max-width:1100px){.con{position:static;height:640px}}
-.con-log{background:#f9fafb;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:auto;border-bottom:1px solid var(--line)}
-.msg{border:1px solid var(--line);background:var(--cell);padding:6px 8px;font-size:13.5px}
+/* Assistant console (AI demo) */
+.con{display:grid;grid-template-rows:auto auto 1fr auto auto auto;height:calc(100vh - 205px);min-height:640px;position:sticky;top:52px;border:2px solid var(--accent);box-shadow:0 2px 10px rgba(31,95,153,.25)}
+@media (max-width:1100px){.con{position:static;height:720px}}
+.con>.hd{background:var(--accent);font-size:15px;padding:8px 12px}
+.con>.hd .ai{background:#fff;color:var(--accent);font-family:var(--mono);font-size:11px;padding:1px 6px;margin-right:8px;letter-spacing:0}
+.gwbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 10px;background:#e8eef5;border-bottom:1px solid #9fb8d3;font-size:12.5px}
+.gwbar .lbl{font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;font-size:11.5px}
+.seg{display:inline-flex;border:1px solid #6d8fb3}
+.seg button{border:0;border-right:1px solid #6d8fb3;background:#fff;padding:3px 9px;font-size:12px;font-weight:600}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.gwbar .model{display:flex;align-items:center;gap:5px;margin-left:auto;font-family:var(--mono);font-size:12px}
+.gwbar .dot{width:9px;height:9px;border-radius:50%;background:var(--run)}
+.gwbar .dot.out{background:#d98a00}
+.con-log{background:#f9fafb;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;border-bottom:1px solid var(--line)}
+.msg{border:1px solid var(--line);background:var(--cell);padding:8px 10px;font-size:14.5px;line-height:1.4}
+.msg.bot{background:#fff;border-left:4px solid var(--accent)}
+.msg .status{font-size:12.5px;color:var(--muted);display:grid;gap:2px}
+.msg .status span::before{content:"✓ ";color:var(--run);font-weight:700}
+.msg .status span.now::before{content:"● ";color:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;padding-top:6px;border-top:1px dashed #c3c8cd}
+.tag{font-size:11px;font-weight:700;padding:1px 6px;border:1px solid;text-transform:uppercase;letter-spacing:.03em}
+.tag.tree{color:#1d6b2c;border-color:#1d6b2c;background:#e6f4e8}
+.tag.rag{color:var(--accent);border-color:var(--accent);background:#e3edf8}
+.tag.out{color:#8a5300;border-color:#c07a00;background:#fff3dc}
+.tag.tbl{color:#3d454d;border-color:#69737c;background:#eceef0}
+.tag.no{color:#9b1c14;border-color:#c0392b;background:#fdecea}
+.src{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;font-size:12px}
+.src span{background:#eef1f4;border:1px solid #c9cfd5;padding:1px 6px}
+.src span b{font-family:var(--mono);font-weight:600;color:var(--accent);margin-right:3px}
+.chk{font-size:12px;color:#1d6b2c;margin-top:4px}
+.fbk{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+details.sent{margin-top:6px;font-size:12px;border:1px solid #e0b25c;background:#fffaf0}
+details.sent summary{cursor:pointer;padding:3px 8px;font-weight:700;color:#8a5300}
+details.sent pre{margin:0;padding:6px 8px;white-space:pre-wrap;font-family:var(--mono);font-size:11.5px;line-height:1.45}
+.prog{height:6px;background:#d7dce1;margin:4px 0}
+.prog i{display:block;height:100%;background:var(--run);width:0;transition:width .3s}
+.chips{display:flex;gap:5px;overflow-x:auto;padding:6px 8px 0;scrollbar-width:thin}
+.chips button{flex:none;border:1px solid #9fb8d3;background:#eef4fa;padding:3px 9px;font-size:12.5px;border-radius:12px;color:var(--accent);font-weight:600}
+.lessons{font-family:var(--mono);background:#fff;color:var(--accent);padding:0 6px;margin-left:6px}
 .msg .who{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;margin-bottom:2px}
 .msg.me{background:#dce8f5;border-color:#9fb8d3;margin-left:30px}
 .msg.sys{background:#e7ecef;font-size:12.5px;color:var(--muted);text-align:center}
@@ -185,7 +224,10 @@ tr.unack td:first-child{box-shadow:inset 4px 0 0 var(--crit)}
 .qbtns{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px 8px}
 .qbtns .sbtn{padding:6px 8px;text-align:left}
 .cform{display:flex;gap:6px;padding:0 8px 8px}
-.cform input{flex:1;min-width:0;border:1px solid var(--line);background:#fff;padding:5px 8px}
+.cform input{flex:1;min-width:0;border:2px solid var(--accent);background:#fff;padding:8px 10px;font-size:15px}
+.cform .sbtn{padding:4px 14px;font-size:14px}
+.cform .mic{font-size:16px;padding:4px 10px}
+.cform .mic.on{background:var(--crit);color:#fff;border-color:var(--crit)}
 footer{padding:0 14px 16px;font-size:12px;color:var(--muted)}
 @media (prefers-reduced-motion: reduce){.blink{animation:none}}
 </style>
@@ -231,16 +273,24 @@ footer{padding:0 14px 16px;font-size:12px;color:var(--muted)}
     <select id="op-select"></select>
     <span class="muted" style="font-size:12.5px">Di sistem nyata dipilih otomatis dari login / kartu ID operator.</span>
   </div>
+  <div style="display:grid;gap:8px;margin-top:8px">
+    <div class="mstrip" id="op-strip"></div>
+    <div class="spec" id="op-spec"></div>
+  </div>
   <div class="op-grid" style="margin-top:8px">
-    <div style="display:grid;gap:8px">
-      <div class="mstrip" id="op-strip"></div>
-      <div class="spec" id="op-spec"></div>
-      <div class="fp"><div class="hd"><span>Sensor tambahan di mesin ini</span><span class="sub">urutan sesuai alur produksi</span></div><div class="flowline" id="op-flow"></div></div>
-      <div class="sgrid" id="op-sensors"></div>
-    </div>
-    <section class="fp con" aria-label="Asisten mesin">
-      <div class="hd"><span>Asisten mesin</span><span class="sub">jawaban demo (skrip)</span></div>
+    <section class="fp con" aria-label="Asisten mesin AI">
+      <div class="hd"><span><span class="ai">AI</span>Asisten Mesin<span class="lessons" id="lesson-count" title="Pelajaran menunggu persetujuan">0 pelajaran baru</span></span><span class="sub">demo: jawaban diskrip, tidak memanggil model nyata</span></div>
+      <div class="gwbar">
+        <span class="lbl">AI gateway</span>
+        <span class="seg" role="group" aria-label="Pilih model">
+          <button type="button" data-gw="local" aria-pressed="true">Lokal</button>
+          <button type="button" data-gw="outside" aria-pressed="false">Model luar</button>
+          <button type="button" data-gw="auto" aria-pressed="false">Otomatis</button>
+        </span>
+        <span class="model"><span class="dot" id="gw-dot"></span><span id="gw-model">Qwen3-30B · mini PC lokal</span></span>
+      </div>
       <div class="con-log" id="log" aria-live="polite"></div>
+      <div class="chips" id="chips" aria-label="Contoh pertanyaan"></div>
       <div class="qbtns">
         <button class="sbtn" type="button" data-q="params">Jelaskan parameter mesin</button>
         <button class="sbtn" type="button" data-q="defect">Ada cacat, harus apa?</button>
@@ -249,10 +299,15 @@ footer{padding:0 14px 16px;font-size:12px;color:var(--muted)}
       </div>
       <form class="cform" id="cform" autocomplete="off">
         <label for="cin" style="position:absolute;left:-9999px">Tanya asisten</label>
-        <input id="cin" placeholder="Mis. 'tekanan nip 3 bar' atau 'apa itu vakum folding'">
+        <button class="sbtn mic" type="button" id="mic" title="Tanya dengan suara (demo)">🎤</button>
+        <input id="cin" placeholder="Tanya apa saja tentang mesin ini, mis. 'kenapa gulungan longgar?'">
         <button class="sbtn pr" type="submit">Kirim</button>
       </form>
     </section>
+    <div class="op-side">
+      <div class="fp"><div class="hd"><span>Sensor tambahan di mesin ini</span><span class="sub">urutan sesuai alur produksi</span></div><div class="flowline" id="op-flow"></div></div>
+      <div class="sgrid" id="op-sensors"></div>
+    </div>
   </div>
 </section>
 </main>
@@ -639,11 +694,136 @@ const CL = {
 };
 const log=$("log");
 function say(html,who){ const d=document.createElement("div"); d.className="msg "+(who||""); d.innerHTML=html; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
-function bot(html,delay=450){ const d=say(`<div class="who">Asisten</div>…`); setTimeout(()=>{d.innerHTML=`<div class="who">Asisten</div>`+html; log.scrollTop=log.scrollHeight;},delay); }
+function bot(html,delay=450){ const d=say(`<div class="who">Asisten</div>…`,"bot"); setTimeout(()=>{d.innerHTML=`<div class="who">Asisten</div>`+html; log.scrollTop=log.scrollHeight;},delay); return d; }
 function paramsFor(m){ const k=SKU[m.sku].kind; return PARAMS.filter(p=>!p.only||p.only===k).filter(p=>!(p.k==="pitch"&&SKU[m.sku].nop)); }
+
+/* ---- AI gateway (demo). Real system: LiteLLM + Presidio on the mill server. ---- */
+let gw="local", lessons=0, oplNo=244;
+const GWM={local:"Qwen3-30B · mini PC lokal",outside:"Claude Haiku 5.5 · lewat gateway",auto:"Otomatis · lokal dulu, luar bila antre"};
+function setGw(v){
+  gw=v; document.querySelectorAll("[data-gw]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.gw===v));
+  $("gw-model").textContent=GWM[v]; $("gw-dot").classList.toggle("out",v==="outside");
+  const txt={local:"Gateway: <strong>Lokal</strong>. Semua jawaban dibuat di mini PC pabrik. Tidak ada data yang keluar.",
+    outside:"Gateway: <strong>Model luar</strong> (Claude Haiku 5.5). Yang dikirim hanya pertanyaan tanpa nama dan kutipan manual. Resep, setpoint, nama, PO tidak pernah dikirim. Setiap kiriman dicatat.",
+    auto:"Gateway: <strong>Otomatis</strong>. Pakai model lokal; bila antrean mini PC panjang atau lokal bermasalah, pindah ke model luar. Bila internet putus, kembali ke lokal."}[v];
+  say(txt,"sys");
+}
+function pickModel(){
+  if(gw==="local") return {out:false,name:"Qwen3-30B (lokal)"};
+  if(gw==="outside") return {out:true,name:"Claude Haiku 5.5 (luar)"};
+  const q=Math.floor(rnd(0,5));
+  return q>=2?{out:true,name:"Claude Haiku 5.5 (luar)",why:`antrean mini PC ${q} pertanyaan`}:{out:false,name:"Qwen3-30B (lokal)",why:`antrean mini PC ${q} pertanyaan`};
+}
+function redact(q,m){
+  let t=q;
+  m.op.split(" ").forEach(w=>{ if(w.length>2) t=t.replace(new RegExp("\\b"+w+"\\b","gi"),"[NAMA]"); });
+  t=t.replace(/\b(Pak|Bu|Bapak|Ibu|Mas|Mbak)\s+[A-Z][a-z]+/g,"$1 [NAMA]")
+     .replace(/\b[A-Z]{2}-\d{2}\b/g,"[MESIN]")
+     .replace(/\b\d+(?:[.,]\d+)?\s*(bar|n|kpa|m\/min|mm|°c)\b/gi,"[NILAI]");
+  return t;
+}
+function sentBox(q,m,n){
+  const kind=SKU[m.sku].kind==="roll"?"rewinder tisu gulung":"interfolder tisu lipat";
+  return `<details class="sent"><summary>Lihat yang dikirim ke model luar (log audit)</summary><pre>Ke       : Claude Haiku 5.5 · HTTPS keluar saja
+Waktu    : ${clockOf(sim.t)} · tersimpan di log audit pabrik
+DIKIRIM
+  Pertanyaan : "${esc(redact(q,m))}"
+  Mesin      : "${kind}" (ID mesin disamarkan)
+  Kutipan    : ${n} potongan manual / SOP / pelajaran
+DITAHAN DI PABRIK
+  nama operator, ID kartu, nilai resep dan setpoint,
+  PO, pelanggan, volume produksi</pre></details>`;
+}
+function srcHTML(src){ return `<div class="src">${src.map(s=>`<span><b>${s[0]}</b>${s[1]}</span>`).join("")}</div>`; }
+/* Shows the pipeline steps one by one, then the answer. */
+function staged(steps,final,cb){
+  const d=say(`<div class="who">Asisten</div><div class="status"></div>`,"bot"), st=d.querySelector(".status");
+  let i=0;
+  const next=()=>{
+    if(i<steps.length){ st.querySelectorAll(".now").forEach(x=>x.classList.remove("now")); const s=document.createElement("span"); s.className="now"; s.innerHTML=steps[i++]; st.appendChild(s); log.scrollTop=log.scrollHeight; setTimeout(next,620); }
+    else { setTimeout(()=>{ d.innerHTML=`<div class="who">Asisten</div>`+final; log.scrollTop=log.scrollHeight; cb&&cb(d); },350); }
+  };
+  next();
+}
+const TREE={chaining:"PK-RW-03",lipatan:"PK-IF-02",potong:"PK-LS-04",kemasan:"PK-PK-01",tinta:"PK-PK-05",suara:"PK-UM-02",stop:"PK-UM-01"};
+
+/* Knowledge base passages for the RAG demo (scripted). */
+const recipe=(m,k)=>{ const p=PARAMS.find(x=>x.k===k), s=SKU[m.sku], nom=p.nom(s), tol=p.tol(s), d=p.dec??(nom%1?1:0); return `${num(nom,d)} ±${num(tol,d)} ${p.u}`; };
+const KB=[
+  {id:"longgar",re:/longgar|lembek|kurang padat|soft roll|gembur/,lbl:"Gulungan longgar di ujung roll",
+   a:m=>`<p>Gulungan longgar di ujung roll biasanya karena <strong>tegangan turun di akhir log</strong> atau <strong>tekanan nip emboss terlalu rendah</strong>. Cek berurutan:</p>
+    <ol style="margin:4px 0 4px 18px;padding:0">
+    <li>Bandingkan tegangan unwind di HMI dengan resep: <strong class="mono">${recipe(m,"tension")}</strong>.</li>
+    <li>Cek tekanan nip emboss: resep <strong class="mono">${recipe(m,"nip")}</strong>. Terlalu rendah membuat roll tipis dan longgar.</li>
+    <li>Lihat kamera B: jumbo yang hampir habis sering lebih lembek di bagian inti. Bila sisa &lt;10%, siapkan ganti jumbo.</li>
+    <li>Cek <em>taper tension</em> di layar rewind. Bila 0%, setel 8–12% sesuai SOP-RW-012.</li></ol>
+    <p>Bila setelah 3 log masih longgar, panggil mekanik untuk cek rider roll.</p>`,
+   src:[["Manual OEM","Rewinder · Bab 6.3 hlm. 58"],["SOP-RW-012","Setelan tegangan v4"],["OPL-0187","Gulungan longgar setelah ganti jumbo · disetujui"]],tbl:true},
+  {id:"lem",re:/\blem\b|ekor|tail|ujung (roll )?(lepas|terbuka|tidak nempel)/,lbl:"Lem ekor roll tidak menempel",
+   a:()=>`<p>Ekor roll yang tidak menempel hampir selalu karena <strong>lem tidak sampai ke kertas</strong>: nozzle tersumbat, level lem rendah, atau lem mengering di nozzle karena panas.</p>
+    <ol style="margin:4px 0 4px 18px;padding:0">
+    <li>Cek level tangki lem. Minimal 30%.</li>
+    <li>Stop mesin, pasang LOTO, bersihkan nozzle tail sealer dengan air hangat.</li>
+    <li>Area di atas 35 °C: tutup tangki lem dan bersihkan nozzle tiap 2 jam, bukan tiap shift.</li>
+    <li>Cek panjang ekor di HMI tail sealer: 15–20 mm.</li></ol>`,
+   src:[["Manual OEM","Tail sealer · hlm. 12"],["SOP-RW-020","Perawatan lem v2"],["OPL-0203","Nozzle cepat kering di musim panas · disetujui"]]},
+  {id:"core",re:/core|penyok/,lbl:"Core roll penyok",
+   a:()=>`<p>Core penyok saat rewind biasanya karena <strong>core lemah atau lembap</strong>, atau <strong>tekanan rider roll terlalu tinggi</strong> di awal log.</p>
+    <ol style="margin:4px 0 4px 18px;padding:0">
+    <li>Catat nomor lot core, minta QC cek ketebalan dan kelembapan.</li>
+    <li>Cek tekanan rider roll awal log di HMI terhadap SOP.</li>
+    <li>Core jangan ditumpuk lebih dari 1,5 m.</li>
+    <li>Bila lebih dari 2 penyok per 100 log: pisahkan lot core, lapor Kepala Regu.</li></ol>`,
+   src:[["Manual OEM","Rewinder · Bab 4.2"],["SPEC CP-76","Spesifikasi core · QC"],["OPL-0154","Core penyok lot pemasok B · disetujui"]]},
+  {id:"blade",re:/ganti (blade|pisau)|cara ganti|mengganti (blade|pisau)/,lbl:"Ganti blade perforasi",
+   a:()=>`<p><strong>Keselamatan dulu:</strong> stop mesin, pasang LOTO, tunggu rotor berhenti penuh, pakai sarung tangan anti-potong.</p>
+    <ol style="margin:4px 0 4px 18px;padding:0">
+    <li>Lepas 6 baut clamp blade dari tengah ke luar.</li>
+    <li>Pasang blade baru, arah gigi sesuai tanda panah di holder.</li>
+    <li>Kencangkan baut 12 Nm, dari tengah ke luar.</li>
+    <li>Setel celah blade ke anvil 0,05–0,10 mm dengan feeler gauge.</li>
+    <li>Lepas LOTO, jalankan di 80% kecepatan, lihat kamera E 5 menit.</li></ol>`,
+   src:[["SOP-RW-031","Ganti blade perforasi v5"],["Manual OEM","Rotary knife · hlm. 42"]]},
+  {id:"debu",re:/debu|dust|berdebu/,lbl:"Debu tisu banyak",
+   a:m=>`<p>Debu tisu yang naik biasanya dari <strong>tekanan nip emboss terlalu tinggi</strong> (resep <span class="mono">${recipe(m,"nip")}</span>) atau <strong>blade perforasi tumpul</strong>.</p>
+    <ol style="margin:4px 0 4px 18px;padding:0">
+    <li>Cek tekanan nip di HMI.</li><li>Cek kamera E: chaining sering muncul bersama blade tumpul.</li>
+    <li>Cek filter hisap debu; bersihkan bila tekanan hisap turun.</li></ol>`,
+   src:[["SOP-K3-004","Kebersihan area converting"],["Manual OEM","Emboss unit · hlm. 31"]],tbl:true}
+];
+function kbFind(t){ const low=t.toLowerCase(); return KB.find(k=>k.re.test(low)); }
+function answerRAG(q,k){
+  const m=byId(opId), mdl=pickModel(), n=k?k.src.length+3:0;
+  const steps=["Memahami pertanyaan · Qwen3-8B lokal",
+    k?`Mencari di manual, SOP dan pelajaran · <strong>${n} kutipan</strong> ditemukan`:"Mencari di manual, SOP dan pelajaran · <strong>0 kutipan relevan</strong>"];
+  if(k){
+    if(mdl.why) steps.push(`Gateway otomatis: ${mdl.why} → ${mdl.out?"model luar":"model lokal"}`);
+    steps.push(mdl.out?"Gateway: hapus nama dan ID, tahan resep → kirim ke Claude Haiku 5.5":"Menyusun jawaban · Qwen3-30B di mini PC");
+    steps.push("Memeriksa: nilai dalam batas resep · sumber dikutip · langkah keselamatan");
+    const meta=`<div class="meta"><span class="tag ${mdl.out?"out":"rag"}">RAG · ${mdl.name}</span>${k.tbl?`<span class="tag tbl">Angka dari tabel resep</span>`:""}</div>
+      ${srcHTML(k.src)}<div class="chk">✓ Nilai dalam batas resep · ✓ Sumber dikutip · ✓ Keselamatan dicek</div>
+      ${mdl.out?sentBox(q,m,n):""}
+      <div class="fbk"><button class="sbtn pr" type="button" data-q="good:${k.id}">Berhasil</button><button class="sbtn" type="button" data-q="mech">Belum berhasil, panggil mekanik</button></div>`;
+    staged(steps,k.a(m)+meta);
+  } else {
+    steps.push("Tidak ada sumber yang cocok → tidak menebak");
+    staged(steps,`<p>Saya tidak menemukan jawaban di manual, SOP, atau pelajaran yang sudah disetujui, jadi saya <strong>tidak akan menebak</strong>.</p>
+      <p>Pertanyaan ini dicatat sebagai <strong>celah pengetahuan</strong> untuk engineer. Bila mesin bermasalah, panggil mekanik.</p>
+      <div class="meta"><span class="tag no">Tanpa sumber · tidak dijawab</span></div>
+      <div class="fbk"><button class="sbtn" type="button" data-q="mech">Panggil mekanik</button></div>`);
+  }
+}
+function offerLesson(lbl){
+  bot(`<p>Bagus. Simpan cara ini sebagai <strong>pelajaran</strong> untuk shift berikutnya? Kepala Regu akan memeriksa dulu sebelum dipakai.</p>
+    <p class="fbk"><button class="sbtn pr" type="button" data-q="lesson:${esc(lbl)}">Simpan sebagai pelajaran</button></p>`);
+}
+
 function resetBot(){
   log.innerHTML=""; const m=byId(opId), sp=suspected(m);
-  say(`<div class="who">Asisten</div><p>Selamat bekerja, Pak ${esc(m.op.split(" ")[0])}. Mesin <strong>${m.id}</strong>, SKU <strong>${SKU[m.sku].n}</strong>.</p><p>Saya bisa menjelaskan parameter mesin (artinya, nilai resep, dan akibatnya kalau dinaikkan atau diturunkan), memberi langkah perbaikan cacat, dan memanggil mekanik atau Kepala Regu.</p>${sp?`<p><strong>Perhatian:</strong> ${SENS[ISSUES[sp].sens].n} mendeteksi <strong>${ISSUES[sp].l.toLowerCase()}</strong> berulang.</p><p><button class="sbtn pr" type="button" data-q="fix:${sp}">Langkah perbaikan ${ISSUES[sp].l.toLowerCase()}</button></p>`:""}`);
+  say(`<div class="who">Asisten</div><p>Selamat bekerja, Pak ${esc(m.op.split(" ")[0])}. Mesin <strong>${m.id}</strong>, SKU <strong>${SKU[m.sku].n}</strong>.</p><p>Tanya apa saja tentang mesin ini, dengan ketik atau suara. Masalah yang sudah punya <strong>pohon keputusan</strong> dijawab dengan langkah resmi. Pertanyaan lain dijawab AI dari manual, SOP dan pelajaran pabrik, lengkap dengan sumbernya. Angka setelan selalu diambil dari tabel resep.</p>${sp?`<p><strong>Perhatian:</strong> ${SENS[ISSUES[sp].sens].n} mendeteksi <strong>${ISSUES[sp].l.toLowerCase()}</strong> berulang.</p><p><button class="sbtn pr" type="button" data-q="fix:${sp}">Langkah perbaikan ${ISSUES[sp].l.toLowerCase()}</button></p>`:""}`,"bot");
+  const kind=SKU[m.sku].kind;
+  const chips=["tegangan unwind 35", sp?`Ada ${ISSUES[sp].l.toLowerCase()}, harus apa?`:"Ada cacat, harus apa?", kind==="roll"?"Kenapa gulungan longgar di ujung roll?":"Kenapa debu tisu banyak?", kind==="roll"?"Lem ekor tidak nempel":"Cara ganti blade perforasi?", "Cara ganti blade perforasi?", "Kenapa mesin sebelah lebih cepat?"];
+  $("chips").innerHTML=[...new Set(chips)].map(c=>`<button type="button" data-ask="${esc(c)}">${esc(c)}</button>`).join("");
 }
 function paramCard(m,p,val){
   const s=SKU[m.sku], nom=p.nom(s), tol=p.tol(s), d=p.dec??(nom%1?1:0);
@@ -659,7 +839,8 @@ function paramCard(m,p,val){
     <tr><td><strong>Kalau dinaikkan</strong></td><td>${p.hi}</td></tr>
     <tr><td><strong>Kalau diturunkan</strong></td><td>${p.lo}</td></tr>
     <tr><td><strong>Terlihat di sensor</strong></td><td>${p.sens.filter(c=>sensorsOf(m).includes(c)).map(c=>c+" · "+SENS[c].n).join("<br>")||"–"}</td></tr></tbody></table>
-    <p class="muted" style="font-size:12px">Nilai contoh. Sistem nyata mengambil dari resep resmi per SKU. Tulis nilai yang sedang diset, mis. "${p.al[0]} ${num(nom+tol*2,d)}", untuk saya cek.</p>`;
+    <div class="meta"><span class="tag tbl">Tabel resep ${esc(s.n)} · angka pasti, bukan buatan AI</span></div>
+    <p class="muted" style="font-size:12px;margin-top:4px">Nilai contoh. Tulis nilai yang sedang diset, mis. "${p.al[0]} ${num(nom+tol*2,d)}", untuk saya cek.</p>`;
 }
 function askSensor(c){
   const m=byId(opId);
@@ -672,29 +853,42 @@ function handle(k,val){
   if(k==="params"){
     bot(`<p>Parameter mana yang mau dijelaskan? (setelan di HMI ${m.id})</p><p style="display:flex;gap:5px;flex-wrap:wrap">${paramsFor(m).map(p=>`<button class="sbtn" type="button" data-q="p:${p.k}">${p.n}</button>`).join("")}</p>`);
   } else if(k.startsWith("p:")){
-    const p=PARAMS.find(x=>x.k===k.slice(2)); bot(paramCard(m,p,val),600);
+    const p=PARAMS.find(x=>x.k===k.slice(2));
+    staged(["Memahami pertanyaan · Qwen3-8B lokal",`Ambil nilai resep ${esc(SKU[m.sku].n)} dari database · tanpa model besar`],paramCard(m,p,val));
   } else if(k==="defect"){
     const opts=Object.keys(ISSUES).filter(x=>ISSUES[x].kinds.includes(kind)), sp=suspected(m);
     bot(`<p>Cacat apa yang terlihat?${sp?` Sensor ${ISSUES[sp].sens} mendeteksi <strong>${ISSUES[sp].l.toLowerCase()}</strong>.`:""}</p><p style="display:flex;gap:5px;flex-wrap:wrap">${opts.map(x=>`<button class="sbtn ${x===sp?"pr":""}" type="button" data-q="fix:${x}">${ISSUES[x].l}</button>`).join("")}<button class="sbtn" type="button" data-q="fix:stop">Mesin stop</button></p>`);
   } else if(k.startsWith("fix:")){
-    const d=k.slice(4), list=CL[d], lbl=d==="stop"?"Mesin stop":ISSUES[d].l;
-    bot(`<p><strong>Langkah perbaikan: ${lbl} · ${m.id}</strong><br><span class="muted">Kerjakan berurutan, centang tiap langkah.</span></p>
+    const d=k.slice(4), list=CL[d], lbl=d==="stop"?"Mesin stop":ISSUES[d].l, tid=TREE[d];
+    staged(["Memahami pertanyaan · Qwen3-8B lokal",`Cocok dengan pohon keputusan <strong>${tid} v3</strong> (disetujui) · tanpa model besar`],
+      `<p><strong>Langkah perbaikan: ${lbl} · ${m.id}</strong><br><span class="muted">Kerjakan berurutan, centang tiap langkah.</span></p>
+      <div class="prog"><i></i></div>
       <ul class="steps">${list.map(([a,b],i)=>`<li><label><input type="checkbox"><span>${i+1}. ${a}${b?`<span class="m">${b}</span>`:""}</span></label></li>`).join("")}</ul>
-      <p style="display:flex;gap:5px;flex-wrap:wrap"><button class="sbtn pr" type="button" data-q="ok:${d}">Selesai, mesin normal</button><button class="sbtn" type="button" data-q="mech">Masih bermasalah, panggil mekanik</button></p>`,650);
+      <div class="meta"><span class="tag tree">Pohon keputusan ${tid} v3 · disetujui mekanik senior</span><span class="tag tbl">Jawaban sama untuk semua shift</span></div>
+      <div class="fbk"><button class="sbtn pr" type="button" data-q="ok:${d}">Selesai, mesin normal</button><button class="sbtn" type="button" data-q="mech">Masih bermasalah, panggil mekanik</button></div>`);
   } else if(k.startsWith("ok:")){
     const d=k.slice(3); if(m.issue===d) m.issue=null;
     alarm(m.id,3,`${m.op} menyelesaikan langkah perbaikan: ${d==="stop"?"mesin stop":ISSUES[d].l.toLowerCase()}`);
     bot(`<p>Tercatat dan tampil di layar Kepala Produksi. Kamera tetap memantau; bila terdeteksi lagi, alarm menyala.</p>`); renderAll();
+    setTimeout(()=>offerLesson(d==="stop"?"Mesin stop":ISSUES[d].l),900);
+  } else if(k.startsWith("good:")){
+    const kb=KB.find(x=>x.id===k.slice(5)); offerLesson(kb?kb.lbl:"Perbaikan");
+  } else if(k.startsWith("lesson:")){
+    const lbl=k.slice(7), no="OPL-0"+(++oplNo); lessons++;
+    $("lesson-count").textContent=`${lessons} pelajaran baru`;
+    alarm(m.id,3,`Pelajaran baru ${no} dari ${m.op}: ${lbl.toLowerCase()} · menunggu persetujuan`); renderAll();
+    bot(`<p>Pelajaran <strong>${no}</strong> dibuat dan dikirim ke Kepala Regu <strong>${esc(sec.karu)}</strong> untuk disetujui.</p><p>Setelah disetujui, operator lain yang bertanya hal yang sama mendapat cara ini, dengan sumber ${no}.</p>`);
   } else if(k==="karu"||k==="mech"){
     const who=k==="karu"?sec.karu:MECH, sp=suspected(m), reason=stopped(m)?"mesin stop":sp?ISSUES[sp].l.toLowerCase():"butuh bantuan";
     alarm(m.id,2,`${m.op} memanggil ${k==="karu"?"Kepala Regu":"mekanik"} (${reason})`); renderAll();
     say(`Panggilan dikirim ke layar Kepala Produksi`,"sys");
-    bot(`<p>Panggilan ke <strong>${esc(who)}</strong> sudah masuk ke daftar alarm Kepala Produksi: “${esc(m.id)} – ${reason}”.</p><p>Menunggu konfirmasi…</p>`,400);
+    bot(`<p>Panggilan ke <strong>${esc(who)}</strong> sudah masuk ke daftar alarm Kepala Produksi: “${esc(m.id)} – ${reason}”. Riwayat chat ini ikut terkirim.</p><p>Menunggu konfirmasi…</p>`,400);
     setTimeout(()=>say(`<div class="who">${esc(who)}</div>${k==="karu"?"Siap, saya ke mesin 5 menit lagi.":"Siap, bawa toolkit. Sampai ±8 menit."}`),4000);
   }
 }
 function route(t){
   const m=byId(opId), low=t.toLowerCase();
+  const kb=kbFind(low); if(kb) return ["rag:"+kb.id];
   const val=(low.match(/-?\d+(?:[.,]\d+)?/)||[])[0];
   const p=paramsFor(m).find(p=>p.al.some(a=>low.includes(a)));
   if(p&&!/chain|nyambung|bunyi|suara|miring|terbuka|luntur|gepeng/.test(low)) return ["p:"+p.k, val!=null?parseFloat(val.replace(",",".")):undefined];
@@ -711,8 +905,22 @@ function route(t){
   if(/cacat|masalah|defect|reject/.test(low)) return ["defect"];
   return null;
 }
-document.querySelector(".con").addEventListener("click",e=>{const b=e.target.closest("[data-q]"); if(!b) return; if(b.closest(".qbtns")) say(`<div class="who">Operator</div>${esc(b.textContent)}`,"me"); handle(b.dataset.q);});
-$("cform").addEventListener("submit",e=>{e.preventDefault(); const i=$("cin"), v=i.value.trim(); if(!v) return; say(`<div class="who">Operator</div>${esc(v)}`,"me"); i.value=""; const r=route(v); if(r) handle(r[0],r[1]); else bot(`<p>Maaf, belum paham. Coba sebut nama parameter (mis. "tekanan nip", "vakum folding") atau jenis cacat (mis. "seal terbuka").</p><p class="muted" style="font-size:12px">Asisten nyata memakai model AI yang membaca manual mesin dan SOP pabrik, jadi pertanyaan bebas akan jauh lebih baik dipahami.</p>`);});
+function ask(v){
+  say(`<div class="who">Operator</div>${esc(v)}`,"me");
+  const r=route(v);
+  if(r&&r[0].startsWith("rag:")) answerRAG(v,KB.find(x=>x.id===r[0].slice(4)));
+  else if(r) handle(r[0],r[1]);
+  else answerRAG(v,null);
+}
+document.querySelector(".con").addEventListener("click",e=>{
+  const g=e.target.closest("[data-gw]"); if(g){ if(g.dataset.gw!==gw) setGw(g.dataset.gw); return; }
+  const a=e.target.closest("[data-ask]"); if(a){ ask(a.dataset.ask); return; }
+  const b=e.target.closest("[data-q]"); if(!b) return; if(b.closest(".qbtns")) say(`<div class="who">Operator</div>${esc(b.textContent)}`,"me"); handle(b.dataset.q);});
+log.addEventListener("change",e=>{ const ul=e.target.closest(".steps"); if(!ul) return; const all=ul.querySelectorAll("input"), done=[...all].filter(x=>x.checked).length; const bar=ul.parentElement.querySelector(".prog i"); if(bar) bar.style.width=(100*done/all.length)+"%"; });
+$("cform").addEventListener("submit",e=>{e.preventDefault(); const i=$("cin"), v=i.value.trim(); if(!v) return; i.value=""; ask(v);});
+$("mic").addEventListener("click",()=>{ const b=$("mic"), i=$("cin"); if(b.classList.contains("on")) return; b.classList.add("on"); i.value=""; i.placeholder="Mendengarkan… (demo)";
+  const m=byId(opId), sample=SKU[m.sku].kind==="roll"?"kenapa gulungan longgar di ujung roll":"kenapa debu tisu banyak"; let n=0;
+  setTimeout(()=>{ const t=setInterval(()=>{ i.value=sample.slice(0,++n); if(n>=sample.length){ clearInterval(t); b.classList.remove("on"); i.placeholder="Tanya apa saja tentang mesin ini"; setTimeout(()=>$("cform").requestSubmit(),400);} },35); },900); });
 
 /* ================= demo + routing ================= */
 $("demo-stop").addEventListener("click",()=>{ const m=pick(running().filter(m=>!m.down&&!m.change)); m.down=true; m.stoppedAt=sim.t; m.restartAt=sim.t+rnd(12,25); renderAll(); });
