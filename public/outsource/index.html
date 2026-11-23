@@ -55,12 +55,52 @@ h1{font-size:22px} h2{font-size:16px} h3{font-size:14px}
 .viewas{background:#f8f9fb;border-bottom:1px solid var(--line);padding:7px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
 .viewas .lbl{white-space:nowrap}
 .viewas .seg{flex-wrap:wrap}
+@media (max-width:700px){.viewas{flex-wrap:nowrap}.viewas .seg{flex-wrap:nowrap;overflow-x:auto;max-width:100%}.viewas .seg button{white-space:nowrap}}
 .viewas .seg button{font-size:12.5px;padding:4px 10px}
 .phone{width:390px;max-width:100%;border:10px solid #1d2733;border-radius:34px;background:#f2f4f7;overflow:hidden;box-shadow:0 10px 30px rgba(15,25,40,.18)}
 .phone .ph{background:var(--nav);color:#fff;padding:18px 18px 14px}
 .phone .pb{padding:12px;display:grid;gap:10px}
 .wk7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11.5px}
 .wk7 .sh{padding:4px 2px}
+/* Menu page */
+.navmenu{display:inline-flex;align-items:center;gap:7px}
+.navmenu .ico{width:16px;height:16px}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.menusearch{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #c5ccd5;border-radius:6px;padding:4px 14px;margin-bottom:18px;color:var(--muted)}
+.menusearch:focus-within{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.menusearch input[type=search]{border:0;flex:1;min-height:40px;font-size:15px;padding:0;box-shadow:none!important}
+.menucols{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.menugroups{display:grid;gap:22px}
+.mgroup h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tile{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:6px;padding:13px 14px;text-decoration:none;color:var(--ink)}
+.tile:hover{border-color:#a9b8cc;background:#fbfcfe}
+.tile .ico{color:var(--pri);margin-top:1px}
+.tile b{display:block;font-weight:600}
+.tile span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.tile span.tag{display:inline-block}
+.tile[hidden],.mgroup[hidden]{display:none}
+.prow{display:flex;align-items:center;gap:10px;width:100%;color:inherit;text-decoration:none}
+.prow b{display:block;font-weight:600}
+.prow:hover b{text-decoration:underline}
+@media (max-width:980px){.menucols{grid-template-columns:minmax(0,1fr)}}
+/* Staff profile */
+.prof{display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;align-items:start}
+.profside{position:sticky;top:104px;overflow:hidden}
+.pshead{display:flex;gap:12px;align-items:center;padding:16px 16px 10px}
+.pshead h1{font-size:18px}
+.pstags{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.psfacts{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:0;padding:10px 16px;border-top:1px solid var(--line2);font-size:13px}
+.psfacts dt{color:var(--muted)} .psfacts dd{margin:0}
+.psbtn{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap}
+.pnav{border-top:1px solid var(--line);padding:6px 0}
+.pnav button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 16px 9px 13px;border-left:3px solid transparent;font-weight:550;color:var(--muted)}
+.pnav button:hover{color:var(--ink);background:#f7f9fc}
+.pnav button[aria-selected="true"]{color:var(--pri-d);background:var(--pri-l);border-left-color:var(--pri)}
+.ptitle{font-size:19px;margin:2px 0 14px}
+.psec{margin-bottom:16px}
+.kv.wide{grid-template-columns:minmax(170px,max-content) 1fr}
+@media (max-width:860px){.prof{grid-template-columns:minmax(0,1fr)}.profside{position:static}.pnav{display:flex;overflow-x:auto;padding:0}.pnav button{width:auto;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;padding:10px 12px}.pnav button[aria-selected="true"]{border-bottom-color:var(--pri)}.kv.wide{grid-template-columns:minmax(0,1fr)}.kv.wide dd{margin-bottom:6px}}
 main{max-width:1440px;margin:0 auto;padding:20px 20px 60px}
 .pagehead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:16px}
 .pagehead .sub{color:var(--muted);margin-top:3px}
@@ -589,5 +629,6 @@ function dayCost(sec, d){
 </script>
 <script src="app.js"></script>
 <script src="lembur.js"></script>
+<script src="ui.js"></script>
 </body>
 </html>

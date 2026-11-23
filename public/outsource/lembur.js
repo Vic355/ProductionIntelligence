@@ -527,7 +527,7 @@ function renderWho(){
 }
 function renderViewAs(){
   const r = roleOf();
-  $("#viewas").innerHTML = `<span class="lbl">Lihat sebagai</span><div class="seg" role="group" aria-label="Lihat sebagai">${ROLES.map(x => `<button aria-pressed="${x.id === r.id}" data-role="${x.id}">${x.worker ? x.n : x.n + " · " + x.t}</button>`).join("")}</div><span class="small muted">${r.worker ? "Tampilan aplikasi HP pekerja." : ["S3","MEK"].includes(r.id) ? "Rincian per orang terlihat untuk tim " + deptById(r.id).n + "." : "Angka per tim. Rincian per orang hanya untuk atasan langsung."}</span>`;
+  $("#viewas").innerHTML = `<span class="lbl">Lihat sebagai</span><div class="seg" role="group" aria-label="Lihat sebagai" title="${r.worker ? "Tampilan aplikasi HP pekerja." : ["S3","MEK"].includes(r.id) ? "Rincian per orang terlihat untuk tim " + deptById(r.id).n + "." : "Angka per tim. Rincian per orang hanya untuk atasan langsung."}">${ROLES.map(x => `<button aria-pressed="${x.id === r.id}" data-role="${x.id}">${x.worker ? x.n : x.n + " · " + x.t}</button>`).join("")}</div>`;
   $$("[data-role]").forEach(b => b.onclick = () => setRole(b.dataset.role));
 }
 function setRole(id){
