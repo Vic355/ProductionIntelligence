@@ -11,10 +11,12 @@ const dow = d => dt(d).getUTCDay();
 const wk = d => Math.floor(d / 7);                 // 0 = minggu ini (Sen 23 Nov), -1 = minggu lalu
 const wkLabel = k => k === 0 ? "Minggu ini" : dShort(k * 7).slice(4);
 const ROLES = [
-  {id:"hr", n:"Ibu Maya", t:"HR", av:"MS"},
-  {id:"head", n:"Pak Agung Wibowo", t:"Kepala Produksi", av:"AW"},
+  {id:"hr", n:"Pak Gani", t:"HR", av:"PG"},
+  {id:"head", n:"Pak Dian", t:"Kepala Produksi", av:"PD"},
   {id:"S3", n:"Pak Hasan Basri", t:"Manajer Seksi 3", av:"HB"},
-  {id:"MEK", n:"Pak Bambang Hartono", t:"Kepala Mekanik", av:"BH"}
+  {id:"MEK", n:"Pak Bambang Hartono", t:"Kepala Mekanik", av:"BH"},
+  {id:"opr", n:"Operator mesin", t:"karyawan, di HP", av:"OP", worker:true},
+  {id:"os", n:"Packer alih daya", t:"di HP", av:"AD", worker:true}
 ];
 UI.role = "hr";
 const roleOf = () => ROLES.find(r => r.id === UI.role);
@@ -160,7 +162,6 @@ function opWeek(w, from = -7, to = -1){
 /* ---------- shared bits ---------- */
 const lockNote = dept => `<div class="note">Rincian per orang hanya terlihat oleh atasan langsung (${esc(deptById(dept).mgr)}). Di sini ditampilkan angka tim. <button class="btn sm" data-as="${dept}" ${ROLES.some(r => r.id === dept) ? "" : "hidden"}>Lihat sebagai ${esc(deptById(dept).mgr)}</button></div>`;
 function bindAs(){ $$("[data-as]").forEach(b => b.onclick = () => setRole(b.dataset.as)); }
-function setRole(id){ UI.role = id; renderWho(); rerender(); toast("Sekarang melihat sebagai " + roleOf().n + " (" + roleOf().t + ")."); }
 const deptSelect = (val, attr, all = "Semua departemen") => `<select ${attr}>${all === null ? "" : `<option value="">${all}</option>`}${DEPT.map(x => `<option value="${x.id}" ${x.id === val ? "selected" : ""}>${x.full}</option>`).join("")}</select>`;
 const names = ids => { const n = ids.map(p => wById(p.id).name.split(" ")[0]); return n.length > 3 ? n.slice(0, 3).join(", ") + " +" + (n.length - 3) : n.join(", "); };
 const SEQ = ["#eef3fb","#d3e1f5","#a9c4ea","#7aa3dc","#4d7fc7","#2c5fa8","#1b4282"];
@@ -431,35 +432,76 @@ PAGES.volume = () => {
 PAGES.volume.after = () => { bindAs(); $("#vsec").onchange = e => { UI.volSec = e.target.value; rerender(); }; };
 
 /* ======================= Tampilan HP pekerja ======================= */
-UI.hpWho = null;
-PAGES.hp = () => {
-  const cands = [...pool("S3").slice(0, 10), ...pool("MEK").slice(0, 4), ...pool("GDG").slice(0, 3)];
-  const w = wById(UI.hpWho) || cands.find(x => SPL.some(s => s.people.some(p => p.id === x.id) && s.d >= -10)) || cands[0];
+UI.hpWho = null; UI.hpKind = "opr";
+const hpCands = kind => kind === "os"
+  ? [...W.filter(w => w.sec === "S3" && w.regu === "A" && w.ag !== "KRY").sort((x, y) => (y.role === "Packer") - (x.role === "Packer")).slice(0, 8), ...W.filter(w => w.sec === "S1" && w.regu === "B" && w.ag === "MKS").slice(0, 4), ...W.filter(w => w.ag === "PHL").slice(0, 3)]
+  : [...pool("S3").slice(0, 10), ...pool("MEK").slice(0, 4), ...pool("GDG").slice(0, 3)];
+const big = (v, l) => `<div><div style="font-size:22px;font-weight:650">${v}</div><div class="small muted">${l}</div></div>`;
+function phoneEmp(w){
   const mine = SPL.filter(s => s.people.some(p => p.id === w.id)), me = s => s.people.find(p => p.id === w.id);
-  const cur = mine.filter(s => s.d >= -2 && s.status !== "rencana");  // periode 21 Nov – 20 Des
+  const cur = mine.filter(s => s.d >= -2 && s.status !== "rencana");
   const appr = cur.filter(s => s.status === "selesai" || s.status === "tidak").reduce((a, s) => a + me(s).actual, 0), wait = cur.filter(s => s.status === "tutup").reduce((a, s) => a + me(s).plan, 0);
-  const last = mine.filter(s => s.d >= -33 && s.d <= -3).reduce((a, s) => a + (me(s).actual || 0), 0);
-  const lastPay = mine.filter(s => s.d >= -33 && s.d <= -3).reduce((a, s) => a + otPay(w.rate, me(s).actual || 0, dow(s.d) === 0), 0);
+  const prev = mine.filter(s => s.d >= -33 && s.d <= -3), last = prev.reduce((a, s) => a + (me(s).actual || 0), 0), lastPay = prev.reduce((a, s) => a + otPay(w.rate, me(s).actual || 0, dow(s.d) === 0), 0);
   const up = mine.filter(s => s.status === "rencana");
   const op = w.mach ? opWeek(w) : null, team = w.mach ? (() => { const o = pool(w.dept).map(x => opWeek(x)); return o.reduce((a, x) => a + x.bales, 0) / o.reduce((a, x) => a + x.std, 0); })() : null;
-  const wkH = otWeekH(w.id, 0);
-  return `<div class="pagehead"><div><h1>Tampilan HP pekerja</h1><div class="sub">Yang dilihat pekerja di aplikasi: jam kerja, lembur dan KPI dirinya sendiri. Orang lain tidak bisa melihatnya.</div></div>
-    <div class="actions"><label class="sr" for="hpw">Pekerja</label><select id="hpw">${cands.map(x => `<option value="${x.id}" ${x === w ? "selected" : ""}>${esc(x.name)} · ${x.role}</option>`).join("")}</select></div></div>
-  <div style="display:flex;justify-content:center"><div style="width:390px;max-width:100%;border:10px solid #1d2733;border-radius:34px;background:#f2f4f7;overflow:hidden;box-shadow:0 10px 30px rgba(15,25,40,.18)">
-    <div style="background:var(--nav);color:#fff;padding:18px 18px 14px"><div class="small" style="opacity:.8">${dLong(0)}</div><div style="font-size:18px;font-weight:650;margin-top:2px">Halo, ${esc(w.name.split(" ")[0])}</div><div class="small" style="opacity:.8">${w.role}${w.mach ? " · " + w.mach : ""} · ${deptById(w.dept).n}${w.oregu ? " · Regu " + w.oregu : ""}</div></div>
-    <div style="padding:12px;display:grid;gap:10px">
-      <div class="card"><div class="bd"><div class="small muted">Lembur periode ini (21 Nov – 20 Des)</div><div style="display:flex;gap:18px;margin-top:4px"><div><div style="font-size:22px;font-weight:650">${appr} j</div><div class="small muted">disetujui</div></div><div><div style="font-size:22px;font-weight:650">${wait} j</div><div class="small muted">menunggu ditutup</div></div><div><div style="font-size:22px;font-weight:650">${wkH} / ${R.otWeek}</div><div class="small muted">jam minggu ini</div></div></div></div></div>
+  return `<div class="phone"><div class="ph"><div class="small" style="opacity:.8">${dLong(0)}</div><div style="font-size:18px;font-weight:650;margin-top:2px">Halo, ${esc(w.name.split(" ")[0])}</div><div class="small" style="opacity:.8">${w.role}${w.mach ? " · " + w.mach : ""} · ${deptById(w.dept).n}${w.oregu ? " · Regu " + w.oregu : ""}</div></div>
+    <div class="pb">
+      ${weekCard(w, d => empShift(w, d))}
+      <div class="card"><div class="bd"><div class="small muted">Lembur periode ini (21 Nov – 20 Des)</div><div style="display:flex;gap:18px;margin-top:4px">${big(appr + " j", "disetujui")}${big(wait + " j", "menunggu ditutup")}${big(otWeekH(w.id, 0) + " / " + R.otWeek, "jam minggu ini")}</div></div></div>
       ${up.length ? `<div class="card"><div class="hd"><h3>SPL untuk Anda</h3></div><ul class="list">${up.map(s => `<li><div class="grow"><b>${dShort(s.d)} · ${s.start}, ${me(s).plan} jam</b><div class="meta">${esc(s.task)}</div></div><button class="btn sm pri" data-hpok="${s.id}">${s.ok ? "Dikonfirmasi" : "Konfirmasi"}</button></li>`).join("")}</ul></div>` : ""}
       ${op ? `<div class="card"><div class="bd"><div class="small muted">Hasil saya minggu lalu</div><div style="font-size:22px;font-weight:650;margin-top:2px">${dec(op.pct * 100)}% <span class="small muted" style="font-weight:500">dari standar</span></div><div class="bar" style="margin:8px 0 4px"><i style="width:${Math.min(100, op.pct * 100)}%"></i></div><div class="small muted">${fmt(op.bales)} bal di ${w.mach} · ${fmt(op.perH)} bal per jam · rata-rata tim ${dec(team * 100)}%${op.down ? ` · ${dec(op.down)} jam mesin rusak tidak dihitung` : ""}</div></div></div>` : ""}
-      <div class="card"><div class="bd"><div class="small muted">Gaji periode lalu (21 Okt – 20 Nov)</div><div style="font-size:20px;font-weight:650;margin-top:2px">${rp(payLine(w).net)}</div><div class="small muted">termasuk lembur ${last} jam, ${rp(lastPay)} · upah ${rp(w.rate)} per jam · dibayar 25 Nov</div></div></div>
+      <div class="card"><div class="bd"><div class="small muted">Gaji 21 Okt – 20 Nov · dibayar 25 Nov</div><div style="font-size:20px;font-weight:650;margin-top:2px">${rp(payLine(w).net)}</div><div class="small muted">termasuk lembur ${last} jam, ${rp(lastPay)} · upah ${rp(w.rate)} per jam</div><button class="btn sm" style="margin-top:8px" data-hpslip>Lihat slip</button></div></div>
       <div class="card"><div class="hd"><h3>Riwayat lembur</h3></div><ul class="list">${mine.filter(s => s.status !== "rencana").slice(0, 5).map(s => `<li><div class="grow"><b>${dShort(s.d)} · ${me(s).actual ?? me(s).plan} jam</b><div class="meta">${esc(s.task)}</div></div><span class="tag ${STAT[s.status][0]}">${s.status === "tidak" ? "Dibayar, tugas belum selesai" : STAT[s.status][1]}</span></li>`).join("") || '<li class="muted">Belum ada lembur.</li>'}</ul></div>
+      ${leaveCard(w)}
       <button class="btn" id="hpdispute" style="justify-content:center">Laporkan jam yang salah</button>
-    </div></div></div>`;
+    </div></div>`;
+}
+function weekCard(w, f){
+  return `<div class="card"><div class="hd"><h3>Jadwal minggu ini</h3></div><div class="bd"><div class="wk7">${WEEK.map(d => { const c = shiftOf(f(d)); return `<div><div class="muted" style="margin-bottom:3px">${DAYN[dow(d)]}<br>${dt(d).getUTCDate()}</div>${SH[c] ? `<span class="sh ${c}">${SH[c].n[0]}</span>` : c === "L" ? '<span class="sh" style="color:var(--faint)">–</span>' : `<span class="sh ${c}">${LEAVE[c].slice(0, 4)}</span>`}</div>`; }).join("")}</div>
+    <div class="small muted" style="margin-top:8px">P = Pagi 07–15 · S = Siang 15–23 · M = Malam 23–07</div></div></div>`;
+}
+function leaveCard(w){
+  if (w.ag === "PHL") return "";
+  const lv = LEAVES.filter(l => l.w === w.id).slice(-3);
+  return `<div class="card"><div class="hd"><h3>Cuti</h3><span class="more small muted">sisa ${w.leaveBal} hari</span></div><ul class="list">${lv.map(l => `<li><div class="grow"><b>${l.type}</b><div class="meta">${l.from === l.to ? dShort(l.from) : dShort(l.from) + " – " + dShort(Math.min(l.to, 30))}</div></div><span class="tag ${l.status === "ok" ? "ok" : l.status === "pending" ? "warn" : "bad"}">${l.status === "ok" ? "Disetujui" : l.status === "pending" ? "Menunggu" : "Ditolak"}</span></li>`).join("") || '<li class="muted">Belum ada pengajuan.</li>'}</ul><div class="bd" style="border-top:1px solid var(--line2)"><button class="btn sm pri" data-hpleave>Ajukan cuti atau izin</button></div></div>`;
+}
+function phoneOS(w){
+  const tsl = [-7, -6, -5, -4, -3, -2, -1].map(d => ts(w, d)).filter(Boolean);
+  const hadir = tsl.filter(t => t.inM != null).length, bales = tsl.reduce((a, t) => a + t.bales, 0), late = tsl.filter(t => t.flag === "Terlambat").length;
+  const c0 = code(w, 0), s0 = shiftOf(c0), t0 = ts(w, 0);
+  const h = payHistory(w), lastP = h[0];
+  const hold = holdReason(w);
+  return `<div class="phone"><div class="ph"><div class="small" style="opacity:.8">${dLong(0)}</div><div style="font-size:18px;font-weight:650;margin-top:2px">Halo, ${esc(w.name.split(" ")[0])}</div><div class="small" style="opacity:.8">${w.role} · ${AG[w.ag].n}${w.sec ? " · " + w.sec + " · Regu " + w.regu : " · harian lepas"}</div></div>
+    <div class="pb">
+      <div class="card"><div class="bd"><div class="small muted">Hari ini</div>${SH[s0] ? `<div style="font-size:18px;font-weight:650;margin-top:2px">${SH[s0].n} ${SH[s0].t}</div><div class="small muted">${secById(secOf(w, c0)) ? secById(secOf(w, c0)).n : ""} · ${t0 && t0.inM != null && s0 === "P" ? "sudah check-in " + hm(t0.inM) + " lewat " + t0.src : "check-in dengan kartu di mesin atau wajah di gerbang 2"}</div>` : `<div style="font-size:18px;font-weight:650;margin-top:2px">${w.ag === "PHL" ? "Tidak ada jadwal" : "Libur"}</div>${w.ag === "PHL" ? '<div class="small muted">Anda akan dapat pesan kalau ada shift kosong.</div>' : ""}`}</div></div>
+      ${weekCard(w, d => code(w, d))}
+      <div class="card"><div class="bd"><div class="small muted">Minggu lalu</div><div style="display:flex;gap:18px;margin-top:4px">${big(hadir, "hari hadir")}${big(fmt(bales), "bal dipacking")}${big(late, "terlambat")}</div><div class="small muted" style="margin-top:6px">Jumlah bal dari sensor packing, dikonfirmasi leader line.</div></div></div>
+      <div class="card"><div class="bd">${w.ag === "PHL" ? `<div class="small muted">Upah harian, dibayar setiap Sabtu</div><div style="font-size:20px;font-weight:650;margin-top:2px">${lastP ? rp(lastP.amt) : "—"}</div><div class="small muted">${lastP ? "dibayar " + lastP.b.date + " ke " + w.bank.bank + " " + maskNo(w.bank.no) : "Belum ada pembayaran"}</div>` : `<div class="small muted">Gaji 21 Okt – 20 Nov · dibayar 25 Nov</div><div style="font-size:20px;font-weight:650;margin-top:2px">${rp(payLine(w).net)}</div><div class="small muted">ke ${w.bank.bank} ${maskNo(w.bank.no)} · dibayar lewat ${AG[w.ag].n}</div>`}
+        ${hold ? `<div class="note warn" style="margin-top:8px">${hold}. Gaji ditahan sampai diperbaiki. Buka menu Rekening untuk mengganti.</div>` : ""}<button class="btn sm" style="margin-top:8px" data-hpslip>Lihat slip</button></div></div>
+      ${leaveCard(w)}
+      <button class="btn" id="hpdispute" style="justify-content:center">Laporkan jam atau hitungan yang salah</button>
+    </div></div>`;
+}
+PAGES.hp = () => {
+  const worker = roleOf().worker, kind = worker ? UI.role : UI.hpKind;
+  const cands = hpCands(kind);
+  let w = wById(UI.hpWho); if (!w || !cands.includes(w)) w = (kind === "opr" && cands.find(x => SPL.some(s => s.people.some(p => p.id === x.id) && s.d >= -10))) || cands[0];
+  UI.hpWho = w.id;
+  return `<div class="pagehead"><div><h1>${worker ? "Aplikasi pekerja" : "Tampilan HP pekerja"}</h1><div class="sub">${worker ? "Ini yang dilihat pekerja di HP-nya. Untuk demo, pilih orangnya di daftar pekerja. Di aplikasi asli pekerja hanya melihat datanya sendiri." : "Yang dilihat pekerja di aplikasi: jadwal, jam kerja, lembur, gaji dan hasil dirinya sendiri. Orang lain tidak bisa melihatnya."}</div></div>
+    <div class="actions">${worker ? "" : `<div class="seg" role="group" aria-label="Jenis pekerja"><button aria-pressed="${kind === "opr"}" data-hpk="opr">Karyawan</button><button aria-pressed="${kind === "os"}" data-hpk="os">Alih daya</button></div>`}<label class="sr" for="hpw">Pekerja</label><select id="hpw">${cands.map(x => `<option value="${x.id}" ${x === w ? "selected" : ""}>${esc(x.name)} · ${x.role}${x.ag !== "KRY" ? " · " + AG[x.ag].short : ""}</option>`).join("")}</select></div></div>
+  <div style="display:flex;justify-content:center">${kind === "os" ? phoneOS(w) : phoneEmp(w)}</div>`;
 };
 PAGES.hp.after = () => {
+  const w = wById(UI.hpWho);
   $("#hpw").onchange = e => { UI.hpWho = e.target.value; rerender(); };
+  $$("[data-hpk]").forEach(b => b.onclick = () => { UI.hpKind = b.dataset.hpk; UI.hpWho = null; rerender(); });
   $$("[data-hpok]").forEach(b => b.onclick = () => { SPL.find(s => s.id === b.dataset.hpok).ok = true; toast("Konfirmasi terkirim ke manajer."); rerender(); });
-  $("#hpdispute").onclick = () => toast("Laporan dikirim ke manajer dan HR. Dijawab paling lambat 2 hari kerja, sebelum tutup buku gaji.");
+  $$("[data-hpslip]").forEach(b => b.onclick = () => payslip(w, w.ag === "PHL" ? payHistory(w)[0] : null));
+  $$("[data-hpleave]").forEach(b => b.onclick = () => {
+    modal("Ajukan cuti atau izin", `<div class="grid g2" style="gap:12px"><div class="field"><label for="lt">Jenis</label><select id="lt"><option>Cuti tahunan</option><option>Sakit</option><option>Izin</option><option>Cuti haid</option></select></div><div class="field"><label for="ld">Tanggal</label><select id="ld">${[1,2,3,4,5,6].map(d => `<option value="${d}">${dLong(d)}</option>`).join("")}</select></div><div class="field" style="grid-column:1/-1"><label for="ln">Alasan</label><input type="text" id="ln"></div></div><div class="small muted">Sisa cuti tahunan ${w.leaveBal} hari. Sakit perlu surat dokter, bisa diunggah belakangan.</div>`, `<button class="btn" data-close>Batal</button><button class="btn pri" id="lsend">Kirim ke atasan</button>`);
+    $("#lsend").onclick = () => { const d = +$("#ld").value; addLeave(w, $("#lt").value, d, d, "pending", $("#ln").value || "-"); closeModal(); toast("Pengajuan terkirim. Atasan Anda melihatnya di roster dan menu Cuti & izin."); rerender(); };
+  });
+  $("#hpdispute").onclick = () => toast("Laporan dikirim ke atasan dan HR. Dijawab paling lambat 2 hari kerja, sebelum tutup buku gaji.");
 };
 
 /* ======================= hooks into the rest of the app ======================= */
@@ -477,9 +519,33 @@ function lemburProfile(w){
   </tbody></table></div></section>`;
 }
 NAV.splice(4, 0, {id:"lembur", n:"Lembur & KPI", pages:[["lembur","Perintah lembur"],["monitor","Monitor lembur"],["kpi","KPI departemen"],["volume","Volume operator"],["hp","Tampilan HP pekerja"]]});
+
+/* "Lihat sebagai" bar under the menus, so anyone can switch views on any screen size */
 function renderWho(){
   const r = roleOf();
-  $(".who").innerHTML = `<span class="av" aria-hidden="true">${r.av}</span><label class="sr" for="rolesel">Lihat sebagai</label><select id="rolesel" class="rolesel">${ROLES.map(x => `<option value="${x.id}" ${x.id === r.id ? "selected" : ""}>${x.n} · ${x.t}</option>`).join("")}</select>`;
-  $("#rolesel").onchange = e => setRole(e.target.value);
+  $(".who").innerHTML = `<span class="av" aria-hidden="true">${r.av}</span><span class="hide-sm">${r.n} · ${r.t}</span>`;
 }
-renderWho();
+function renderViewAs(){
+  const r = roleOf();
+  $("#viewas").innerHTML = `<span class="lbl">Lihat sebagai</span><div class="seg" role="group" aria-label="Lihat sebagai">${ROLES.map(x => `<button aria-pressed="${x.id === r.id}" data-role="${x.id}">${x.worker ? x.n : x.n + " · " + x.t}</button>`).join("")}</div><span class="small muted">${r.worker ? "Tampilan aplikasi HP pekerja." : ["S3","MEK"].includes(r.id) ? "Rincian per orang terlihat untuk tim " + deptById(r.id).n + "." : "Angka per tim. Rincian per orang hanya untuk atasan langsung."}</span>`;
+  $$("[data-role]").forEach(b => b.onclick = () => setRole(b.dataset.role));
+}
+function setRole(id){
+  const wasWorker = roleOf().worker;
+  UI.role = id; UI.hpWho = null;
+  if (wasWorker && !roleOf().worker && location.hash === "#hp") { location.hash = "beranda"; }
+  else rerender();
+  toast("Sekarang melihat sebagai " + roleOf().n + " (" + roleOf().t + ").");
+}
+const _route = route;
+route = function(){
+  renderWho(); renderViewAs();
+  if (roleOf().worker) {
+    $("#mainnav").innerHTML = ""; $("#subnav").hidden = true;
+    $("#app").innerHTML = PAGES.hp() + `<p class="foot">Mockup. Semua nama, angka, tarif dan aturan adalah contoh dan dibuat di browser.</p>`;
+    PAGES.hp.after();
+    return;
+  }
+  $("#subnav").hidden = false;
+  _route();
+};

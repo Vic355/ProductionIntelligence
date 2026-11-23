@@ -46,11 +46,21 @@ h1{font-size:22px} h2{font-size:16px} h3{font-size:14px}
 .av.lg{width:56px;height:56px;font-size:19px;background:#d7e1ee;color:#1f3a5f}
 .av.sm{width:26px;height:26px;font-size:11px;background:#e3e8ef;color:#2c4566}
 
+.subnav[hidden]{display:none}
 .subnav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;padding:0 16px;overflow-x:auto;position:sticky;top:52px;z-index:19}
 .subnav a{padding:11px 12px 9px;color:var(--muted);text-decoration:none;font-weight:550;white-space:nowrap;border-bottom:2px solid transparent}
 .subnav a:hover{color:var(--ink)}
 .subnav a[aria-current="page"]{color:var(--pri);border-bottom-color:var(--pri)}
 
+.viewas{background:#f8f9fb;border-bottom:1px solid var(--line);padding:7px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.viewas .lbl{white-space:nowrap}
+.viewas .seg{flex-wrap:wrap}
+.viewas .seg button{font-size:12.5px;padding:4px 10px}
+.phone{width:390px;max-width:100%;border:10px solid #1d2733;border-radius:34px;background:#f2f4f7;overflow:hidden;box-shadow:0 10px 30px rgba(15,25,40,.18)}
+.phone .ph{background:var(--nav);color:#fff;padding:18px 18px 14px}
+.phone .pb{padding:12px;display:grid;gap:10px}
+.wk7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11.5px}
+.wk7 .sh{padding:4px 2px}
 main{max-width:1440px;margin:0 auto;padding:20px 20px 60px}
 .pagehead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:16px}
 .pagehead .sub{color:var(--muted);margin-top:3px}
@@ -211,10 +221,11 @@ table.tbl{width:100%;border-collapse:collapse}
   <nav class="mainnav" id="mainnav" aria-label="Menu utama"></nav>
   <div class="topright">
     <a class="hide-sm" href="../">Monitor Produksi</a>
-    <span class="who"><span class="av" aria-hidden="true">MS</span><span class="hide-sm">Ibu Maya · HR</span></span>
+    <span class="who"><span class="av" aria-hidden="true">PG</span><span class="hide-sm">Pak Gani · HR</span></span>
   </div>
 </header>
 <nav class="subnav" id="subnav" aria-label="Sub menu"></nav>
+<div class="viewas" id="viewas"></div>
 <main id="app" tabindex="-1"></main>
 <div id="overlay"></div>
 <script>
@@ -289,8 +300,8 @@ const SEC = [
   {id:"S2", n:"Seksi 2 · Kitchen Towel & Jumbo Roll", mach:["KT-01","KT-02","KT-03","KT-04","KT-05","JR-01","JR-02"], crew:2, extra:["Helper jumbo roll"], ag:"MKS", leader:"Pak Suparman"},
   {id:"S3", n:"Seksi 3 · Facial Box", mach:["FB-01","FB-02","FB-03","FB-04","FB-05","FB-06","FB-07"], crew:3, extra:["Helper produksi"], ag:"STM", leader:"Pak Hasan Basri"},
   {id:"S4", n:"Seksi 4 · Soft Pack & Travel Pack", mach:["SP-01","SP-02","SP-03","SP-04","SP-05","SP-06","SP-07"], crew:2, extra:["Helper produksi","Operator forklift"], ag:"STM", leader:"Pak Mulyadi"},
-  {id:"S5", n:"Seksi 5 · Napkin", mach:["NP-01","NP-02","NP-03","NP-04","NP-05","NP-06"], crew:2, extra:["Helper produksi"], ag:"BKN", leader:"Pak Subagyo"},
-  {id:"S6", n:"Seksi 6 · Hand Towel", mach:["HT-01","HT-02","HT-03","HT-04","HT-05","HT-06"], crew:1, extra:["Helper produksi"], ag:"BKN", leader:"Pak Wahyudi"}
+  {id:"S5", n:"Seksi 5 · Napkin", mach:["NP-01","NP-02","NP-03","NP-04","NP-05","NP-06"], crew:2, extra:["Helper produksi"], ag:"MKS", leader:"Pak Subagyo"},
+  {id:"S6", n:"Seksi 6 · Hand Towel", mach:["HT-01","HT-02","HT-03","HT-04","HT-05","HT-06"], crew:1, extra:["Helper produksi"], ag:"STM", leader:"Pak Wahyudi"}
 ];
 const secById = id => SEC.find(s => s.id === id);
 /* Changes in the PPIC production plan for this week */
@@ -315,9 +326,8 @@ const REGU = {A:0, B:2, C:4, D:6};
 
 /* ---------- agencies ---------- */
 const AG = {
-  MKS:{id:"MKS", n:"PT Mitra Karya Sejahtera", short:"Mitra Karya", fee:.08, model:"pay", pic:"Bpk. Rahmat Hidayat", phone:"0812-•••-4410", contractEnd:new Date(Date.UTC(2027,2,31)), nib:"91201••••0331", fill:.97, att:.968},
-  STM:{id:"STM", n:"PT Sinar Tenaga Mandiri", short:"Sinar Tenaga", fee:.075, model:"pay", pic:"Ibu Lina Marlina", phone:"0813-•••-2287", contractEnd:new Date(Date.UTC(2026,11,31)), nib:"81204••••1172", fill:.92, att:.955},
-  BKN:{id:"BKN", n:"PT Bina Kerja Nusantara", short:"Bina Kerja", fee:.09, model:"agen", pic:"Bpk. Hendra Gunawan", phone:"0811-•••-9034", contractEnd:new Date(Date.UTC(2027,5,30)), nib:"02203••••5518", fill:.95, att:.972},
+  MKS:{id:"MKS", n:"Penukal", short:"Penukal", fee:.08, model:"pay", pic:"Bpk. Rahmat Hidayat", phone:"0812-•••-4410", contractEnd:new Date(Date.UTC(2027,2,31)), nib:"91201••••0331", fill:.97, att:.968},
+  STM:{id:"STM", n:"Gemna", short:"Gemna", fee:.075, model:"pay", pic:"Ibu Lina Marlina", phone:"0813-•••-2287", contractEnd:new Date(Date.UTC(2026,11,31)), nib:"81204••••1172", fill:.92, att:.955},
   PHL:{id:"PHL", n:"Harian lepas (langsung)", short:"Harian lepas", fee:0, model:"direct", pic:"HR pabrik", phone:"-", contractEnd:null, nib:"-", fill:1, att:.94}
 };
 const MODEL = {pay:"Pabrik membayar pekerja atas nama agen, agen ditagih fee", agen:"Agen membayar pekerja, pabrik membayar tagihan agen", direct:"Pabrik membayar langsung, mingguan"};
@@ -429,7 +439,7 @@ const REQS = [
   {id:"RQ-118", ag:"STM", sec:"S3", d:3, sh:"P", n:2, status:"Dikonfirmasi", names:"2 orang, nama dikirim agen 22 Nov 19.40", sent:"22 Nov 2026"},
   {id:"RQ-117", ag:"MKS", sec:"S2", d:1, sh:"M", n:1, status:"Menunggu agen", names:"-", sent:"22 Nov 2026"},
   {id:"RQ-114", ag:"STM", sec:"S4", d:-3, sh:"S", n:3, status:"Selesai", names:"3 dari 3 hadir", sent:"18 Nov 2026"},
-  {id:"RQ-111", ag:"BKN", sec:"S5", d:-6, sh:"P", n:2, status:"Selesai", names:"1 dari 2 hadir", sent:"15 Nov 2026"}
+  {id:"RQ-111", ag:"MKS", sec:"S5", d:-6, sh:"P", n:2, status:"Selesai", names:"1 dari 2 hadir", sent:"15 Nov 2026"}
 ];
 
 /* ---------- timesheets (generated per worker and day) ---------- */
@@ -498,7 +508,6 @@ function addBatch(b){ BATCH.push(b); return b; }
   addBatch({id:"TRF-2611-PHL0", date:"14 Nov 2026", kind:"Harian lepas mingguan", period:"7–13 Nov 2026", bank:"BCA · transfer massal", n:12, amount:phl.slice(2).reduce((a, w) => a + (4 + Math.round(hash(w.id + "w2") * 2)) * (R.phlDaily + R.meal), 0), ok:12, fail:0, status:"Berhasil", who:phl.slice(2).map(w => w.id), wk:"w2"});
   addBatch({id:"INV-PAY-STM-10", date:"30 Okt 2026", kind:"Fee agen", period:"Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"STM"});
   addBatch({id:"INV-PAY-MKS-10", date:"30 Okt 2026", kind:"Fee agen", period:"Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"MKS"});
-  addBatch({id:"INV-PAY-BKN-10", date:"31 Okt 2026", kind:"Tagihan agen (gaji + fee)", period:"21 Sep – 20 Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"BKN"});
   addBatch({id:"TRF-2610-RT", date:"27 Okt 2026", kind:"Transfer ulang", period:"21 Sep – 20 Okt 2026", bank:"BCA · transfer satuan", n:2, amount:payLine(reg[40]).net + payLine(reg[150]).net, ok:2, fail:0, status:"Berhasil", who:[reg[40].id, reg[150].id], wk:"m10"});
   addBatch({id:"TRF-2610", date:"23 Okt 2026", kind:"Gaji bulanan", period:"21 Sep – 20 Okt 2026", bank:"BCA · transfer massal (KlikBCA Bisnis)", n:reg.length, amount:sumNet(reg, "m10"), ok:reg.length - 2, fail:2, status:"Selesai, 2 gagal lalu ditransfer ulang", who:reg.map(w => w.id), wk:"m10",
     fails:[{w:reg[40].id, why:"Rekening tidak aktif (dormant)"}, {w:reg[150].id, why:"Nama penerima tidak sesuai"}]});
@@ -516,7 +525,7 @@ const AUDIT = [
   {t:"22 Nov 2026 21.14", who:"Dimas Pratama (aplikasi)", what:"Mengajukan ganti rekening BRI → BCA (BR-071)"},
   {t:"21 Nov 2026 10.02", who:"Rina Lestari (pendaftaran)", what:"Menambahkan rekening BRI (BR-070)"},
   {t:"20 Nov 2026 16.40", who:"Ibu Lina Marlina (" + AG.STM.short + ")", what:"Mengunggah formulir ganti rekening untuk Agus Setiawan (BR-069)"},
-  {t:"18 Nov 2026 09.31", who:"Ibu Maya (HR)", what:"Menyetujui rekening BNI untuk " + W[260].name + ", cek nama cocok"},
+  {t:"18 Nov 2026 09.31", who:"Pak Gani (HR)", what:"Menyetujui rekening BNI untuk " + W[260].name + ", cek nama cocok"},
   {t:"18 Nov 2026 10.05", who:"Pak Hendro (Finance)", what:"Persetujuan kedua rekening " + W[260].name},
   {t:"02 Nov 2026 14.22", who:"Sistem", what:"Transfer ulang 2 rekening gagal dari batch TRF-2610 berhasil"}
 ];

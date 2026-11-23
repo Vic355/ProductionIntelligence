@@ -25,7 +25,7 @@ PAGES.beranda = () => {
   todo.push(["Penggajian " + PERIOD.n + " menunggu persetujuan", "Dibayar " + PERIOD.pay + " · " + rpS(net) + " ke " + payroll().length + " pekerja", "#penggajian", "Buka"]);
   const weekCost = SEC.reduce((a, s) => a + WEEK.reduce((b, d) => b + dayCost(s.id, d), 0), 0);
   return `
-  <div class="pagehead"><div><h1>Selamat pagi, Ibu Maya</h1><div class="sub">${dLong(0)} · Shift Pagi sedang berjalan · Pabrik [KOTA]</div></div>
+  <div class="pagehead"><div><h1>Selamat pagi, ${typeof roleOf === "function" ? roleOf().n : "Pak Gani"}</h1><div class="sub">${dLong(0)} · Shift Pagi sedang berjalan · Pabrik [KOTA]</div></div>
     <div class="actions"><a class="btn" href="#kebutuhan">Kebutuhan tenaga</a><a class="btn pri" href="#jadwal">Buka roster</a></div></div>
   <div class="stats">
     <div class="stat"><div class="k">Terjadwal shift Pagi</div><div class="v ${nowSch < nowNeed ? "warn" : ""}">${nowSch} <span class="small muted">/ ${nowNeed}</span></div><div class="s">dari kebutuhan rencana produksi</div></div>
@@ -206,7 +206,7 @@ function requestModal(p){
   modal("Permintaan tenaga ke agen", `
     <div class="grid g2" style="gap:12px">
       <div class="field"><label for="rq-sec">Seksi</label>${selectSec(sec, 'id="rq-sec"', null)}</div>
-      <div class="field"><label for="rq-ag">Agen</label><select id="rq-ag">${["MKS","STM","BKN"].map(a => `<option value="${a}" ${a === secById(sec).ag ? "selected" : ""}>${AG[a].n}</option>`).join("")}</select></div>
+      <div class="field"><label for="rq-ag">Agen</label><select id="rq-ag">${["MKS","STM"].map(a => `<option value="${a}" ${a === secById(sec).ag ? "selected" : ""}>${AG[a].n}</option>`).join("")}</select></div>
       <div class="field"><label for="rq-d">Tanggal</label><select id="rq-d">${WEEK.map(d => `<option value="${d}" ${d === (p.d ?? 3) ? "selected" : ""}>${dLong(d)}</option>`).join("")}</select></div>
       <div class="field"><label for="rq-sh">Shift</label><select id="rq-sh">${[..."PSM"].map(x => `<option value="${x}" ${x === (p.sh || "P") ? "selected" : ""}>${SH[x].n} ${SH[x].t}</option>`).join("")}</select></div>
       <div class="field"><label for="rq-n">Jumlah orang</label><input type="number" id="rq-n" min="1" max="30" value="${Math.max(1, p.n || 2)}"></div>
@@ -444,7 +444,7 @@ PAGES.profil.after = id => {
   $("#pmsg").onclick = () => { modal("Pesan ke " + esc(w.name), `<div class="field"><label for="pm">Pesan (dikirim ke aplikasi dan WhatsApp ${w.phone})</label><textarea id="pm" rows="4"></textarea></div>`, `<button class="btn" data-close>Batal</button><button class="btn pri" id="pms">Kirim</button>`); $("#pms").onclick = () => { closeModal(); toast("Pesan terkirim."); }; };
   const bc = $("#bchg"); if (bc) bc.onclick = () => bankForm(w);
   const bv = $("#bverify"); if (bv) bv.onclick = () => { modal("Cek nama rekening", `<p style="margin:0">Hasil cek ke ${w.bank.bank} untuk ${maskNo(w.bank.no)}:</p><div class="note ${w.bank.status === "mismatch" ? "bad" : ""}">Nama di bank: <b>${esc(w.bank.status === "mismatch" ? w.bank.holder.toUpperCase() : w.name.toUpperCase())}</b><br>Nama di KTP: <b>${esc(w.name.toUpperCase())}</b></div>${w.bank.status === "mismatch" ? "<p style='margin:0'>Nama tidak cocok. Minta pekerja mengganti dengan rekening atas namanya sendiri.</p>" : ""}`, w.bank.status === "mismatch" ? `<button class="btn" data-close>Tutup</button><button class="btn pri" id="vreq">Minta pekerja ganti rekening</button>` : `<button class="btn" data-close>Batal</button><button class="btn pri" id="vok">Tandai terverifikasi</button>`);
-    const ok = $("#vok"); if (ok) ok.onclick = () => { w.bank.status = "ok"; w.bank.checked = TODAY; w.bank.via = "Cek rekening API bank"; AUDIT.unshift({t:"23 Nov 2026 " + new Date().toTimeString().slice(0, 5).replace(":", "."), who:"Ibu Maya (HR)", what:"Memverifikasi rekening " + w.bank.bank + " " + w.name}); closeModal(); toast("Rekening terverifikasi. Gaji tidak lagi ditahan."); rerender(); };
+    const ok = $("#vok"); if (ok) ok.onclick = () => { w.bank.status = "ok"; w.bank.checked = TODAY; w.bank.via = "Cek rekening API bank"; AUDIT.unshift({t:"23 Nov 2026 " + new Date().toTimeString().slice(0, 5).replace(":", "."), who:"Pak Gani (HR)", what:"Memverifikasi rekening " + w.bank.bank + " " + w.name}); closeModal(); toast("Rekening terverifikasi. Gaji tidak lagi ditahan."); rerender(); };
     const rq = $("#vreq"); if (rq) rq.onclick = () => { closeModal(); toast("Permintaan dikirim ke aplikasi pekerja. Gaji tetap ditahan sampai rekening baru disetujui."); }; };
   $$("[data-slip]").forEach(b => b.onclick = () => payslip(w, b.dataset.slip === "cur" ? null : payHistory(w)[+b.dataset.slip]));
 };
@@ -461,8 +461,8 @@ function bankForm(w){
   $("#bsave").onclick = () => {
     const no = $("#bn").value.replace(/\D/g, ""), holder = $("#bh").value.trim();
     if (no.length < 10 || no.length > 16) { $("#berr").innerHTML = '<div class="note bad">Nomor rekening harus 10 sampai 16 angka.</div>'; return; }
-    const r = {id:"BR-0" + (72 + BREQ.length - 3), w:w.id, kind: w.bank.status === "none" ? "Rekening baru" : "Ganti rekening", from: w.bank.no ? {bank:w.bank.bank, no:w.bank.no} : null, to:{bank:$("#bk").value, no, holder}, when:"Senin 23 Nov, " + new Date().toTimeString().slice(0, 5).replace(":", "."), via:"Diinput HR (Ibu Maya)", reason:"Diinput dari profil pekerja", inquiry:null, approvals:[], status:"Menunggu", flags: holder.toLowerCase() !== w.name.toLowerCase() ? ["Nama pemilik berbeda dengan KTP pekerja"] : []};
-    BREQ.unshift(r); AUDIT.unshift({t:"23 Nov 2026", who:"Ibu Maya (HR)", what:`Mengajukan ${r.kind.toLowerCase()} ${r.to.bank} untuk ${w.name} (${r.id})`});
+    const r = {id:"BR-0" + (72 + BREQ.length - 3), w:w.id, kind: w.bank.status === "none" ? "Rekening baru" : "Ganti rekening", from: w.bank.no ? {bank:w.bank.bank, no:w.bank.no} : null, to:{bank:$("#bk").value, no, holder}, when:"Senin 23 Nov, " + new Date().toTimeString().slice(0, 5).replace(":", "."), via:"Diinput HR (Pak Gani)", reason:"Diinput dari profil pekerja", inquiry:null, approvals:[], status:"Menunggu", flags: holder.toLowerCase() !== w.name.toLowerCase() ? ["Nama pemilik berbeda dengan KTP pekerja"] : []};
+    BREQ.unshift(r); AUDIT.unshift({t:"23 Nov 2026", who:"Pak Gani (HR)", what:`Mengajukan ${r.kind.toLowerCase()} ${r.to.bank} untuk ${w.name} (${r.id})`});
     closeModal(); toast(`${r.id} dibuat. Cek nama dan persetujuan ada di Gaji › Rekening bank.`); rerender();
   };
 }
@@ -489,7 +489,7 @@ PAGES.kontrak = () => {
   ${tab === "pkwt" ? `<section class="card"><div class="bd flush tw"><table class="tbl"><thead><tr><th>Pekerja</th><th>Agen</th><th>Seksi</th><th>Mulai</th><th>Berakhir</th><th class="num">Sisa</th><th class="num">Kompensasi PKWT</th><th>Keputusan</th></tr></thead><tbody>
     ${list.map(w => { const left = daysBetween(TODAY, w.end); return `<tr><td>${personCell(w)}</td><td>${AG[w.ag].short}</td><td>${w.sec}</td><td>${dDate(w.start)}</td><td>${dDate(w.end)}</td><td class="num"><span class="tag ${left <= 14 ? "bad" : "warn"}">${left} hari</span></td><td class="num">${rp(R.umk * Math.max(1, daysBetween(w.start, w.end) / 30.4) / 12)}</td><td class="nowrap">${w.decision ? `<span class="tag info">${w.decision}</span>` : `<button class="btn sm" data-ext="${w.id}">Perpanjang 12 bln</button> <button class="btn sm danger" data-end="${w.id}">Tidak diperpanjang</button>`}</td></tr>`; }).join("")}
     </tbody></table></div></section>` : `<section class="card"><div class="bd flush tw"><table class="tbl"><thead><tr><th>Agen</th><th>No. perjanjian</th><th>Lingkup</th><th>Berlaku sampai</th><th class="num">Fee</th><th>Status</th></tr></thead><tbody>
-    ${["MKS","STM","BKN"].map((a, i) => { const x = AG[a], left = daysBetween(TODAY, x.contractEnd); return `<tr><td>${x.n}</td><td class="num">PKS/${a}/HR/2025/0${i + 4}</td><td>${SEC.filter(s => s.ag === a).map(s => s.id).join(", ")} · packer, helper${a !== "BKN" ? ", forklift" : ""}</td><td>${dDate(x.contractEnd)}</td><td class="num">${dec(x.fee * 100)}%</td><td>${left <= 60 ? `<span class="tag warn">Berakhir ${left} hari lagi</span>` : '<span class="tag ok">Aktif</span>'}</td></tr>`; }).join("")}
+    ${["MKS","STM"].map((a, i) => { const x = AG[a], left = daysBetween(TODAY, x.contractEnd); return `<tr><td>${x.n}</td><td class="num">PKS/${a}/HR/2025/0${i + 4}</td><td>${SEC.filter(s => s.ag === a).map(s => s.id).join(", ")} · packer, helper${a !== "BKN" ? ", forklift" : ""}</td><td>${dDate(x.contractEnd)}</td><td class="num">${dec(x.fee * 100)}%</td><td>${left <= 60 ? `<span class="tag warn">Berakhir ${left} hari lagi</span>` : '<span class="tag ok">Aktif</span>'}</td></tr>`; }).join("")}
     </tbody></table></div></section>`}`;
 };
 PAGES.kontrak.after = () => {
@@ -504,7 +504,7 @@ PAGES.penggajian = () => {
   const all = payroll(), held = all.filter(p => holdReason(p.w));
   const T = k => rows.reduce((a, p) => a + p[k], 0);
   const st = RUN.status;
-  const steps = [["Hitung","Dari timesheet disetujui", "done"], ["Cek","Peringatan dan pengecualian", st === "cek" ? "cur" : "done"], ["Setuju HR","Ibu Maya", st === "setuju1" ? "cur" : ["setuju","dibayar"].includes(st) ? "done" : ""], ["Setuju Finance","Pak Hendro", st === "setuju" ? "done" : st === "dibayar" ? "done" : ""], ["Bayar", PERIOD.pay, st === "dibayar" ? "done" : st === "setuju" ? "cur" : ""]];
+  const steps = [["Hitung","Dari timesheet disetujui", "done"], ["Cek","Peringatan dan pengecualian", st === "cek" ? "cur" : "done"], ["Setuju HR","Pak Gani", st === "setuju1" ? "cur" : ["setuju","dibayar"].includes(st) ? "done" : ""], ["Setuju Finance","Pak Hendro", st === "setuju" ? "done" : st === "dibayar" ? "done" : ""], ["Bayar", PERIOD.pay, st === "dibayar" ? "done" : st === "setuju" ? "cur" : ""]];
   return `<div class="pagehead"><div><h1>Penggajian</h1><div class="sub">Periode ${PERIOD.n} · tutup buku ${PERIOD.cutoff} · dibayar ${PERIOD.pay}</div></div>
     <div class="actions">
       <button class="btn" id="slips">Kirim slip ke aplikasi</button>
@@ -513,7 +513,7 @@ PAGES.penggajian = () => {
     </div></div>
   <ol class="steps" style="margin-bottom:16px">${steps.map(s => `<li class="${s[2]}"><b>${s[2] === "done" ? "✓ " : ""}${s[0]}</b>${s[1]}</li>`).join("")}</ol>
   <div class="stats">
-    <div class="stat"><div class="k">Pekerja dibayar pabrik</div><div class="v">${all.length}</div><div class="s">${W.filter(w => w.ag === "BKN").length} pekerja ${AG.BKN.short} dibayar agen</div></div>
+    <div class="stat"><div class="k">Pekerja dibayar pabrik</div><div class="v">${all.length}</div><div class="s">alih daya, karyawan per jam</div></div>
     <div class="stat"><div class="k">Bruto</div><div class="v">${rpS(all.reduce((a, p) => a + p.gross, 0))}</div><div class="s">upah, lembur, tunjangan, premi</div></div>
     <div class="stat"><div class="k">Neto ditransfer</div><div class="v">${rpS(all.reduce((a, p) => a + p.net, 0) - held.reduce((a, p) => a + p.net, 0))}</div><div class="s">${all.length - held.length} rekening</div></div>
     <div class="stat"><div class="k">Ditahan</div><div class="v ${held.length ? "bad" : ""}">${held.length}</div><div class="s">${rpS(held.reduce((a, p) => a + p.net, 0))} · masalah rekening</div></div>
@@ -591,7 +591,7 @@ PAGES.pembayaran.after = () => {
   $$("[data-batch]").forEach(r => r.onclick = () => {
     const b = BATCH.find(x => x.id === r.dataset.batch);
     const ppl = (b.who || []).slice(0, 15).map(id => wById(id));
-    modal(`${b.id} · ${b.kind}`, `<dl class="kv"><dt>Tanggal</dt><dd>${b.date}</dd><dt>Periode</dt><dd>${b.period}</dd><dt>Lewat</dt><dd>${b.bank}</dd><dt>Jumlah</dt><dd>${rp(b.amount)} ke ${b.n} penerima</dd><dt>Disetujui</dt><dd>Ibu Maya (HR), Pak Hendro (Finance)</dd><dt>Status</dt><dd>${b.status}</dd></dl>
+    modal(`${b.id} · ${b.kind}`, `<dl class="kv"><dt>Tanggal</dt><dd>${b.date}</dd><dt>Periode</dt><dd>${b.period}</dd><dt>Lewat</dt><dd>${b.bank}</dd><dt>Jumlah</dt><dd>${rp(b.amount)} ke ${b.n} penerima</dd><dt>Disetujui</dt><dd>Pak Gani (HR), Pak Hendro (Finance)</dd><dt>Status</dt><dd>${b.status}</dd></dl>
       ${b.fails ? `<div class="note warn"><b>Gagal:</b> ${b.fails.map(f => `${esc(wById(f.w).name)} (${f.why})`).join("; ")}. Dana kembali ke rekening pabrik 24 Okt dan ditransfer ulang 27 Okt setelah rekening diperbaiki.</div>` : ""}
       ${b.agency ? `<div class="note">${b.kind === "Fee agen" ? "Fee " + dec(AG[b.agency].fee * 100) + "% dari bruto ditambah PPN 11%." : "Gaji, iuran BPJS dan fee agen. Agen mengirim bukti transfer ke pekerja paling lambat H+2."} Bukti potong PPh 23 diterbitkan untuk fee.</div>` : `<div class="tw"><table class="tbl"><thead><tr><th>Penerima</th><th>Rekening</th><th class="num">Jumlah</th></tr></thead><tbody>${ppl.map(w => { const h = payHistory(w).find(x => x.b === b); return `<tr><td>${esc(w.name)}<span class="sub">${w.id}</span></td><td>${w.bank.bank} ${maskNo(w.bank.no)}</td><td class="num">${rp(h ? h.amt : payLine(w).net)}</td></tr>`; }).join("")}</tbody></table></div>${b.n > 15 ? `<p class="small muted" style="margin:0">dan ${b.n - 15} penerima lainnya</p>` : ""}`}`, `<button class="btn" data-close>Tutup</button>`, {wide:true});
   });
@@ -640,11 +640,11 @@ PAGES.rekening.after = () => {
   $("#bcheck").onclick = () => toast("Cek ulang dijadwalkan malam ini 22.00 lewat API bank. Hasilnya muncul besok pagi.");
   const now = () => "23 Nov 2026 " + new Date().toTimeString().slice(0, 5).replace(":", ".");
   $$("[data-inq]").forEach(b => b.onclick = () => { const r = BREQ.find(x => x.id === b.dataset.inq), w = wById(r.w); const nm = r.to.holder.toUpperCase(); r.inquiry = {name: nm, match: r.to.holder.toLowerCase() === w.name.toLowerCase()}; AUDIT.unshift({t: now(), who:"Sistem (cek rekening " + r.to.bank + ")", what:`Nama di bank untuk ${r.id}: ${nm}`}); rerender(); });
-  $$("[data-bapp]").forEach(b => b.onclick = () => { const r = BREQ.find(x => x.id === b.dataset.bapp); r.approvals.push("HR"); r.status = "Menunggu Finance"; AUDIT.unshift({t: now(), who:"Ibu Maya (HR)", what:`Menyetujui ${r.id} untuk ${wById(r.w).name}`}); toast("Disetujui HR. Menunggu persetujuan Finance."); rerender(); });
+  $$("[data-bapp]").forEach(b => b.onclick = () => { const r = BREQ.find(x => x.id === b.dataset.bapp); r.approvals.push("HR"); r.status = "Menunggu Finance"; AUDIT.unshift({t: now(), who:"Pak Gani (HR)", what:`Menyetujui ${r.id} untuk ${wById(r.w).name}`}); toast("Disetujui HR. Menunggu persetujuan Finance."); rerender(); });
   $$("[data-bfin]").forEach(b => b.onclick = () => { const r = BREQ.find(x => x.id === b.dataset.bfin), w = wById(r.w); r.approvals.push("Finance"); r.status = "Disetujui"; w.bank = {bank:r.to.bank, no:r.to.no, holder:r.to.holder, status:"ok", checked:TODAY, via:"Cek rekening API bank"}; AUDIT.unshift({t: now(), who:"Pak Hendro (Finance)", what:`Persetujuan kedua ${r.id}, rekening ${w.name} sekarang ${r.to.bank} ${maskNo(r.to.no)}`}); toast(`Rekening ${w.name.split(" ")[0]} diganti. Gajian 25 Nov masuk ke ${r.to.bank} ${maskNo(r.to.no)}. Pekerja mendapat SMS konfirmasi.`); rerender(); });
   $$("[data-brej]").forEach(b => b.onclick = () => { const r = BREQ.find(x => x.id === b.dataset.brej), w = wById(r.w);
     modal("Tolak " + r.id, `<div class="field"><label for="rr">Alasan (dikirim ke pekerja${r.via.includes("agen") ? " dan agen" : ""})</label><select id="rr"><option>Nama pemilik rekening tidak sama dengan KTP. Gunakan rekening atas nama sendiri.</option><option>Nomor rekening tidak ditemukan di bank.</option><option>Tidak bisa dikonfirmasi ke pekerja lewat telepon.</option></select></div>`, `<button class="btn" data-close>Batal</button><button class="btn danger" id="rrok">Tolak permintaan</button>`);
-    $("#rrok").onclick = () => { r.status = "Ditolak"; AUDIT.unshift({t: now(), who:"Ibu Maya (HR)", what:`Menolak ${r.id} untuk ${w.name}: ${$("#rr").value}`}); closeModal(); toast(`${r.id} ditolak. Gaji ${w.name.split(" ")[0]} tetap ke rekening lama.`); rerender(); }; });
+    $("#rrok").onclick = () => { r.status = "Ditolak"; AUDIT.unshift({t: now(), who:"Pak Gani (HR)", what:`Menolak ${r.id} untuk ${w.name}: ${$("#rr").value}`}); closeModal(); toast(`${r.id} ditolak. Gaji ${w.name.split(" ")[0]} tetap ke rekening lama.`); rerender(); }; });
 };
 
 /* ======================= Aturan gaji ======================= */
@@ -703,7 +703,7 @@ PAGES.agen = () => {
   ${Object.values(AG).map(a => `<tr><td><b style="font-weight:600">${a.n}</b><span class="sub">NIB ${a.nib}</span></td><td class="num">${W.filter(w => w.ag === a.id).length}</td><td>${SEC.filter(s => s.ag === a.id).map(s => s.id).join(", ") || "Semua"}</td><td style="max-width:260px">${MODEL[a.model]}</td><td class="num">${a.fee ? dec(a.fee * 100) + "%" : "—"}</td><td>${a.contractEnd ? dDate(a.contractEnd) : "—"}${a.contractEnd && daysBetween(TODAY, a.contractEnd) < 60 ? ' <span class="tag warn">segera</span>' : ""}</td><td class="num">${dec(a.att * 100)}%</td><td class="num">${a.id === "PHL" ? "—" : Math.round(a.fill * 100) + "%"}</td><td>${a.pic}<span class="sub">${a.phone}</span></td></tr>`).join("")}
   </tbody></table></div></section>
   <h2 style="margin:22px 0 10px">Kepatuhan agen</h2>
-  <div class="grid g3">${["MKS","STM","BKN"].map(a => `<section class="card"><div class="hd"><h3>${AG[a].n}</h3></div><ul class="list">${docs[a].map(([n, s]) => `<li><div class="grow small">${n}</div>${s === "ok" ? '<span class="tag ok">Ada</span>' : s === "warn" ? '<span class="tag warn">Belum diunggah</span>' : '<span class="tag">Tidak perlu</span>'}</li>`).join("")}</ul>${docs[a].some(d => d[1] === "warn") ? `<div class="bd" style="border-top:1px solid var(--line2)"><button class="btn sm" data-nag="${a}">Minta dokumen</button></div>` : ""}</section>`).join("")}</div>
+  <div class="grid g2">${["MKS","STM"].map(a => `<section class="card"><div class="hd"><h3>${AG[a].n}</h3></div><ul class="list">${docs[a].map(([n, s]) => `<li><div class="grow small">${n}</div>${s === "ok" ? '<span class="tag ok">Ada</span>' : s === "warn" ? '<span class="tag warn">Belum diunggah</span>' : '<span class="tag">Tidak perlu</span>'}</li>`).join("")}</ul>${docs[a].some(d => d[1] === "warn") ? `<div class="bd" style="border-top:1px solid var(--line2)"><button class="btn sm" data-nag="${a}">Minta dokumen</button></div>` : ""}</section>`).join("")}</div>
   <p class="small muted">Bukti bayar BPJS dari agen diminta setiap bulan supaya pabrik tidak ikut menanggung kalau agen menunggak iuran.</p>`;
 };
 PAGES.agen.after = () => {
@@ -711,7 +711,7 @@ PAGES.agen.after = () => {
   $("#agadd").onclick = () => toast("Agen baru didaftarkan dengan NIB, izin alih daya dan perjanjian kerja sama. Belum tersedia di mockup.");
 };
 PAGES.tagihan = () => {
-  const inv = ["MKS","STM","BKN"].map((a, i) => {
+  const inv = ["MKS","STM"].map((a, i) => {
     const list = W.filter(w => w.ag === a), hrs = list.length * 26 * 7, g = list.reduce((s, w) => s + payLine(w).gross, 0);
     const diff = a === "STM" ? 56 : 0, sys = a === "BKN" ? g * 1.27 * (1 + AG[a].fee) : g * AG[a].fee * (1 + R.ppn);
     const billed = sys + diff * hourly() * 1.27 * (1 + AG[a].fee);
@@ -727,10 +727,10 @@ PAGES.tagihan.after = () => {
   $$("[data-payinv]").forEach(b => b.onclick = () => { b.outerHTML = '<span class="tag info">Dijadwalkan 30 Nov</span>'; toast(`Tagihan ${AG[b.dataset.payinv].short} disetujui. Dijadwalkan dibayar 30 Nov dan muncul di Riwayat pembayaran.`); });
   $$("[data-diff]").forEach(b => b.onclick = () => {
     const list = W.filter(w => w.ag === "STM").slice(10, 17), hrs = [14, 7, 7, 8, 7, 7, 6];
-    modal("Selisih tagihan Sinar Tenaga", `<p style="margin:0">Agen menagih 56 jam lebih banyak dari timesheet yang disetujui. Rinciannya:</p>
+    modal("Selisih tagihan ${AG.STM.short}", `<p style="margin:0">Agen menagih 56 jam lebih banyak dari timesheet yang disetujui. Rinciannya:</p>
     <div class="tw"><table class="tbl"><thead><tr><th>Pekerja</th><th>Penyebab</th><th class="num">Jam</th></tr></thead><tbody>${list.map((w, i) => `<tr><td>${esc(w.name)}<span class="sub">${w.id}</span></td><td>${["Lembur tanpa SPL (2 hari)","Mangkir 2 Nov, ditagih penuh","Mangkir 9 Nov, ditagih penuh","Tidak absen pulang, belum dikoreksi","Sakit tanpa surat dokter","Mangkir 15 Nov, ditagih penuh","Pulang awal sendiri 3 hari"][i]}</td><td class="num">${hrs[i]}</td></tr>`).join("")}</tbody></table></div>`,
     `<button class="btn" data-close>Tutup</button><button class="btn pri" id="dsend">Kirim rincian ke agen</button>`, {wide:true});
     $("#dsend").onclick = () => { closeModal(); toast("Rincian selisih dikirim ke Ibu Lina Marlina. Tagihan ditahan sampai agen mengirim tagihan revisi."); };
   });
 };
-document.addEventListener("DOMContentLoaded", route);
+document.addEventListener("DOMContentLoaded", () => route());
