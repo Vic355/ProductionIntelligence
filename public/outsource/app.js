@@ -390,19 +390,27 @@ PAGES.profil = id => {
   const w = wById(id); if (!w) return `<div class="empty">Pekerja tidak ditemukan. <a href="#pekerja">Kembali ke daftar</a></div>`;
   const tab = UI.profTab, s = w.sec && secById(w.sec), left = daysBetween(TODAY, w.end);
   const req = BREQ.find(b => b.w === w.id && !["Disetujui","Ditolak"].includes(b.status));
-  const tabs = [["ring","Ringkasan"],["jadwal", w.ag === "KRY" ? "Lembur" : "Jadwal & absensi"],["bank","Rekening bank"],["bayar","Riwayat pembayaran"],["kontrak","Kontrak & dokumen"],["kual","Kualifikasi"]];
+  const tabs = [["ring","Ringkasan"],["pribadi","Data pribadi"],["jadwal", w.ag === "KRY" ? "Jadwal & lembur" : "Jadwal & absensi"],["cuti","Cuti & izin"],["bank","Rekening bank"],["bayar","Riwayat pembayaran"],["kontrak","Kontrak & dokumen"],["kual","Kualifikasi"]];
   let body = "";
-  if (tab === "ring") body = `<div class="grid g2"><section class="card"><div class="hd"><h2>Data pekerja</h2></div><div class="bd"><dl class="kv">
-    <dt>ID pekerja</dt><dd>${w.id}</dd><dt>NIK</dt><dd class="num">${w.nik}</dd><dt>No. HP</dt><dd class="num">${w.phone}</dd>
-    <dt>Jabatan</dt><dd>${w.role}</dd><dt>Seksi</dt><dd>${w.ag === "KRY" ? deptById(w.dept).full + (w.oregu ? " · Regu " + w.oregu : "") : s ? s.n + " · Regu " + w.regu : "Cadangan harian lepas"}</dd><dt>Leader</dt><dd>${s ? s.leader : "HR pabrik"}</dd>
-    <dt>Agen</dt><dd>${AG[w.ag].n}</dd><dt>Mulai kerja</dt><dd>${dDate(w.start)}</dd>
-    <dt>BPJS Ketenagakerjaan</dt><dd class="num">${w.bpjsTk}</dd><dt>BPJS Kesehatan</dt><dd class="num">${w.bpjsKes}</dd><dt>NPWP</dt><dd>${w.npwp}</dd><dt>Saldo cuti</dt><dd>${w.ag === "PHL" ? "—" : w.leaveBal + " hari"}</dd>
-    </dl></div></section>
+  const attn = [
+    ["pending","mismatch","none"].includes(w.bank.status) ? ["bad", w.bank.status === "none" ? "Belum ada rekening, gaji ditahan" : w.bank.status === "mismatch" ? "Nama rekening tidak cocok dengan KTP, gaji ditahan" : "Rekening belum dicek, gaji ditahan", "bank", "Buka rekening"] : null,
+    req ? ["warn", "Perubahan rekening menunggu persetujuan", "bank", "Tinjau"] : null,
+    w.type === "PKWT" && w.ag !== "KRY" && left <= 30 ? ["warn", "Kontrak PKWT berakhir " + dDate(w.end) + " (" + left + " hari lagi)", "kontrak", "Lihat kontrak"] : null,
+    LEAVES.some(l => l.w === w.id && l.status === "pending") ? ["warn", "Ada pengajuan cuti atau izin yang menunggu", "cuti", "Lihat"] : null,
+    hash(w.id + "sk") < .1 ? ["warn", "Surat keterangan sehat belum diunggah", "kontrak", "Lihat dokumen"] : null
+  ].filter(Boolean);
+  if (tab === "ring") body = `<div class="grid g2"><div style="display:grid;gap:16px;align-content:start"><section class="card"><div class="hd"><h2>Perlu perhatian</h2></div><ul class="list">${attn.map(([c, t, k, l]) => `<li><span class="dot ${c}" style="margin-top:6px"></span><div class="grow">${t}</div><button class="btn sm" data-pt="${k}">${l}</button></li>`).join("") || '<li class="muted"><span class="dot ok" style="margin-top:6px"></span>Semua data lengkap. Tidak ada yang perlu ditindak.</li>'}</ul></section>
+    <section class="card"><div class="hd"><h2>Sekilas</h2><button class="btn ghost sm more" data-pt="pribadi">Data lengkap</button></div><div class="bd"><dl class="kv">
+    <dt>Jabatan</dt><dd>${w.role}</dd><dt>Penempatan</dt><dd>${placeOf(w)}</dd><dt>Atasan</dt><dd>${w.ag === "KRY" ? deptById(w.dept).mgr : s ? s.leader : "HR pabrik"}</dd>
+    <dt>Hubungan kerja</dt><dd>${kindOf(w)}</dd><dt>Masa kerja</dt><dd>${tenure(w.start)} (sejak ${dDate(w.start)})</dd><dt>Saldo cuti</dt><dd>${w.ag === "PHL" ? "—" : w.leaveBal + " hari"}</dd>
+    </dl></div></section></div>
     <section class="card"><div class="hd"><h2>Minggu ini</h2><a class="more btn ghost sm" href="#jadwal">Buka roster</a></div><div class="bd flush tw"><table class="tbl"><tbody>${WEEK.map(d => { const c = w.ag === "KRY" ? empShift(w, d) : code(w, d), x = shiftOf(c); return `<tr><td>${dShort(d)}</td><td>${SH[x] ? `<span class="sh ${x}" style="display:inline-block">${SH[x].n} ${SH[x].t}</span>${secOf(w, c) !== w.sec ? " di " + secOf(w, c) : ""}` : `<span class="muted">${LEAVE[x]}</span>`}</td></tr>`; }).join("")}</tbody></table></div></section></div>`;
   if (tab === "jadwal") body = `<section class="card"><div class="hd"><h2>Absensi 7 hari terakhir</h2></div><div class="bd flush tw"><table class="tbl"><thead><tr><th>Tanggal</th><th>Shift</th><th class="num">Masuk</th><th class="num">Pulang</th><th class="num">Jam</th><th class="num">Bal</th><th>Catatan</th></tr></thead><tbody>
     ${[-7,-6,-5,-4,-3,-2,-1].map(d => { const t = ts(w, d); const c = shiftOf(code(w, d)); return t ? `<tr><td>${dShort(d)}</td><td>${SH[t.s].n}</td><td class="num">${hm(t.inM)}</td><td class="num">${hm(t.outM)}</td><td class="num">${t.worked == null ? "—" : dec(t.worked)}</td><td class="num">${t.bales ? fmt(t.bales) : "—"}</td><td>${t.flag ? `<span class="tag ${t.flag === "Mangkir" ? "bad" : "warn"}">${t.flag}</span>` : ""}</td></tr>` : `<tr><td>${dShort(d)}</td><td class="muted" colspan="6">${LEAVE[c] || "Libur"}</td></tr>`; }).join("")}
     </tbody></table></div></section>`;
   if (tab === "jadwal" && w.ag === "KRY") body = lemburProfile(w);
+  if (tab === "pribadi") body = profPribadi(w);
+  if (tab === "cuti") body = profCuti(w);
   if (tab === "bank") body = w.bank.status === "agen" ? `<div class="note">Gaji pekerja ini dibayar oleh ${AG[w.ag].n}. Rekening dikelola agen, pabrik hanya menerima bukti transfer setiap periode.</div>` : `
     <div class="grid g2"><div>
       ${w.bank.status === "none" ? `<div class="note bad">Belum ada rekening. Gaji ditahan sampai rekening ditambahkan dan dicek.</div>` : `<div class="bankcard"><div class="small muted">Rekening gaji</div><div style="font-weight:650">${w.bank.bank}</div><div class="acct">${w.bank.no.replace(/(\d{4})(?=\d)/g, "$1 ")}</div><div>a.n. ${esc(w.bank.holder)}</div><div style="margin-top:6px">${bankTag(w.bank.status)}</div>
@@ -432,15 +440,25 @@ PAGES.profil = id => {
     ${w.trained.map((m, i) => `<tr><td>${m.includes("-") ? "Packer " + m : m}${w.role === "Operator forklift" ? " (SIO Kemnaker)" : ""}</td><td>${s ? s.leader : "HR"}</td><td>${dDate(new Date(w.start.getTime() + (i + 1) * 20 * 864e5))}</td><td>${w.role === "Operator forklift" ? "12 Mar 2028" : "—"}</td></tr>`).join("")}
     <tr><td>Induksi K3 pabrik</td><td>Petugas K3</td><td>${dDate(w.start)}</td><td>${dDate(new Date(w.start.getTime() + 365 * 864e5))}</td></tr></tbody></table></div></section>
     <p class="small muted">Kualifikasi mesin dipakai roster saat memilih pengganti: pekerja hanya disarankan ke mesin yang sudah dikuasai.</p>`;
-  return `<p style="margin:0 0 10px"><a href="#pekerja">← Daftar pekerja</a></p>
-  <div class="profilehead"><span class="av lg" aria-hidden="true">${initials(w.name)}</span><div><h1>${esc(w.name)}</h1><div class="muted">${w.id} · ${w.role} · ${AG[w.ag].n}</div><div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">${w.ag === "KRY" ? `<span class="tag">Karyawan tetap · ${rp(w.rate)}/jam</span>` : w.type === "PKWT" ? `<span class="tag">PKWT s/d ${dDate(w.end)}</span>` : '<span class="tag">Harian lepas</span>'}${w.bank.status !== "agen" ? bankTag(w.bank.status) : ""}${req ? '<span class="tag warn">Perubahan rekening menunggu</span>' : ""}</div></div>
-    <div style="margin-left:auto;display:flex;gap:8px"><button class="btn" id="pmsg">Kirim pesan</button><a class="btn" href="#jadwal">Lihat di roster</a></div></div>
-  <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-pt="${k}">${l}</button>`).join("")}</div>${body}`;
+  const tl = tabs.find(t => t[0] === tab) || tabs[0];
+  return `<p style="margin:0 0 12px"><a href="#pekerja">← Daftar pekerja</a></p>
+  <div class="prof">
+    <aside class="card profside">
+      <div class="pshead"><span class="av lg" aria-hidden="true">${initials(w.name)}</span><div><h1>${esc(w.name)}</h1><div class="muted">${w.role}</div></div></div>
+      <div class="pstags">${w.ag === "KRY" ? `<span class="tag">Karyawan tetap</span>` : w.type === "PKWT" ? `<span class="tag">PKWT s/d ${dDate(w.end)}</span>` : '<span class="tag">Harian lepas</span>'}${w.bank.status !== "agen" ? bankTag(w.bank.status) : ""}</div>
+      <dl class="psfacts"><dt>ID</dt><dd>${w.id}</dd><dt>Agen</dt><dd>${AG[w.ag].short}</dd><dt>Tempat</dt><dd>${w.ag === "KRY" ? deptById(w.dept).n : w.sec ? w.sec + " · Regu " + w.regu : "Cadangan"}</dd><dt>HP</dt><dd class="num">${w.phone}</dd></dl>
+      <div class="psbtn"><button class="btn sm" id="pmsg">Kirim pesan</button><a class="btn sm" href="#jadwal">Lihat di roster</a></div>
+      <nav class="pnav" role="tablist" aria-label="Bagian profil">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-pt="${k}">${l}</button>`).join("")}</nav>
+    </aside>
+    <div class="pmain"><h2 class="ptitle">${tl[1]}</h2>${body}</div>
+  </div>`;
 };
 PAGES.profil.after = id => {
   const w = wById(id); if (!w) return;
   if (w.sec) UI.rosterSec = w.sec;
   $$("[data-pt]").forEach(b => b.onclick = () => { UI.profTab = b.dataset.pt; rerender(); });
+  $$("[data-edit]").forEach(b => b.onclick = () => profEdit(w, b.dataset.edit));
+  const pl = $("#pleave"); if (pl) pl.onclick = () => toast("Formulir cuti dibuka di aplikasi HP " + w.name.split(" ")[0] + ". Pengajuan muncul di Cuti & izin untuk disetujui.");
   $("#pmsg").onclick = () => { modal("Pesan ke " + esc(w.name), `<div class="field"><label for="pm">Pesan (dikirim ke aplikasi dan WhatsApp ${w.phone})</label><textarea id="pm" rows="4"></textarea></div>`, `<button class="btn" data-close>Batal</button><button class="btn pri" id="pms">Kirim</button>`); $("#pms").onclick = () => { closeModal(); toast("Pesan terkirim."); }; };
   const bc = $("#bchg"); if (bc) bc.onclick = () => bankForm(w);
   const bv = $("#bverify"); if (bv) bv.onclick = () => { modal("Cek nama rekening", `<p style="margin:0">Hasil cek ke ${w.bank.bank} untuk ${maskNo(w.bank.no)}:</p><div class="note ${w.bank.status === "mismatch" ? "bad" : ""}">Nama di bank: <b>${esc(w.bank.status === "mismatch" ? w.bank.holder.toUpperCase() : w.name.toUpperCase())}</b><br>Nama di KTP: <b>${esc(w.name.toUpperCase())}</b></div>${w.bank.status === "mismatch" ? "<p style='margin:0'>Nama tidak cocok. Minta pekerja mengganti dengan rekening atas namanya sendiri.</p>" : ""}`, w.bank.status === "mismatch" ? `<button class="btn" data-close>Tutup</button><button class="btn pri" id="vreq">Minta pekerja ganti rekening</button>` : `<button class="btn" data-close>Batal</button><button class="btn pri" id="vok">Tandai terverifikasi</button>`);
