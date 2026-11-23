@@ -448,7 +448,7 @@ PAGES.profil = id => {
       <div class="pstags">${w.ag === "KRY" ? `<span class="tag">Karyawan tetap</span>` : w.type === "PKWT" ? `<span class="tag">PKWT s/d ${dDate(w.end)}</span>` : '<span class="tag">Harian lepas</span>'}${w.bank.status !== "agen" ? bankTag(w.bank.status) : ""}</div>
       <dl class="psfacts"><dt>ID</dt><dd>${w.id}</dd><dt>Agen</dt><dd>${AG[w.ag].short}</dd><dt>Tempat</dt><dd>${w.ag === "KRY" ? deptById(w.dept).n : w.sec ? w.sec + " · Regu " + w.regu : "Cadangan"}</dd><dt>HP</dt><dd class="num">${w.phone}</dd></dl>
       <div class="psbtn"><button class="btn sm" id="pmsg">Kirim pesan</button><a class="btn sm" href="#jadwal">Lihat di roster</a></div>
-      <nav class="pnav" role="tablist" aria-label="Bagian profil">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-pt="${k}">${l}</button>`).join("")}</nav>
+      <nav class="pnav" role="tablist" aria-label="Bagian profil">${[["Pribadi",["ring","pribadi"]],["Waktu & kehadiran",["jadwal","cuti"]],["Penggajian",["bank","bayar"]],["HR",["kontrak","kual"]]].map(([g, ks]) => `<div class="pgrp">${g}</div>` + tabs.filter(t => ks.includes(t[0])).map(([k, l]) => `<button role="tab" aria-selected="${k === tab}" data-pt="${k}">${l}</button>`).join("")).join("")}</nav>
     </aside>
     <div class="pmain"><h2 class="ptitle">${tl[1]}</h2>${body}</div>
   </div>`;
