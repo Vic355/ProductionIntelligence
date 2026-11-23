@@ -15,8 +15,8 @@ const ROLES = [
   {id:"head", n:"Pak Dian", t:"Kepala Produksi", av:"PD"},
   {id:"S3", n:"Pak Hasan Basri", t:"Manajer Seksi 3", av:"HB"},
   {id:"MEK", n:"Pak Bambang Hartono", t:"Kepala Mekanik", av:"BH"},
-  {id:"opr", n:"Operator mesin", t:"karyawan, di HP", av:"OP", worker:true},
-  {id:"os", n:"Packer alih daya", t:"di HP", av:"AD", worker:true}
+  {id:"opr", n:"Operator mesin", t:"karyawan", av:"OP", worker:true},
+  {id:"os", n:"Packer alih daya", t:"alih daya", av:"AD", worker:true}
 ];
 UI.role = "hr";
 const roleOf = () => ROLES.find(r => r.id === UI.role);
@@ -527,7 +527,7 @@ function renderWho(){
 }
 function renderViewAs(){
   const r = roleOf();
-  $("#viewas").innerHTML = `<span class="lbl">Lihat sebagai</span><div class="seg" role="group" aria-label="Lihat sebagai" title="${r.worker ? "Tampilan aplikasi HP pekerja." : ["S3","MEK"].includes(r.id) ? "Rincian per orang terlihat untuk tim " + deptById(r.id).n + "." : "Angka per tim. Rincian per orang hanya untuk atasan langsung."}">${ROLES.map(x => `<button aria-pressed="${x.id === r.id}" data-role="${x.id}">${x.worker ? x.n : x.n + " · " + x.t}</button>`).join("")}</div>`;
+  $("#viewas").innerHTML = `<span class="lbl">Lihat sebagai</span><div class="seg" role="group" aria-label="Lihat sebagai" title="${r.worker ? "Login pekerja: hanya data miliknya sendiri." : ["S3","MEK"].includes(r.id) ? "Rincian per orang terlihat untuk tim " + deptById(r.id).n + "." : "Angka per tim. Rincian per orang hanya untuk atasan langsung."}">${ROLES.map(x => `<button aria-pressed="${x.id === r.id}" data-role="${x.id}">${x.worker ? x.n : x.n + " · " + x.t}</button>`).join("")}</div>`;
   $$("[data-role]").forEach(b => b.onclick = () => setRole(b.dataset.role));
 }
 function setRole(id){
