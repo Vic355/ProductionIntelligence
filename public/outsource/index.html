@@ -40,6 +40,7 @@ h1{font-size:22px} h2{font-size:16px} h3{font-size:14px}
 .topright{margin-left:auto;display:flex;align-items:center;gap:12px;padding:0 16px;white-space:nowrap}
 .topright a{color:var(--navink);text-decoration:none;font-size:13px}
 .topright a:hover{color:#fff}
+.rolesel{background:var(--nav2);color:#fff;border:1px solid #3b5577;min-height:30px;padding:3px 8px;font-size:13px;max-width:260px}
 .who{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff}
 .av{width:30px;height:30px;border-radius:50%;background:#3b5577;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:650;flex:none}
 .av.lg{width:56px;height:56px;font-size:19px;background:#d7e1ee;color:#1f3a5f}
@@ -110,7 +111,7 @@ table.tbl{width:100%;border-collapse:collapse}
 .tbl tr:last-child td{border-bottom:0}
 .tbl tbody tr.click{cursor:pointer}
 .tbl tbody tr.click:hover td{background:#f7f9fc}
-.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl td.num,.tbl th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tbl tfoot td{font-weight:650;background:#f8f9fb;border-top:1px solid var(--line)}
 .tbl .sub{display:block;font-size:12.5px;color:var(--muted)}
 .tbl input[type=checkbox]{width:16px;height:16px;vertical-align:middle}
@@ -482,7 +483,7 @@ function payLine(w){
   const net = gross - jht - jp - kes - pph - kasbon;
   return {w, days, absent, base, ot, otH, night, nights, meal, premi, bales, gross, jht, jp, kes, pph, kasbon, net, er: erBpjs};
 }
-const payroll = ag => W.filter(w => (ag ? w.ag === ag : w.ag !== "PHL") && w.ag !== "BKN").map(payLine);
+const payroll = ag => W.filter(w => ag ? w.ag === ag : w.ag !== "PHL" && w.ag !== "BKN").map(payLine);
 const holdReason = w => w.bank.status === "ok" ? null : w.bank.status === "pending" ? "Rekening belum diverifikasi" : w.bank.status === "mismatch" ? "Nama rekening tidak sesuai KTP" : "Belum ada rekening";
 const TS_OPEN = [W[33], W[190], W[247]].filter(w => w.ag !== "BKN" && w.ag !== "PHL");
 
@@ -578,5 +579,6 @@ function dayCost(sec, d){
 }
 </script>
 <script src="app.js"></script>
+<script src="lembur.js"></script>
 </body>
 </html>
