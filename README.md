@@ -11,7 +11,14 @@ A clickable mockup for an Indonesian tissue converting mill (UI in Bahasa Indone
   - an **AI gateway** switch (Local / Outside model / Auto) that shows what would be sent to an outside model, with names, machine IDs and setpoints removed;
   - a lessons loop: an operator's fix is saved as a lesson that waits for the shift leader's approval and appears on the Head view.
 
-Everything is one static file, `public/index.html`. Sensor events are simulated in the browser and the snapshots are illustrations and the assistant is scripted: it does not call a real AI model. All names, numbers, SKUs, specs and procedures are examples.
+- **Tenaga Kerja** (`/outsource/`): a separate subsystem for planning and paying outsourced (alih daya) and day labour, styled as a plain workforce-management web app. It shares the plant's six sections and machines:
+  - **Jadwal**: a weekly roster grid per section (4 regu, 3 shifts), with required vs scheduled headcount from the production plan, open shifts, fill suggestions with rest and overtime warnings, auto-fill and publish; headcount needs per day; requests to agencies.
+  - **Absensi**: timesheets from RFID and face clock-ins with bale counts, approvals and corrections; leave requests with their roster impact, and leave balances.
+  - **Pekerja**: staff list and profiles (summary, schedule and attendance, bank account, payment history, contract and documents, machine qualifications); PKWT contracts ending soon.
+  - **Gaji**: pay run for 21 Oct – 20 Nov with HR then Finance approval, payslips, and exports (BCA bulk transfer, Mandiri MCM, full payroll, e-Bupot PPh 21, BPJS, per-agency summary); payment history with failed and retried transfers; bank accounts with change requests, name check and two-person approval; pay rules (UMK, overtime per PP 35/2021, night and meal allowances, piece premium, BPJS, PPh 21 TER) with a rule tester.
+  - **Agen**: agencies with payment model, fee, attendance and fill rate, compliance documents; agency invoices reconciled against approved timesheet hours.
+
+The main mockup is `public/index.html`. The Tenaga Kerja subsystem is `public/outsource/index.html` (data, rules and helpers) and `public/outsource/app.js` (pages). Sensor events are simulated in the browser and the snapshots are illustrations and the assistant is scripted: it does not call a real AI model. The workforce data, rates and rules are generated in the browser and nothing is saved; the UMK and allowances are example values. All names, numbers, SKUs, specs and procedures are examples.
 
 ## Run locally
 

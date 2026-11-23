@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Mockup perencanaan tenaga kerja alih daya untuk pabrik converting tisu: jadwal, absensi, cuti, gaji, rekening bank, pembayaran, agen dan kontrak.">
+<title>Tenaga Kerja Alih Daya · Production Intelligence</title>
+<style>
+:root{
+  --bg:#f2f4f7; --card:#fff; --ink:#1d2733; --muted:#5b6776; --faint:#8994a2; --line:#dce1e7; --line2:#eceff3;
+  --nav:#17263b; --nav2:#22344d; --navink:#c9d3df;
+  --pri:#2160c4; --pri-d:#184c9f; --pri-l:#e8f0fc;
+  --ok:#17663a; --ok-l:#e2f3e8; --warn:#8a4b00; --warn-l:#fcefd6; --bad:#a3241a; --bad-l:#fce6e4;
+  --p:#dbe7fa; --p-i:#173d74; --s:#fbe6c6; --s-i:#653c00; --m:#e2ddf5; --m-i:#382c74;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--pri)}
+:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+h1,h2,h3,h4{margin:0;font-weight:650;line-height:1.25}
+h1{font-size:22px} h2{font-size:16px} h3{font-size:14px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:12.5px}
+.right{text-align:right} .nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Top navigation */
+.top{background:var(--nav);color:#fff;display:flex;align-items:stretch;height:52px;padding:0 0 0 16px;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:15px;color:#fff;text-decoration:none;padding-right:18px;white-space:nowrap}
+.brand .mark{width:26px;height:26px;border-radius:5px;background:#fff;color:var(--nav);display:grid;place-items:center;font-size:12px;font-weight:800;letter-spacing:-.02em}
+.mainnav{display:flex;overflow-x:auto;scrollbar-width:none}
+.mainnav a{display:flex;align-items:center;padding:0 14px;color:var(--navink);text-decoration:none;font-weight:550;white-space:nowrap;border-bottom:3px solid transparent;border-top:3px solid transparent}
+.mainnav a:hover{color:#fff;background:var(--nav2)}
+.mainnav a[aria-current="true"]{color:#fff;border-bottom-color:#fff}
+.topright{margin-left:auto;display:flex;align-items:center;gap:12px;padding:0 16px;white-space:nowrap}
+.topright a{color:var(--navink);text-decoration:none;font-size:13px}
+.topright a:hover{color:#fff}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;color:#fff}
+.av{width:30px;height:30px;border-radius:50%;background:#3b5577;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:650;flex:none}
+.av.lg{width:56px;height:56px;font-size:19px;background:#d7e1ee;color:#1f3a5f}
+.av.sm{width:26px;height:26px;font-size:11px;background:#e3e8ef;color:#2c4566}
+
+.subnav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;padding:0 16px;overflow-x:auto;position:sticky;top:52px;z-index:19}
+.subnav a{padding:11px 12px 9px;color:var(--muted);text-decoration:none;font-weight:550;white-space:nowrap;border-bottom:2px solid transparent}
+.subnav a:hover{color:var(--ink)}
+.subnav a[aria-current="page"]{color:var(--pri);border-bottom-color:var(--pri)}
+
+main{max-width:1440px;margin:0 auto;padding:20px 20px 60px}
+.pagehead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:16px}
+.pagehead .sub{color:var(--muted);margin-top:3px}
+.pagehead .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* Cards and grid */
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px}
+.card>.hd{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line2)}
+.card>.hd .more{margin-left:auto}
+.card>.bd{padding:14px 16px}
+.card>.bd.flush{padding:0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+@media (max-width:980px){.g2,.g3,.g21{grid-template-columns:minmax(0,1fr)}}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));background:#fff;border:1px solid var(--line);border-radius:6px;margin-bottom:16px}
+.stat{padding:12px 16px;border-left:1px solid var(--line2)}
+.stat:first-child{border-left:0}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.stat .v{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:2px}
+.stat .s{font-size:12.5px;color:var(--muted)}
+.stat .v.bad{color:var(--bad)} .stat .v.warn{color:var(--warn)}
+
+/* Buttons and fields */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #c5ccd5;background:#fff;border-radius:4px;padding:6px 12px;font-weight:600;font-size:13px;line-height:1.3;white-space:nowrap;text-decoration:none;color:var(--ink)}
+.btn:hover{background:#f5f7f9}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover{background:var(--pri-d)}
+.btn.danger{color:var(--bad);border-color:#e4b7b2}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--pri);padding:4px 6px}
+.btn.ghost:hover{background:var(--pri-l)}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.field{display:grid;gap:4px}
+.field label,.lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=search],select,textarea{border:1px solid #c5ccd5;border-radius:4px;padding:6px 9px;background:#fff;min-height:32px}
+input:focus,select:focus,textarea:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px var(--pri-l)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.seg{display:inline-flex;border:1px solid #c5ccd5;border-radius:4px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:5px 11px;font-weight:600;font-size:13px;border-left:1px solid #c5ccd5;color:var(--muted)}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--pri-l);color:var(--pri-d)}
+
+/* Tags */
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:12px;font-weight:600;background:#edf0f3;color:#3d4855;white-space:nowrap;line-height:1.55}
+.tag.ok{background:var(--ok-l);color:var(--ok)} .tag.warn{background:var(--warn-l);color:var(--warn)}
+.tag.bad{background:var(--bad-l);color:var(--bad)} .tag.info{background:var(--pri-l);color:var(--pri-d)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--faint)}
+.dot.ok{background:#2a9455}.dot.warn{background:#d08a00}.dot.bad{background:#c8372c}
+
+/* Tables */
+.tw{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);background:#f8f9fb;white-space:nowrap}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr.click{cursor:pointer}
+.tbl tbody tr.click:hover td{background:#f7f9fc}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tfoot td{font-weight:650;background:#f8f9fb;border-top:1px solid var(--line)}
+.tbl .sub{display:block;font-size:12.5px;color:var(--muted)}
+.tbl input[type=checkbox]{width:16px;height:16px;vertical-align:middle}
+.person{display:flex;align-items:center;gap:9px}
+.person b{font-weight:600}
+.person a{color:inherit;text-decoration:none}
+.person a:hover{text-decoration:underline}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* Lists */
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:12px;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--line2)}
+.list li:last-child{border-bottom:0}
+.list .grow{flex:1;min-width:0}
+.list .meta{font-size:12.5px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:7px 18px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.note{background:#f6f8fa;border:1px solid var(--line);border-radius:5px;padding:10px 12px;color:var(--muted);font-size:13px}
+.note.warn{background:#fffaf0;border-color:#efd9ad;color:#6b4300}
+.note.bad{background:#fff6f5;border-color:#efc4bf;color:#7d1d15}
+
+/* Roster */
+.roster{border-collapse:separate;border-spacing:0;width:100%;min-width:1080px}
+.roster th,.roster td{border-bottom:1px solid var(--line2);border-left:1px solid var(--line2);padding:0;vertical-align:top}
+.roster thead th{position:sticky;top:0;background:#f8f9fb;z-index:3;font-size:12.5px;font-weight:600;color:var(--muted);padding:8px;text-align:left;border-bottom:1px solid var(--line)}
+.roster thead th.today{color:var(--pri-d);background:#eef4fd}
+.roster .nm{position:sticky;left:0;background:#fff;z-index:2;min-width:220px;max-width:240px;padding:6px 10px;border-left:0}
+.roster thead .nm{z-index:4;background:#f8f9fb}
+.roster .nm b{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.roster .nm span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.roster td.c{width:12%;height:46px}
+.roster td.tot{width:64px;text-align:right;padding:6px 10px;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px}
+.roster tr.grp td{background:#f3f5f8;font-weight:600;font-size:12.5px;padding:6px 10px;color:#394656}
+.roster tr.need td{background:#fbfcfd}
+.roster tr.need td.c{padding:5px 6px;font-size:12px;line-height:1.5}
+.cellbtn{display:block;width:100%;height:100%;min-height:45px;border:0;background:transparent;padding:4px;text-align:left}
+.cellbtn:hover{background:#f3f6fa}
+.sh{display:block;border-radius:3px;padding:3px 6px;font-size:12px;line-height:1.3;font-weight:600}
+.sh small{display:block;font-weight:500;opacity:.85}
+.sh.P{background:var(--p);color:var(--p-i)} .sh.S{background:var(--s);color:var(--s-i)} .sh.M{background:var(--m);color:var(--m-i)}
+.sh.C{background:var(--ok-l);color:var(--ok)} .sh.SK{background:var(--bad-l);color:var(--bad)} .sh.I{background:#eceff3;color:#3d4855}
+.sh.X{background:repeating-linear-gradient(135deg,#f1f3f5 0 6px,#e7eaee 6px 12px);color:var(--muted)}
+.sh.edited{box-shadow:inset 0 0 0 1.5px currentColor}
+.sh.ot{outline:1.5px dashed currentColor;outline-offset:-1.5px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12.5px;color:var(--muted)}
+.legend .sh{display:inline-block;padding:1px 7px}
+.needline{display:flex;justify-content:space-between;gap:4px;white-space:nowrap}
+.needline.short{color:var(--bad);font-weight:650}
+.openbtn{border:1px dashed #d79a93;background:#fff7f6;color:var(--bad);border-radius:3px;font-size:12px;font-weight:650;padding:2px 6px;margin:2px 2px 0 0}
+.openbtn:hover{background:var(--bad-l)}
+
+/* Profile */
+.profilehead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs button{border:0;background:transparent;padding:9px 12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--pri);border-bottom-color:var(--pri)}
+.bankcard{border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:4px;max-width:420px}
+.bankcard .acct{font-size:18px;font-weight:650;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.steps{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0;list-style:none;border:1px solid var(--line);border-radius:6px;background:#fff;overflow:hidden}
+.steps li{flex:1;min-width:130px;padding:9px 14px;border-left:1px solid var(--line2);font-size:13px;color:var(--muted)}
+.steps li:first-child{border-left:0}
+.steps li b{display:block;color:var(--ink);font-weight:600}
+.steps li.done b{color:var(--ok)}
+.steps li.cur{background:var(--pri-l)} .steps li.cur b{color:var(--pri-d)}
+.bar{height:8px;background:#e8ebef;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri)}
+.bar.ok i{background:#2a9455} .bar.warn i{background:#d08a00}
+
+/* Modal, drawer, toast */
+.scrim{position:fixed;inset:0;background:rgba(20,30,45,.42);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:60px 16px;overflow-y:auto}
+.modal{background:#fff;border-radius:7px;width:min(560px,100%);box-shadow:0 12px 40px rgba(15,25,40,.25)}
+.modal.wide{width:min(820px,100%)}
+.modal .mh{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line2)}
+.modal .mh .x{margin-left:auto;border:0;background:transparent;font-size:20px;line-height:1;color:var(--muted);padding:4px 8px}
+.modal .mb{padding:16px 18px;display:grid;gap:14px}
+.modal .mf{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line2);background:#fafbfc;border-radius:0 0 7px 7px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.opts label{border:1px solid var(--line);border-radius:4px;padding:7px 9px;display:flex;gap:7px;align-items:center;cursor:pointer;font-size:13px}
+.opts label:has(input:checked){border-color:var(--pri);background:var(--pri-l)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1d2733;color:#fff;padding:10px 16px;border-radius:5px;font-size:13.5px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:min(600px,92vw)}
+.payslip{font-size:13px}
+.payslip table{width:100%;border-collapse:collapse}
+.payslip td{padding:4px 0}
+.payslip td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.payslip tr.t td{border-top:1px solid var(--line);font-weight:650;padding-top:7px}
+.foot{margin-top:28px;color:var(--faint);font-size:12.5px}
+@media (max-width:700px){
+  main{padding:14px 12px 50px}
+  .topright .hide-sm{display:none}
+  .stat{border-left:0;border-top:1px solid var(--line2)}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#beranda"><span class="mark" aria-hidden="true">PI</span>Tenaga Kerja</a>
+  <nav class="mainnav" id="mainnav" aria-label="Menu utama"></nav>
+  <div class="topright">
+    <a class="hide-sm" href="../">Monitor Produksi</a>
+    <span class="who"><span class="av" aria-hidden="true">MS</span><span class="hide-sm">Ibu Maya · HR</span></span>
+  </div>
+</header>
+<nav class="subnav" id="subnav" aria-label="Sub menu"></nav>
+<main id="app" tabindex="-1"></main>
+<div id="overlay"></div>
+<script>
+"use strict";
+/* ============================================================
+   Tenaga Kerja Alih Daya: mockup. All names, numbers, rates and
+   rules are examples generated in the browser. Nothing is saved.
+   ============================================================ */
+
+/* ---------- utilities ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let _s = 20261123;
+const rnd = () => { _s |= 0; _s = _s + 0x6D2B79F5 | 0; let t = Math.imul(_s ^ _s >>> 15, 1 | _s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = a => a[Math.floor(rnd() * a.length)];
+function hash(str){ let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
+const NF = new Intl.NumberFormat("id-ID");
+const fmt = n => NF.format(Math.round(n));
+const rp = n => (n < 0 ? "−Rp " : "Rp ") + fmt(Math.abs(n));
+const dec = (n, d = 1) => n.toFixed(d).replace(".", ",");
+const rpS = n => n >= 1e9 ? "Rp " + dec(n / 1e9, 2) + " M" : n >= 1e6 ? "Rp " + dec(n / 1e6, 1) + " jt" : rp(n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const initials = n => n.split(" ").filter(w => !/^(Hj?\.|H\.)$/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const pad = n => String(n).padStart(2, "0");
+
+/* Dates: day 0 = Senin 23 Nov 2026 (hari ini). */
+const DAYN = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+const DAYL = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const MON = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const dt = d => new Date(Date.UTC(2026, 10, 23 + d));
+const dShort = d => { const x = dt(d); return DAYN[x.getUTCDay()] + " " + x.getUTCDate() + " " + MON[x.getUTCMonth()]; };
+const dLong = d => { const x = dt(d); return DAYL[x.getUTCDay()] + ", " + x.getUTCDate() + " " + MON[x.getUTCMonth()] + " " + x.getUTCFullYear(); };
+const dDate = x => x.getUTCDate() + " " + MON[x.getUTCMonth()] + " " + x.getUTCFullYear();
+const daysBetween = (a, b) => Math.round((b - a) / 864e5);
+const TODAY = dt(0);
+
+/* ---------- pay rules (editable on the Aturan gaji page) ---------- */
+const R = {
+  umk: 5400000,         // UMK contoh 2026, Kab. [KOTA]
+  meal: 15000, night: 15000, premi: 150, lateGrace: 10,
+  otDay: 4, otWeek: 18,
+  jhtEe: .02, jpEe: .01, kesEe: .01, jhtEr: .037, jpEr: .02, kesEr: .04, jkk: .0054, jkm: .003,
+  jpCap: 10547400, kesCap: 12000000, ppn: .11,
+  phlDaily: 230000
+};
+const hourly = () => R.umk / 173;
+const daily = () => R.umk / 25;
+const RULES = [
+  {id:"base", on:true, group:"Upah", n:"Upah pokok harian", d:"UMK ÷ 25 untuk pola 6 hari kerja per minggu", v:() => rp(daily()) + " per hari"},
+  {id:"phl", on:true, group:"Upah", n:"Upah harian lepas (PHL)", d:"Dibayar per hari hadir, mingguan setiap Sabtu", v:() => rp(R.phlDaily) + " per hari"},
+  {id:"ot1", on:true, group:"Lembur", n:"Lembur hari kerja, jam pertama", d:"Upah sejam = UMK ÷ 173", v:() => "1,5 × " + rp(hourly())},
+  {id:"ot2", on:true, group:"Lembur", n:"Lembur hari kerja, jam berikutnya", d:"Jam ke-2 sampai ke-4", v:() => "2 × " + rp(hourly())},
+  {id:"otr", on:true, group:"Lembur", n:"Kerja di hari istirahat atau libur nasional", d:"7 jam pertama ×2, jam ke-8 ×3, jam ke-9 sampai 11 ×4", v:() => "2× / 3× / 4×"},
+  {id:"cap", on:true, group:"Lembur", n:"Batas lembur", d:"Jadwal memberi peringatan kalau terlampaui", v:() => R.otDay + " jam/hari, " + R.otWeek + " jam/minggu"},
+  {id:"night", on:true, group:"Tunjangan", n:"Tunjangan shift malam", d:"Untuk shift 23.00–07.00", v:() => rp(R.night) + " per shift"},
+  {id:"meal", on:true, group:"Tunjangan", n:"Uang makan", d:"Per hari hadir, tidak dibayar kalau mangkir", v:() => rp(R.meal) + " per hari"},
+  {id:"premi", on:true, group:"Produksi", n:"Premi hasil packing", d:"Per bal bagus di atas target mesin, dari hitungan sensor packing yang dikonfirmasi leader line", v:() => rp(R.premi) + " per bal"},
+  {id:"down", on:true, group:"Produksi", n:"Downtime mesin dan pulang awal", d:"Waktu menunggu karena mesin rusak tetap dibayar penuh", v:() => "100%"},
+  {id:"late", on:true, group:"Kehadiran", n:"Toleransi terlambat", d:"Lewat toleransi, menit terlambat dipotong proporsional", v:() => R.lateGrace + " menit"},
+  {id:"bpjs", on:true, group:"Potongan", n:"BPJS Ketenagakerjaan (pekerja)", d:"JHT 2% + JP 1% (JP dari upah maks. " + rpS(R.jpCap) + ")", v:() => "3%"},
+  {id:"kes", on:true, group:"Potongan", n:"BPJS Kesehatan (pekerja)", d:"1% dari upah, maks. " + rpS(R.kesCap), v:() => "1%"},
+  {id:"pph", on:true, group:"Potongan", n:"PPh 21 (TER bulanan)", d:"Disederhanakan untuk demo: semua pekerja kategori A", v:() => "0–2%"},
+  {id:"kasbon", on:true, group:"Potongan", n:"Kasbon", d:"Dipotong otomatis sesuai cicilan yang disetujui", v:() => "sesuai cicilan"}
+];
+const TER_A = [[5400000,0],[5650000,.0025],[5950000,.005],[6300000,.0075],[6750000,.01],[7500000,.0125],[8550000,.015],[9650000,.0175],[10050000,.02],[10350000,.0225],[10700000,.025],[11050000,.03]];
+const ter = g => { for (const [lim, r] of TER_A) if (g <= lim) return r; return .03; };
+
+/* ---------- production link: sections and machines (same plant as Monitor Produksi) ---------- */
+const SEC = [
+  {id:"S1", n:"Seksi 1 · Toilet Roll", mach:["TR-01","TR-02","TR-03","TR-04","TR-05","TR-06","TR-07","TR-08"], crew:2, extra:["Helper produksi","Operator forklift"], ag:"MKS", leader:"Pak Darmawan"},
+  {id:"S2", n:"Seksi 2 · Kitchen Towel & Jumbo Roll", mach:["KT-01","KT-02","KT-03","KT-04","KT-05","JR-01","JR-02"], crew:2, extra:["Helper jumbo roll"], ag:"MKS", leader:"Pak Suparman"},
+  {id:"S3", n:"Seksi 3 · Facial Box", mach:["FB-01","FB-02","FB-03","FB-04","FB-05","FB-06","FB-07"], crew:3, extra:["Helper produksi"], ag:"STM", leader:"Pak Hasan Basri"},
+  {id:"S4", n:"Seksi 4 · Soft Pack & Travel Pack", mach:["SP-01","SP-02","SP-03","SP-04","SP-05","SP-06","SP-07"], crew:2, extra:["Helper produksi","Operator forklift"], ag:"STM", leader:"Pak Mulyadi"},
+  {id:"S5", n:"Seksi 5 · Napkin", mach:["NP-01","NP-02","NP-03","NP-04","NP-05","NP-06"], crew:2, extra:["Helper produksi"], ag:"BKN", leader:"Pak Subagyo"},
+  {id:"S6", n:"Seksi 6 · Hand Towel", mach:["HT-01","HT-02","HT-03","HT-04","HT-05","HT-06"], crew:1, extra:["Helper produksi"], ag:"BKN", leader:"Pak Wahyudi"}
+];
+const secById = id => SEC.find(s => s.id === id);
+/* Changes in the PPIC production plan for this week */
+const PLAN_CHG = [
+  {sec:"S3", d:3, sh:"PSM", delta:1, why:"FB-08 dijadwalkan untuk order [PELANGGAN] (Facial 250s)"},
+  {sec:"S1", d:2, sh:"P", delta:-1, why:"PM terjadwal TR-03 (07.00–15.00)"},
+  {sec:"S5", d:5, sh:"PSM", delta:-2, why:"NP-05 dan NP-06 tidak ada order"},
+  {sec:"S4", d:1, sh:"M", delta:1, why:"SP-08 selesai PM, ikut jalan malam"}
+];
+function machinesOn(sec, d, sh){
+  const s = secById(sec); let n = s.mach.length;
+  for (const c of PLAN_CHG) if (c.sec === sec && c.d === d && c.sh.includes(sh)) n += c.delta;
+  return n;
+}
+const need = (sec, d, sh) => machinesOn(sec, d, sh) * secById(sec).crew + secById(sec).extra.length;
+
+/* ---------- shifts ---------- */
+const SH = {P:{n:"Pagi", t:"07.00–15.00", s:7, e:15}, S:{n:"Siang", t:"15.00–23.00", s:15, e:23}, M:{n:"Malam", t:"23.00–07.00", s:23, e:31}};
+const LEAVE = {C:"Cuti", SK:"Sakit", I:"Izin", L:"Libur", X:"Kontrak habis"};
+const PAT = ["P","P","S","S","M","M","L","L"];   // pola 4 regu 3 shift, 2-2-2-2
+const REGU = {A:0, B:2, C:4, D:6};
+
+/* ---------- agencies ---------- */
+const AG = {
+  MKS:{id:"MKS", n:"PT Mitra Karya Sejahtera", short:"Mitra Karya", fee:.08, model:"pay", pic:"Bpk. Rahmat Hidayat", phone:"0812-•••-4410", contractEnd:new Date(Date.UTC(2027,2,31)), nib:"91201••••0331", fill:.97, att:.968},
+  STM:{id:"STM", n:"PT Sinar Tenaga Mandiri", short:"Sinar Tenaga", fee:.075, model:"pay", pic:"Ibu Lina Marlina", phone:"0813-•••-2287", contractEnd:new Date(Date.UTC(2026,11,31)), nib:"81204••••1172", fill:.92, att:.955},
+  BKN:{id:"BKN", n:"PT Bina Kerja Nusantara", short:"Bina Kerja", fee:.09, model:"agen", pic:"Bpk. Hendra Gunawan", phone:"0811-•••-9034", contractEnd:new Date(Date.UTC(2027,5,30)), nib:"02203••••5518", fill:.95, att:.972},
+  PHL:{id:"PHL", n:"Harian lepas (langsung)", short:"Harian lepas", fee:0, model:"direct", pic:"HR pabrik", phone:"-", contractEnd:null, nib:"-", fill:1, att:.94}
+};
+const MODEL = {pay:"Pabrik membayar pekerja atas nama agen, agen ditagih fee", agen:"Agen membayar pekerja, pabrik membayar tagihan agen", direct:"Pabrik membayar langsung, mingguan"};
+
+/* ---------- people ---------- */
+const FM = ["Agus","Budi","Dedi","Eko","Fajar","Hendra","Irfan","Joko","Lukman","Nanang","Rizal","Slamet","Taufik","Wahyu","Yogi","Arif","Bayu","Dimas","Galih","Hadi","Ilham","Rendi","Sigit","Yusuf","Asep","Ujang","Cecep","Dadan","Iwan","Ade","Rudi","Andri","Ridwan","Deni","Firman"];
+const FF = ["Ani","Dewi","Euis","Fitri","Indah","Lilis","Mega","Nining","Nur","Ratna","Rina","Sari","Siti","Tuti","Wati","Yani","Ayu","Dian","Eka","Lina","Neng","Rosita","Suci","Yuli","Imas","Cucu","Iis","Popon","Nia","Wulan"];
+const LN = ["Setiawan","Hidayat","Saputra","Kurniawan","Nugraha","Permana","Gunawan","Firmansyah","Maulana","Ramdani","Sopian","Fauzi","Pratama","Hermawan","Purnama","Rohman","Mulyana","Sutisna","Kusnadi","Hakim"];
+const LNF = ["Lestari","Rahayu","Wulandari","Susanti","Suryani","Handayani","Sulastri","Komariah","Sundari","Hasanah","Nurhayati","Rahmawati","Fitriani","Puspita","Purnamasari","Anggraeni","Kartika","Yuliani"];
+const BANKS = [["BCA",10],["BRI",15],["Mandiri",13],["BNI",10],["BSI",10],["BJB",13]];
+const used = new Set();
+function name(f){ for (let i = 0; i < 50; i++) { const n = f ? pick(FF) + " " + pick(LNF) : pick(FM) + " " + pick(LN); if (!used.has(n)) { used.add(n); return n; } } return pick(FM) + " " + pick(LN) + " " + ri(2,9); }
+function acctNo(len){ let s = ""; for (let i = 0; i < len; i++) s += ri(0, 9); return s; }
+const W = []; let wid = 101;
+function mkWorker(o){
+  const f = o.f ?? (rnd() < (o.role === "Packer" ? .62 : .1));
+  const n = name(f);
+  const start = new Date(Date.UTC(2026, 10, 23 - ri(30, 620)));
+  const end = new Date(Date.UTC(2026, 10, 23 + ri(75, 640)));
+  const [bank, len] = o.ag === "BKN" ? ["BRI", 15] : pick(BANKS);
+  const w = Object.assign({
+    id: "OS-" + pad(Math.floor(wid / 100)) + pad(wid % 100), name: n, f, start, end,
+    type: o.ag === "PHL" ? "Harian lepas" : "PKWT",
+    phone: "08" + ri(11, 59) + "-••••-" + ri(1000, 9999),
+    nik: "3215 •••• •••• " + pad(ri(0, 99)) + pad(ri(0, 99)),
+    bpjsTk: o.ag === "PHL" ? "Dalam proses" : "2" + acctNo(4) + "•••••" + acctNo(2),
+    bpjsKes: "0001" + acctNo(3) + "•••••" + acctNo(2),
+    npwp: rnd() < .45 ? "NIK sebagai NPWP" : "Belum ada",
+    leaveBal: ri(2, 12), leaveUsed: 0,
+    bank: {bank, no: acctNo(len), holder: n, status: o.ag === "BKN" ? "agen" : "ok", checked: new Date(Date.UTC(2026, ri(0, 10), ri(1, 28))), via: pick(["Cek rekening API bank","Buku tabungan diunggah","Cek rekening API bank"])},
+    trained: [], kasbon: rnd() < .12 ? ri(2, 5) * 100000 : 0
+  }, o);
+  wid += ri(1, 3);
+  W.push(w); return w;
+}
+for (const s of SEC) {
+  const regu = s.mach.length * s.crew + s.extra.length + 1;
+  for (const r of "ABCD") {
+    for (let i = 0; i < regu; i++) {
+      const role = i < s.extra.length ? s.extra[i] : "Packer";
+      const w = mkWorker({sec: s.id, regu: r, role, ag: s.ag});
+      const k = ri(2, 4), m = [...s.mach].sort(() => rnd() - .5).slice(0, role === "Packer" ? k : 0);
+      w.trained = role === "Packer" ? m.sort() : [role];
+    }
+  }
+}
+for (let i = 0; i < 14; i++) { const w = mkWorker({sec: null, regu: null, role: pick(["Packer","Packer","Helper produksi"]), ag: "PHL"}); w.trained = ["Packer umum"]; }
+const wById = id => W.find(w => w.id === id);
+
+/* Fixed example cases, so the demo tells a story */
+function setW(i, patch){ const w = W[i]; Object.assign(w, patch); if (patch.name) { w.bank.holder = patch.name; } return w; }
+const S3A = W.filter(w => w.sec === "S3" && w.regu === "A");
+const DIMAS = setW(W.indexOf(S3A[5]), {name: "Dimas Pratama", f: false});
+const AGUS = setW(W.indexOf(W.find(w => w.sec === "S1" && w.regu === "B" && w.role === "Packer")), {name: "Agus Setiawan", f: false});
+const SITI = setW(W.indexOf(S3A[8]), {name: "Siti Nurhaliza Rahayu", f: true});
+const RINA = setW(W.indexOf(W.filter(w => w.ag === "PHL")[3]), {name: "Rina Lestari", f: true, start: dt(-6)});
+RINA.bank = {bank: "-", no: "", holder: "", status: "none", checked: null, via: ""};
+const MISM = W.filter(w => w.ag === "MKS" || w.ag === "STM");
+MISM[17].bank.status = "mismatch"; MISM[17].bank.holder = "Suherman";
+MISM[121].bank.status = "mismatch"; MISM[121].bank.holder = MISM[121].name.split(" ")[0];
+MISM[64].bank.status = "pending"; MISM[200].bank.status = "pending";
+/* contracts ending soon */
+W.filter(w => w.ag !== "PHL" && w.sec === "S2").slice(0, 3).forEach((w, i) => w.end = dt([4, 9, 25][i]));
+W.filter(w => w.ag !== "PHL" && w.sec === "S4").slice(3, 6).forEach((w, i) => w.end = dt([12, 38, 52][i]));
+W.filter(w => w.ag !== "PHL" && w.sec === "S6").slice(1, 2).forEach(w => w.end = dt(2));
+
+/* ---------- roster overrides ---------- */
+const OV = {};           // "id|d" -> code ("P","C","P@S3",...)
+const OV0 = {};          // published state
+const key = (id, d) => id + "|" + d;
+function baseCode(w, d){
+  if (w.ag === "PHL" || !w.regu) return "L";
+  if (w.end < dt(d)) return "X";
+  return PAT[((d + REGU[w.regu]) % 8 + 8) % 8];
+}
+function code(w, d){ return OV[key(w.id, d)] ?? baseCode(w, d); }
+const shiftOf = c => (c || "").split("@")[0];
+const secOf = (w, c) => (c || "").split("@")[1] || w.sec;
+/* approved leave and sickness this week */
+const LEAVES = [];
+function addLeave(w, type, from, to, status, note){
+  const l = {id: "LV-" + (300 + LEAVES.length), w: w.id, type, from, to, status, note, sent: from - ri(2, 9)};
+  LEAVES.push(l);
+  if (status === "ok") for (let d = from; d <= to; d++) if (SH[baseCode(w, d)]) OV[key(w.id, d)] = type === "Sakit" ? "SK" : type === "Izin" ? "I" : "C";
+  return l;
+}
+{
+  _s = 77;
+  const pool = W.filter(w => w.ag !== "PHL");
+  for (let i = 0; i < 26; i++) {
+    const w = pool[ri(0, pool.length - 1)], d = ri(-1, 6), t = pick(["Cuti tahunan","Cuti tahunan","Sakit","Izin"]);
+    addLeave(w, t, d, Math.min(6, d + (t === "Cuti tahunan" ? ri(0, 2) : 0)), "ok", t === "Sakit" ? "Surat dokter diunggah" : t === "Izin" ? "Acara keluarga" : "");
+  }
+  /* S3 regu A short on Thursday when FB-08 joins */
+  addLeave(S3A[2], "Cuti tahunan", 3, 4, "ok", "Pulang kampung");
+}
+const PEND = [
+  addLeave(SITI, "Cuti tahunan", 3, 3, "pending", "Mengurus KTP anak di Dukcapil"),
+  addLeave(W.find(w => w.sec === "S1" && w.regu === "C" && w.role === "Packer"), "Cuti tahunan", 1, 2, "pending", "Pernikahan saudara"),
+  addLeave(W.find(w => w.sec === "S4" && w.regu === "D" && w.f), "Cuti haid", 0, 0, "pending", "Pasal 81 UU 13/2003"),
+  addLeave(W.find(w => w.sec === "S5" && w.regu === "B" && w.role === "Packer"), "Izin", 4, 4, "pending", "Sidang tilang"),
+  addLeave(W.find(w => w.sec === "S2" && w.regu === "A" && w.role === "Packer"), "Cuti melahirkan", 7, 96, "pending", "HPL 5 Des, surat bidan diunggah"),
+  addLeave(W.find(w => w.sec === "S6" && w.regu === "C"), "Sakit", 0, 1, "pending", "Surat dokter belum diunggah")
+];
+Object.assign(OV0, OV);
+
+/* ---------- requests to agencies ---------- */
+const REQS = [
+  {id:"RQ-118", ag:"STM", sec:"S3", d:3, sh:"P", n:2, status:"Dikonfirmasi", names:"2 orang, nama dikirim agen 22 Nov 19.40", sent:"22 Nov 2026"},
+  {id:"RQ-117", ag:"MKS", sec:"S2", d:1, sh:"M", n:1, status:"Menunggu agen", names:"-", sent:"22 Nov 2026"},
+  {id:"RQ-114", ag:"STM", sec:"S4", d:-3, sh:"S", n:3, status:"Selesai", names:"3 dari 3 hadir", sent:"18 Nov 2026"},
+  {id:"RQ-111", ag:"BKN", sec:"S5", d:-6, sh:"P", n:2, status:"Selesai", names:"1 dari 2 hadir", sent:"15 Nov 2026"}
+];
+
+/* ---------- timesheets (generated per worker and day) ---------- */
+const TSAPPR = {};   // "id|d" -> "ok" | "rej"
+const TSEDIT = {};
+function ts(w, d){
+  const c = code(w, d), s = shiftOf(c);
+  if (!SH[s]) return null;
+  const h = k => hash(w.id + "|" + d + "|" + k);
+  const sh = SH[s];
+  let inM = sh.s * 60 - Math.round(h("a") * 14), outM = sh.e * 60 + Math.round(h("b") * 8), flag = null, ot = 0;
+  const mach = w.role === "Packer" ? (w.trained[Math.floor(h("m") * w.trained.length)] || "-") : w.role;
+  const src = h("s") < .7 ? (w.role === "Packer" && mach !== "Packer umum" ? "RFID di " + mach : "Kartu · gerbang 1") : "Wajah · gerbang 2";
+  const r = h("r");
+  if (r < .012) { inM = null; outM = null; flag = "Mangkir"; }
+  else if (r < .04) { inM = sh.s * 60 + 12 + Math.round(h("c") * 30); flag = "Terlambat"; }
+  else if (r < .055) { outM = null; flag = "Tidak absen pulang"; }
+  else if (r < .13 && w.role === "Packer") { ot = h("o") < .6 ? 2 : 1; outM = sh.e * 60 + ot * 60 + Math.round(h("b") * 6); flag = "Lembur"; }
+  const e = TSEDIT[key(w.id, d)]; if (e) { inM = e.in; outM = e.out; flag = e.flag; ot = e.ot; }
+  const bales = w.role === "Packer" && inM != null ? Math.round(255 + h("p") * 120 + ot * 40) : 0;
+  const worked = inM != null && outM != null ? (outM - inM) / 60 - 1 : null;
+  const late = inM != null ? Math.max(0, inM - sh.s * 60) : 0;
+  let st = TSAPPR[key(w.id, d)];
+  if (!st) st = d < -2 ? "ok" : (flag && flag !== "Lembur") || (flag === "Lembur" && h("q") < .5) ? "cek" : d < -1 ? "ok" : "baru";
+  return {w, d, s, sec: secOf(w, c), inM, outM, worked, late, ot, bales, flag, src, st, mach};
+}
+const hm = m => m == null ? "—" : pad(Math.floor(m / 60) % 24) + "." + pad(m % 60);
+
+/* ---------- pay runs ---------- */
+const PERIOD = {n:"21 Okt – 20 Nov 2026", pay:"Rabu, 25 Nov 2026", cutoff:"Minggu, 22 Nov 2026"};
+let RUN = {status:"cek", approvals:[], exported:[]};   // draf -> cek -> setuju1 -> setuju -> dibayar
+function payLine(w){
+  const h = k => hash(w.id + "|pay|" + k);
+  if (w.ag === "PHL") {
+    const days = 5 + Math.round(h("d") * 18), base = days * R.phlDaily, meal = days * R.meal;
+    const gross = base + meal;
+    return {w, days, base, ot:0, otH:0, night:0, meal, premi:0, bales:0, gross, jht:0, jp:0, kes:0, pph:0, kasbon:0, net:gross, er:gross * (R.jkk + R.jkm)};
+  }
+  const absent = h("a") < .1 ? 1 + Math.round(h("b") * 2) : 0;
+  const days = 26 - absent;
+  const otH = Math.round(h("o") * 14), nights = Math.round(days / 3), bales = w.role === "Packer" ? Math.round(h("p") * 1900) : 0;
+  const base = R.umk * days / 26;
+  const ot = hourly() * (otH / 2) * 3.5;
+  const night = nights * R.night, meal = days * R.meal, premi = bales * R.premi;
+  const gross = base + ot + night + meal + premi;
+  const jht = R.umk * R.jhtEe, jp = Math.min(R.umk, R.jpCap) * R.jpEe, kes = Math.min(R.umk, R.kesCap) * R.kesEe;
+  const erBpjs = R.umk * (R.jhtEr + R.jkk + R.jkm) + Math.min(R.umk, R.jpCap) * R.jpEr + Math.min(R.umk, R.kesCap) * R.kesEr;
+  const pphBase = gross + R.umk * (R.jkk + R.jkm) + Math.min(R.umk, R.kesCap) * R.kesEr;
+  const pph = Math.round(pphBase * ter(pphBase) / 100) * 100;
+  const kasbon = w.kasbon ? Math.round(w.kasbon / 2 / 1000) * 1000 : 0;
+  const net = gross - jht - jp - kes - pph - kasbon;
+  return {w, days, absent, base, ot, otH, night, nights, meal, premi, bales, gross, jht, jp, kes, pph, kasbon, net, er: erBpjs};
+}
+const payroll = ag => W.filter(w => (ag ? w.ag === ag : w.ag !== "PHL") && w.ag !== "BKN").map(payLine);
+const holdReason = w => w.bank.status === "ok" ? null : w.bank.status === "pending" ? "Rekening belum diverifikasi" : w.bank.status === "mismatch" ? "Nama rekening tidak sesuai KTP" : "Belum ada rekening";
+const TS_OPEN = [W[33], W[190], W[247]].filter(w => w.ag !== "BKN" && w.ag !== "PHL");
+
+/* ---------- payment history ---------- */
+const BATCH = [];
+function addBatch(b){ BATCH.push(b); return b; }
+{
+  const reg = W.filter(w => w.ag === "MKS" || w.ag === "STM");
+  const phl = W.filter(w => w.ag === "PHL" && w !== RINA);
+  const sumNet = (list, k) => list.reduce((a, w) => a + payLine(w).net * (0.96 + hash(w.id + k) * 0.08), 0);
+  addBatch({id:"TRF-2611-PHL", date:"21 Nov 2026", kind:"Harian lepas mingguan", period:"14–20 Nov 2026", bank:"BCA · transfer massal", n:phl.length - 1, amount:phl.slice(1).reduce((a, w) => a + (4 + Math.round(hash(w.id + "w1") * 2)) * (R.phlDaily + R.meal), 0), ok:phl.length - 1, fail:0, status:"Berhasil", who:phl.slice(1).map(w => w.id), wk:"w1"});
+  addBatch({id:"TRF-2611-PHL0", date:"14 Nov 2026", kind:"Harian lepas mingguan", period:"7–13 Nov 2026", bank:"BCA · transfer massal", n:12, amount:phl.slice(2).reduce((a, w) => a + (4 + Math.round(hash(w.id + "w2") * 2)) * (R.phlDaily + R.meal), 0), ok:12, fail:0, status:"Berhasil", who:phl.slice(2).map(w => w.id), wk:"w2"});
+  addBatch({id:"INV-PAY-STM-10", date:"30 Okt 2026", kind:"Fee agen", period:"Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"STM"});
+  addBatch({id:"INV-PAY-MKS-10", date:"30 Okt 2026", kind:"Fee agen", period:"Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"MKS"});
+  addBatch({id:"INV-PAY-BKN-10", date:"31 Okt 2026", kind:"Tagihan agen (gaji + fee)", period:"21 Sep – 20 Okt 2026", bank:"Mandiri MCM · RTGS", n:1, amount:0, ok:1, fail:0, status:"Berhasil", agency:"BKN"});
+  addBatch({id:"TRF-2610-RT", date:"27 Okt 2026", kind:"Transfer ulang", period:"21 Sep – 20 Okt 2026", bank:"BCA · transfer satuan", n:2, amount:payLine(reg[40]).net + payLine(reg[150]).net, ok:2, fail:0, status:"Berhasil", who:[reg[40].id, reg[150].id], wk:"m10"});
+  addBatch({id:"TRF-2610", date:"23 Okt 2026", kind:"Gaji bulanan", period:"21 Sep – 20 Okt 2026", bank:"BCA · transfer massal (KlikBCA Bisnis)", n:reg.length, amount:sumNet(reg, "m10"), ok:reg.length - 2, fail:2, status:"Selesai, 2 gagal lalu ditransfer ulang", who:reg.map(w => w.id), wk:"m10",
+    fails:[{w:reg[40].id, why:"Rekening tidak aktif (dormant)"}, {w:reg[150].id, why:"Nama penerima tidak sesuai"}]});
+  addBatch({id:"TRF-2609", date:"25 Sep 2026", kind:"Gaji bulanan", period:"21 Agu – 20 Sep 2026", bank:"BCA · transfer massal (KlikBCA Bisnis)", n:reg.length - 6, amount:sumNet(reg.slice(6), "m9"), ok:reg.length - 6, fail:0, status:"Berhasil", who:reg.slice(6).map(w => w.id), wk:"m9"});
+  for (const b of BATCH) if (b.agency) { const a = b.agency, list = W.filter(w => w.ag === a), g = list.reduce((s, w) => s + payLine(w).gross, 0); b.amount = a === "BKN" ? g * 1.27 * (1 + AG[a].fee) : g * AG[a].fee * (1 + R.ppn); }
+}
+
+/* ---------- bank account change requests ---------- */
+const BREQ = [
+  {id:"BR-071", w:DIMAS.id, kind:"Ganti rekening", from:{bank:DIMAS.bank.bank, no:DIMAS.bank.no}, to:{bank:"BCA", no:"7310882290", holder:"Dimas Pratama"}, when:"Minggu 22 Nov, 21.14", via:"Aplikasi pekerja + OTP ke 08••-••••-" + DIMAS.phone.slice(-4), reason:"Rekening BRI lama hilang ATM-nya, pindah ke BCA", inquiry:null, approvals:[], status:"Menunggu", flags:["Diajukan 3 hari sebelum gajian 25 Nov"]},
+  {id:"BR-070", w:RINA.id, kind:"Rekening baru", from:null, to:{bank:"BRI", no:"339101029882503", holder:"Rina Lestari"}, when:"Sabtu 21 Nov, 10.02", via:"Pendaftaran pekerja baru", reason:"Pekerja harian lepas baru, mulai 17 Nov", inquiry:null, approvals:[], status:"Menunggu", flags:[]},
+  {id:"BR-069", w:AGUS.id, kind:"Ganti rekening", from:{bank:AGUS.bank.bank, no:AGUS.bank.no}, to:{bank:"Mandiri", no:"1320014587716", holder:"Hj. Euis Komariah"}, when:"Jumat 20 Nov, 16.40", via:"Formulir kertas di kantor agen", reason:"Gaji minta ditransfer ke rekening ibu", inquiry:null, approvals:[], status:"Menunggu", flags:["Nama pemilik berbeda dengan KTP pekerja","Diajukan lewat agen, bukan oleh pekerja"]}
+];
+const AUDIT = [
+  {t:"22 Nov 2026 21.14", who:"Dimas Pratama (aplikasi)", what:"Mengajukan ganti rekening BRI → BCA (BR-071)"},
+  {t:"21 Nov 2026 10.02", who:"Rina Lestari (pendaftaran)", what:"Menambahkan rekening BRI (BR-070)"},
+  {t:"20 Nov 2026 16.40", who:"Ibu Lina Marlina (" + AG.STM.short + ")", what:"Mengunggah formulir ganti rekening untuk Agus Setiawan (BR-069)"},
+  {t:"18 Nov 2026 09.31", who:"Ibu Maya (HR)", what:"Menyetujui rekening BNI untuk " + W[260].name + ", cek nama cocok"},
+  {t:"18 Nov 2026 10.05", who:"Pak Hendro (Finance)", what:"Persetujuan kedua rekening " + W[260].name},
+  {t:"02 Nov 2026 14.22", who:"Sistem", what:"Transfer ulang 2 rekening gagal dari batch TRF-2610 berhasil"}
+];
+
+/* ---------- state ---------- */
+const UI = {rosterSec:"S3", rosterAg:"", planDay:3, tsDay:-1, tsSec:"S3", tsFilter:"cek", staffQ:"", staffSec:"", staffAg:"", staffBank:"", bankFilter:"", payAg:"", profTab:"ring", leaveTab:"pending", agTab:"agen", ctTab:"pkwt", payTab:"run"};
+let published = true, pubCount = 0;
+
+/* ---------- navigation ---------- */
+const NAV = [
+  {id:"beranda", n:"Beranda", pages:[["beranda","Ringkasan"]]},
+  {id:"jadwal", n:"Jadwal", pages:[["jadwal","Roster"],["kebutuhan","Kebutuhan tenaga"],["permintaan","Permintaan ke agen"]]},
+  {id:"absensi", n:"Absensi", pages:[["absensi","Timesheet"],["cuti","Cuti & izin"]]},
+  {id:"pekerja", n:"Pekerja", pages:[["pekerja","Daftar pekerja"],["kontrak","Kontrak"]]},
+  {id:"gaji", n:"Gaji", pages:[["penggajian","Penggajian"],["pembayaran","Riwayat pembayaran"],["rekening","Rekening bank"],["aturan","Aturan gaji"]]},
+  {id:"agen", n:"Agen", pages:[["agen","Agen penyalur"],["tagihan","Tagihan agen"]]},
+];
+function groupOf(page){ return NAV.find(g => g.pages.some(p => p[0] === page)) || NAV[0]; }
+function route(){
+  const h = location.hash.slice(1) || "beranda";
+  const [page, arg] = h.split("/");
+  const g = groupOf(page === "profil" ? "pekerja" : page);
+  $("#mainnav").innerHTML = NAV.map(x => `<a href="#${x.pages[0][0]}" aria-current="${x === g}">${x.n}</a>`).join("");
+  $("#subnav").innerHTML = g.pages.map(p => `<a href="#${p[0]}" ${p[0] === page || (page === "profil" && p[0] === "pekerja") ? 'aria-current="page"' : ""}>${p[1]}</a>`).join("");
+  const fn = PAGES[page] || PAGES.beranda;
+  $("#app").innerHTML = fn(arg) + `<p class="foot">Mockup. Semua nama, angka, tarif dan aturan adalah contoh dan dibuat di browser. Tidak ada data yang disimpan atau dikirim. UMK contoh ${rp(R.umk)}.</p>`;
+  if (fn.after) fn.after(arg);
+}
+window.addEventListener("hashchange", () => { route(); window.scrollTo(0, 0); });
+const rerender = () => { const y = window.scrollY; route(); window.scrollTo(0, y); };
+
+/* ---------- overlay helpers ---------- */
+function modal(title, body, foot, opts = {}){
+  $("#overlay").innerHTML = `<div class="scrim" data-close><div class="modal ${opts.wide ? "wide" : ""}" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mh"><h2 id="mt">${title}</h2><button class="x" data-close aria-label="Tutup">×</button></div><div class="mb">${body}</div>${foot ? `<div class="mf">${foot}</div>` : ""}</div></div>`;
+  const f = $("#overlay .modal input, #overlay .modal select, #overlay .modal button:not(.x)"); if (f) f.focus();
+}
+function closeModal(){ $("#overlay").innerHTML = ""; }
+document.addEventListener("click", e => { if (e.target.hasAttribute && e.target.hasAttribute("data-close")) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay").innerHTML) closeModal(); });
+let toastT;
+function toast(msg){ let t = $(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); } t.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 4200); }
+function download(name, text){ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + text], {type:"text/csv;charset=utf-8"})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+const csv = rows => rows.map(r => r.map(v => { const s = String(v ?? ""); return /[",;\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(",")).join("\r\n");
+
+/* small render helpers */
+const maskNo = no => no ? "•••• " + no.slice(-4) : "—";
+const bankTag = s => ({ok:'<span class="tag ok">Terverifikasi</span>', pending:'<span class="tag warn">Menunggu cek</span>', mismatch:'<span class="tag bad">Nama tidak cocok</span>', agen:'<span class="tag">Dikelola agen</span>', none:'<span class="tag bad">Belum ada</span>'}[s]);
+const agTag = a => `<span class="tag">${AG[a].short}</span>`;
+const personCell = (w, sub) => `<div class="person"><span class="av sm" aria-hidden="true">${initials(w.name)}</span><div><a href="#profil/${w.id}"><b>${esc(w.name)}</b></a><span class="sub">${sub ?? w.id + " · " + w.role}</span></div></div>`;
+const secShort = id => id ? id.replace("S", "Seksi ") : "Cadangan";
+const selectSec = (val, attr, all = "Semua seksi") => `<select ${attr}>${all === null ? "" : `<option value="">${all}</option>`}${SEC.map(s => `<option value="${s.id}" ${s.id === val ? "selected" : ""}>${s.n}</option>`).join("")}</select>`;
+const selectAg = (val, attr) => `<select ${attr}><option value="">Semua agen</option>${Object.values(AG).map(a => `<option value="${a.id}" ${a.id === val ? "selected" : ""}>${a.short}</option>`).join("")}</select>`;
+function sched(sec, d, sh){ let n = 0; for (const w of W) { const c = code(w, d); if (shiftOf(c) === sh && secOf(w, c) === sec) n++; } return n; }
+function dayCost(sec, d){
+  let c = 0;
+  for (const w of W) { const k = code(w, d), s = shiftOf(k); if (!SH[s] || secOf(w, k) !== sec) continue;
+    c += (w.ag === "PHL" ? R.phlDaily : daily()) + R.meal + (s === "M" ? R.night : 0);
+    if (OV[key(w.id, d)] && baseCode(w, d) === "L" && w.ag !== "PHL") c += hourly() * 7; }
+  return c;
+}
+</script>
+<script src="app.js"></script>
+</body>
+</html>
