@@ -61,7 +61,7 @@ const custFor = (w, d, dp, m) => CUST.filter(c => c.dep === dp && (c.freq === "h
 /* ---------- daily route ---------- */
 const RT = new Map();
 const splKpi = s => { const k = deptById(s.dept).kind; return k === "mek" ? "mttr" : k === "qc" ? "qcs" : k === "gdg" ? "otd" : /changeover/i.test(s.task) ? "co" : "out"; };
-const splUnit = s => ({prod:"bal", mek:"menit downtime", qc:"lot", gdg:"palet"})[deptById(s.dept).kind];
+const splUnit = s => ({prod:"karton", mek:"menit downtime", qc:"lot", gdg:"palet"})[deptById(s.dept).kind];
 function routeOf(w, d){
   const key = w.id + "|" + d; if (RT.has(key)) return RT.get(key);
   const c = shiftOf(pShift(w, d)); if (!SH[c]) { RT.set(key, []); return []; }
@@ -71,14 +71,14 @@ function routeOf(w, d){
   const L = [];   // [off, dur, name, kpi, pts, evidence, target, unit, source]
   if (rk === "opr") {
     L.push([5, 15, `Cek awal mesin ${m} (checklist start-up)`, "dt", 5, "cek"]);
-    L.push([25, 420, `Jalankan ${sku} di ${m}: target ${tgt} bal`, "out", 20, "angka", tgt, "bal", "Rencana produksi"]);
+    L.push([25, 420, `Jalankan ${sku} di ${m}: target ${tgt} karton`, "out", 20, "angka", tgt, "karton", "Rencana produksi"]);
     L.push([120, 10, "Cek kualitas: 4 sampel per 2 jam", "rj", 10, "angka", 4, "sampel"]);
     if (hash(m + d + "co") < .4) L.push([180, 40, `Changeover ${sku} ke ${sku2} di ${m}, maks. 35 menit`, "co", 15, "angka", 35, "menit", "Rencana produksi"]);
     L.push([300, 5, "Catat downtime di atas 5 menit beserta penyebabnya", "dt", 5, "cek"]);
     L.push([450, 20, "5S mesin dan serah terima shift", "5s", 5, "foto"]);
   } else if (rk === "pck") {
     L.push([10, 10, `Siapkan karton dan label line ${m}`, "out", 5, "cek"]);
-    L.push([25, 420, `Packing line ${m}: target ${tgt} bal`, "out", 20, "angka", tgt, "bal", "Rencana produksi"]);
+    L.push([25, 420, `Packing line ${m}: target ${tgt} karton`, "out", 20, "angka", tgt, "karton", "Rencana produksi"]);
     L.push([90, 5, "Cek kode produksi dan seal tiap jam (8 kali)", "rj", 10, "angka", 8, "cek"]);
     L.push([300, 10, "Pisahkan dan catat karton cacat", "rj", 5, "angka", null, "karton"]);
     L.push([450, 20, "5S area packing", "5s", 5, "foto"]);
@@ -289,12 +289,12 @@ PAGES.kpitugas = () => {
     <div class="actions">${deptSelect(dp, 'id="kdep"', null)}<button class="btn pri" data-addk="">Tambah tugas ke KPI</button></div></div>
   <div class="kpilist">${ks.map(k => { const v = kpiSeries(k, dp), now = v[7], ok = kpiOk(k, now), sp = spl.filter(s => splKpi(s) === k);
     const tmpl = {}; const ws = [...pool(dp).slice(0, 4), ...W.filter(w => w.ag !== "KRY" && w.sec === dp).filter((w, i) => i % 5 === 0).slice(0, 6)];
-    for (const w of ws) for (let d = -6; d <= 0; d++) for (const s of routeOf(w, d)) if (s.kpi === k && !s.ot) { const nm = s.n.replace(/(FB|TR|KT|SP|NP|HT|JR)-\d+/g, "mesin").replace(/target \d+ bal/, "target shift").replace(/(Facial|Toilet|Kitchen|Jumbo|Soft|Travel|Napkin|Hand)[^:]*?(?= ke | di |:)/g, "SKU"); tmpl[nm] = tmpl[nm] || {src: s.src.startsWith("Ditambah") ? s.src : s.src === "Rutin" ? "Rutin" : s.src, pts: s.pts}; }
+    for (const w of ws) for (let d = -6; d <= 0; d++) for (const s of routeOf(w, d)) if (s.kpi === k && !s.ot) { const nm = s.n.replace(/(FB|TR|KT|SP|NP|HT|JR)-\d+/g, "mesin").replace(/target \d+ karton/, "target shift").replace(/(Facial|Toilet|Kitchen|Jumbo|Soft|Travel|Napkin|Hand)[^:]*?(?= ke | di |:)/g, "SKU"); tmpl[nm] = tmpl[nm] || {src: s.src.startsWith("Ditambah") ? s.src : s.src === "Rutin" ? "Rutin" : s.src, pts: s.pts}; }
     const rows = Object.entries(tmpl);
     const xs = XTR.filter(x => XTYPES[x.ty][1] === k && x.st === "ok" && W.find(w => w.id === x.w && (w.ag === "KRY" ? w.dept : w.sec) === dp));
     return `<section class="card kpicard"><div class="hd"><div><h2>${KPIS[k].n}</h2><div class="small muted">target ${kpiFmt(k, KPIS[k].t)} · ${KPIS[k].good === "up" ? "makin tinggi makin baik" : "makin rendah makin baik"}</div></div><div class="more kpinow"><b class="${ok ? "okc" : "warnc"}">${kpiFmt(k, now)}</b>${spark(v, ok)}<span class="small muted">8 minggu</span></div></div>
       <div class="bd flush tw"><table class="tbl"><thead><tr><th>Tugas yang terhubung</th><th>Sumber</th><th class="num">Poin</th><th class="num">Selesai 4 mgg</th></tr></thead><tbody>
-      ${rows.map(([nm, x]) => { const st = taskStats(dp, s => s.kpi === k && s.n.replace(/(FB|TR|KT|SP|NP|HT|JR)-\d+/g, "mesin").replace(/target \d+ bal/, "target shift").replace(/(Facial|Toilet|Kitchen|Jumbo|Soft|Travel|Napkin|Hand)[^:]*?(?= ke | di |:)/g, "SKU") === nm); return `<tr><td>${esc(nm)}</td><td class="small">${esc(x.src)}</td><td class="num">${x.pts}</td><td class="num">${st.pct == null ? "—" : Math.round(st.pct * 100) + "%"}</td></tr>`; }).join("") || '<tr><td colspan="4" class="muted">Belum ada tugas rutin untuk KPI ini.</td></tr>'}
+      ${rows.map(([nm, x]) => { const st = taskStats(dp, s => s.kpi === k && s.n.replace(/(FB|TR|KT|SP|NP|HT|JR)-\d+/g, "mesin").replace(/target \d+ karton/, "target shift").replace(/(Facial|Toilet|Kitchen|Jumbo|Soft|Travel|Napkin|Hand)[^:]*?(?= ke | di |:)/g, "SKU") === nm); return `<tr><td>${esc(nm)}</td><td class="small">${esc(x.src)}</td><td class="num">${x.pts}</td><td class="num">${st.pct == null ? "—" : Math.round(st.pct * 100) + "%"}</td></tr>`; }).join("") || '<tr><td colspan="4" class="muted">Belum ada tugas rutin untuk KPI ini.</td></tr>'}
       </tbody></table></div>
       <div class="bd kpifoot"><span><b>${sp.length}</b> SPL lembur · ${sp.reduce((a, s) => a + splHours(s), 0)} jam · ${rp(sp.reduce((a, s) => a + splCost(s), 0))}${sp.length ? " · " + Math.round(sp.filter(s => effOf(s) >= .9).length / sp.length * 100) + "% efektif" : ""}</span><span><b>${xs.length}</b> kerja ekstra terverifikasi (4 mgg)</span><button class="btn sm" data-addk="${k}">Tambah tugas</button></div></section>`; }).join("")}</div>`;
 };

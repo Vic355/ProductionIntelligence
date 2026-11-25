@@ -43,8 +43,8 @@ PAGES.beranda = () => {
       </tbody></table></div></section>
   </div>
   <div class="grid g2" style="margin-top:16px">
-    <section class="card"><div class="hd"><h2>Biaya tenaga per 1.000 bal</h2><span class="more small muted">minggu lalu, roster × hasil packing</span></div>
-      <div class="bd flush tw"><table class="tbl"><thead><tr><th>Seksi</th><th class="num">Bal</th><th class="num">Biaya tenaga</th><th class="num">Per 1.000 bal</th><th class="num">vs minggu sebelumnya</th></tr></thead><tbody>
+    <section class="card"><div class="hd"><h2>Biaya tenaga per 1.000 karton</h2><span class="more small muted">minggu lalu, roster × hasil packing</span></div>
+      <div class="bd flush tw"><table class="tbl"><thead><tr><th>Seksi</th><th class="num">Karton</th><th class="num">Biaya tenaga</th><th class="num">Per 1.000 karton</th><th class="num">vs minggu sebelumnya</th></tr></thead><tbody>
       ${SEC.map((s, i) => { const bales = s.mach.length * 3 * 7 * (300 + i * 15); const cost = WEEK.reduce((b, d) => b + dayCost(s.id, d - 7), 0); const per = cost / bales * 1000; const ch = (hash(s.id + "c") - .55) * 9; return `<tr><td>${s.n.replace("Seksi ", "S")}</td><td class="num">${fmt(bales)}</td><td class="num">${rpS(cost)}</td><td class="num">${rp(Math.round(per / 100) * 100)}</td><td class="num"><span class="${ch > 0 ? "tag warn" : "tag ok"}">${ch > 0 ? "+" : "−"}${dec(Math.abs(ch))}%</span></td></tr>`; }).join("")}
       </tbody></table></div></section>
     <section class="card"><div class="hd"><h2>Agen penyalur</h2><a class="more btn ghost sm" href="#agen">Semua agen</a></div>
@@ -249,7 +249,7 @@ PAGES.absensi = () => {
   const flagTag = t => !t.flag ? "" : `<span class="tag ${t.flag === "Mangkir" ? "bad" : t.flag === "Lembur" || t.flag === "Dikoreksi" ? "info" : "warn"}">${t.flag}${t.flag === "Terlambat" ? " " + t.late + " mnt" : t.flag === "Lembur" ? " " + t.ot + " j" : ""}</span>`;
   const stTag = t => t.st === "ok" ? '<span class="tag ok">Disetujui</span>' : t.st === "rej" ? '<span class="tag bad">Ditolak</span>' : t.st === "cek" ? '<span class="tag warn">Perlu dicek</span>' : '<span class="tag">Baru</span>';
   return `
-  <div class="pagehead"><div><h1>Timesheet</h1><div class="sub">Absen dari RFID di mesin dan kamera wajah di gerbang. Hitungan bal dari sensor packing, dikonfirmasi leader line.</div></div>
+  <div class="pagehead"><div><h1>Timesheet</h1><div class="sub">Absen dari RFID di mesin dan kamera wajah di gerbang. Hitungan karton dari sensor packing, dikonfirmasi leader line.</div></div>
     <div class="actions"><button class="btn" id="tsexp">Ekspor CSV</button><button class="btn" id="tsok">Setujui yang dipilih</button><button class="btn pri" id="tsclean">Setujui semua yang normal</button></div></div>
   <div class="filters">
     <div class="seg" role="group" aria-label="Hari">${[-7,-6,-5,-4,-3,-2,-1,0].map(x => `<button aria-pressed="${x === d}" data-tday="${x}">${x === 0 ? "Hari ini" : dShort(x)}</button>`).join("")}</div>
@@ -261,9 +261,9 @@ PAGES.absensi = () => {
     <div class="stat"><div class="k">Perlu dicek</div><div class="v ${n("cek") ? "warn" : ""}">${n("cek")}</div><div class="s">${n("baru")} baru, normal</div></div>
     <div class="stat"><div class="k">Mangkir</div><div class="v ${all.filter(t => t.flag === "Mangkir").length ? "bad" : ""}">${all.filter(t => t.flag === "Mangkir").length}</div><div class="s">tidak ada absen masuk</div></div>
     <div class="stat"><div class="k">Jam lembur</div><div class="v">${ot}</div><div class="s">perlu SPL dari leader</div></div>
-    <div class="stat"><div class="k">Bal dipacking</div><div class="v">${fmt(bales)}</div><div class="s">dasar premi hasil</div></div>
+    <div class="stat"><div class="k">Karton dipacking</div><div class="v">${fmt(bales)}</div><div class="s">dasar premi hasil</div></div>
   </div>
-  <section class="card"><div class="bd flush tw"><table class="tbl"><thead><tr><th><input type="checkbox" id="tsall" aria-label="Pilih semua"></th><th>Pekerja</th><th>Shift</th><th>Mesin</th><th class="num">Masuk</th><th class="num">Pulang</th><th class="num">Jam kerja</th><th class="num">Bal</th><th>Sumber</th><th>Catatan</th><th>Status</th><th></th></tr></thead><tbody>
+  <section class="card"><div class="bd flush tw"><table class="tbl"><thead><tr><th><input type="checkbox" id="tsall" aria-label="Pilih semua"></th><th>Pekerja</th><th>Shift</th><th>Mesin</th><th class="num">Masuk</th><th class="num">Pulang</th><th class="num">Jam kerja</th><th class="num">Karton</th><th>Sumber</th><th>Catatan</th><th>Status</th><th></th></tr></thead><tbody>
   ${list.slice(0, 120).map(t => `<tr><td><input type="checkbox" data-ts="${t.w.id}" aria-label="Pilih ${esc(t.w.name)}"></td><td>${personCell(t.w, t.w.id + " · " + AG[t.w.ag].short)}</td><td><span class="sh ${t.s}" style="display:inline-block">${SH[t.s].n}</span></td><td>${t.mach}</td><td class="num">${hm(t.inM)}</td><td class="num">${hm(t.outM)}</td><td class="num">${t.worked == null ? "—" : dec(t.worked)}</td><td class="num">${t.bales ? fmt(t.bales) : "—"}</td><td class="small muted">${t.inM == null ? "—" : t.src}</td><td>${flagTag(t)}</td><td>${stTag(t)}</td><td class="right nowrap"><button class="btn sm" data-tsedit="${t.w.id}">Ubah</button></td></tr>`).join("") || `<tr><td colspan="12" class="empty">Tidak ada timesheet untuk filter ini.</td></tr>`}
   </tbody></table></div></section>
   ${list.length > 120 ? `<p class="small muted">Menampilkan 120 dari ${list.length}. Pilih seksi untuk mempersempit.</p>` : ""}`;
@@ -278,7 +278,7 @@ PAGES.absensi.after = () => {
   $("#tsclean").onclick = () => { let n = 0; for (const w of W) { const t = ts(w, d); if (t && t.st === "baru") { TSAPPR[key(w.id, d)] = "ok"; n++; } } toast(`${n} timesheet tanpa catatan disetujui. Yang terlambat, mangkir dan lembur tetap menunggu.`); rerender(); };
   $$("[data-tsedit]").forEach(b => b.onclick = () => tsEdit(wById(b.dataset.tsedit), d));
   $("#tsexp").onclick = () => {
-    const rows = [["ID","Nama","Agen","Seksi","Tanggal","Shift","Masuk","Pulang","Jam kerja","Lembur","Bal","Catatan","Status"]];
+    const rows = [["ID","Nama","Agen","Seksi","Tanggal","Shift","Masuk","Pulang","Jam kerja","Lembur","Karton","Catatan","Status"]];
     for (const w of W) { const t = ts(w, d); if (t) rows.push([w.id, w.name, AG[w.ag].short, t.sec, dDate(dt(d)), SH[t.s].n, hm(t.inM), hm(t.outM), t.worked == null ? "" : dec(t.worked), t.ot, t.bales, t.flag || "", t.st]); }
     download(`timesheet-${dt(d).toISOString().slice(0, 10)}.csv`, csv(rows));
   };
@@ -288,7 +288,7 @@ function tsEdit(w, d){
   const v = m => m == null ? "" : pad(Math.floor(m / 60) % 24) + ":" + pad(m % 60);
   modal("Koreksi timesheet", `
     <div class="person"><span class="av sm">${initials(w.name)}</span><div><b>${esc(w.name)}</b><div class="small muted">${dLong(d)} · ${sh.n} ${sh.t} · ${t.mach}</div></div></div>
-    ${t.flag ? `<div class="note ${t.flag === "Mangkir" ? "bad" : "warn"}">${t.flag === "Tidak absen pulang" ? "Tidak ada absen pulang. Sensor packing mencatat bal terakhir di " + t.mach + " pukul " + hm(sh.e * 60 - 3) + "." : t.flag === "Terlambat" ? "Masuk " + t.late + " menit setelah jadwal. Lewat toleransi " + R.lateGrace + " menit, menit terlambat dipotong." : t.flag === "Mangkir" ? "Tidak ada absen masuk dan tidak ada pengajuan izin atau sakit." : t.flag === "Lembur" ? "Pulang " + t.ot + " jam setelah jadwal. Lembur dibayar kalau ada Surat Perintah Lembur dari leader." : t.flag}</div>` : ""}
+    ${t.flag ? `<div class="note ${t.flag === "Mangkir" ? "bad" : "warn"}">${t.flag === "Tidak absen pulang" ? "Tidak ada absen pulang. Sensor packing mencatat karton terakhir di " + t.mach + " pukul " + hm(sh.e * 60 - 3) + "." : t.flag === "Terlambat" ? "Masuk " + t.late + " menit setelah jadwal. Lewat toleransi " + R.lateGrace + " menit, menit terlambat dipotong." : t.flag === "Mangkir" ? "Tidak ada absen masuk dan tidak ada pengajuan izin atau sakit." : t.flag === "Lembur" ? "Pulang " + t.ot + " jam setelah jadwal. Lembur dibayar kalau ada Surat Perintah Lembur dari leader." : t.flag}</div>` : ""}
     <div class="grid g2" style="gap:12px">
       <div class="field"><label for="tin">Masuk</label><input type="time" id="tin" value="${v(t.inM ?? sh.s * 60)}"></div>
       <div class="field"><label for="tout">Pulang</label><input type="time" id="tout" value="${v(t.outM ?? sh.e * 60)}"></div>
@@ -405,7 +405,7 @@ PAGES.profil = id => {
     <dt>Hubungan kerja</dt><dd>${kindOf(w)}</dd><dt>Masa kerja</dt><dd>${tenure(w.start)} (sejak ${dDate(w.start)})</dd><dt>Saldo cuti</dt><dd>${w.ag === "PHL" ? "—" : w.leaveBal + " hari"}</dd>
     </dl></div></section></div>
     <section class="card"><div class="hd"><h2>Minggu ini</h2><a class="more btn ghost sm" href="#jadwal">Buka roster</a></div><div class="bd flush tw"><table class="tbl"><tbody>${WEEK.map(d => { const c = w.ag === "KRY" ? empShift(w, d) : code(w, d), x = shiftOf(c); return `<tr><td>${dShort(d)}</td><td>${SH[x] ? `<span class="sh ${x}" style="display:inline-block">${SH[x].n} ${SH[x].t}</span>${secOf(w, c) !== w.sec ? " di " + secOf(w, c) : ""}` : `<span class="muted">${LEAVE[x]}</span>`}</td></tr>`; }).join("")}</tbody></table></div></section></div>`;
-  if (tab === "jadwal") body = `<section class="card"><div class="hd"><h2>Absensi 7 hari terakhir</h2></div><div class="bd flush tw"><table class="tbl"><thead><tr><th>Tanggal</th><th>Shift</th><th class="num">Masuk</th><th class="num">Pulang</th><th class="num">Jam</th><th class="num">Bal</th><th>Catatan</th></tr></thead><tbody>
+  if (tab === "jadwal") body = `<section class="card"><div class="hd"><h2>Absensi 7 hari terakhir</h2></div><div class="bd flush tw"><table class="tbl"><thead><tr><th>Tanggal</th><th>Shift</th><th class="num">Masuk</th><th class="num">Pulang</th><th class="num">Jam</th><th class="num">Karton</th><th>Catatan</th></tr></thead><tbody>
     ${[-7,-6,-5,-4,-3,-2,-1].map(d => { const t = ts(w, d); const c = shiftOf(code(w, d)); return t ? `<tr><td>${dShort(d)}</td><td>${SH[t.s].n}</td><td class="num">${hm(t.inM)}</td><td class="num">${hm(t.outM)}</td><td class="num">${t.worked == null ? "—" : dec(t.worked)}</td><td class="num">${t.bales ? fmt(t.bales) : "—"}</td><td>${t.flag ? `<span class="tag ${t.flag === "Mangkir" ? "bad" : "warn"}">${t.flag}</span>` : ""}</td></tr>` : `<tr><td>${dShort(d)}</td><td class="muted" colspan="6">${LEAVE[c] || "Libur"}</td></tr>`; }).join("")}
     </tbody></table></div></section>`;
   if (tab === "jadwal" && w.ag === "KRY") body = lemburProfile(w);
@@ -487,7 +487,7 @@ function bankForm(w){
 function payslip(w, hist){
   const p = payLine(w), f = hist ? (hist.amt / p.net) : 1, per = hist ? hist.b.period : PERIOD.n;
   const lines = w.ag === "KRY" ? [["Upah per jam (" + p.hours + " jam × " + rp(p.rate) + ")", p.base], ["Lembur dari SPL (" + p.otH + " jam disetujui)", p.ot], ["Tunjangan shift malam (" + p.nights + "×)", p.night], ["Uang makan (" + p.days + " hari)", p.meal]].filter((x, i) => i === 0 || x[1]) : w.ag === "PHL" ? [["Upah harian (" + p.days + " hari × " + rp(R.phlDaily) + ")", p.base * f], ["Uang makan", p.meal * f]] :
-    [["Upah pokok (" + p.days + " dari 26 hari)", p.base * f], ["Lembur (" + p.otH + " jam)", p.ot * f], ["Tunjangan shift malam (" + p.nights + "×)", p.night * f], ["Uang makan (" + p.days + " hari)", p.meal * f], ["Premi hasil (" + fmt(p.bales) + " bal)", p.premi * f]].filter((x, i) => i === 0 || x[1]);
+    [["Upah pokok (" + p.days + " dari 26 hari)", p.base * f], ["Lembur (" + p.otH + " jam)", p.ot * f], ["Tunjangan shift malam (" + p.nights + "×)", p.night * f], ["Uang makan (" + p.days + " hari)", p.meal * f], ["Premi hasil (" + fmt(p.bales) + " karton)", p.premi * f]].filter((x, i) => i === 0 || x[1]);
   const ded = [["BPJS TK: JHT 2%", p.jht], ["BPJS TK: JP 1%", p.jp], ["BPJS Kesehatan 1%", p.kes], ["PPh 21 (TER)", p.pph], ["Kasbon", p.kasbon]].filter(x => x[1]);
   const gross = lines.reduce((a, x) => a + x[1], 0), dsum = ded.reduce((a, x) => a + x[1], 0);
   modal("Slip gaji", `<div class="payslip"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>${esc(w.name)}</b><div class="muted">${w.id} · ${w.role} · ${AG[w.ag].n}</div></div><div class="right"><b>${per}</b><div class="muted">${w.bank.bank} ${maskNo(w.bank.no)}</div></div></div>
@@ -573,7 +573,7 @@ function doExport(x){
   const rows = payroll(), per = "2026-11";
   if (x === "bank") exportBank();
   if (x === "mandiri") download(`mandiri-mcm-${per}.csv`, csv([["Account No","Account Name","Bank","Amount","Currency","Remark"], ...rows.filter(p => !holdReason(p.w)).map(p => [p.w.bank.no, p.w.name.toUpperCase(), p.w.bank.bank, Math.round(p.net), "IDR", "GAJI " + per])]));
-  if (x === "full") download(`penggajian-${per}.csv`, csv([["ID","Nama","Agen","Seksi","Hari","Upah pokok","Lembur jam","Lembur","Shift malam","Uang makan","Bal premi","Premi","Bruto","JHT","JP","BPJS Kes","PPh21","Kasbon","Neto","Bank","Rekening","Status"], ...rows.map(p => [p.w.id, p.w.name, AG[p.w.ag].short, p.w.sec || "", p.days, Math.round(p.base), p.otH, Math.round(p.ot), Math.round(p.night), Math.round(p.meal), p.bales, Math.round(p.premi), Math.round(p.gross), Math.round(p.jht), Math.round(p.jp), Math.round(p.kes), p.pph, p.kasbon, Math.round(p.net), p.w.bank.bank, "'" + p.w.bank.no, holdReason(p.w) || "Dibayar"])]));
+  if (x === "full") download(`penggajian-${per}.csv`, csv([["ID","Nama","Agen","Seksi","Hari","Upah pokok","Lembur jam","Lembur","Shift malam","Uang makan","Karton premi","Premi","Bruto","JHT","JP","BPJS Kes","PPh21","Kasbon","Neto","Bank","Rekening","Status"], ...rows.map(p => [p.w.id, p.w.name, AG[p.w.ag].short, p.w.sec || "", p.days, Math.round(p.base), p.otH, Math.round(p.ot), Math.round(p.night), Math.round(p.meal), p.bales, Math.round(p.premi), Math.round(p.gross), Math.round(p.jht), Math.round(p.jp), Math.round(p.kes), p.pph, p.kasbon, Math.round(p.net), p.w.bank.bank, "'" + p.w.bank.no, holdReason(p.w) || "Dibayar"])]));
   if (x === "pph") download(`ebupot-pph21-${per}.csv`, csv([["Masa","NIK","Nama","Kode objek","Bruto","Tarif TER","PPh 21"], ...rows.filter(p => p.w.ag !== "PHL").map(p => ["11/2026", p.w.nik, p.w.name, "21-100-01", Math.round(p.gross), ter(p.gross) * 100 + "%", p.pph])]));
   if (x === "bpjs") download(`iuran-bpjs-${per}.csv`, csv([["No. BPJS TK","No. BPJS Kes","Nama","Upah dilaporkan","JHT pekerja","JHT perusahaan","JP pekerja","JP perusahaan","JKK","JKM","Kes pekerja","Kes perusahaan"], ...rows.filter(p => p.w.ag !== "PHL").map(p => [p.w.bpjsTk, p.w.bpjsKes, p.w.name, R.umk, Math.round(R.umk * R.jhtEe), Math.round(R.umk * R.jhtEr), Math.round(R.umk * R.jpEe), Math.round(R.umk * R.jpEr), Math.round(R.umk * R.jkk), Math.round(R.umk * R.jkm), Math.round(R.umk * R.kesEe), Math.round(R.umk * R.kesEr)])]));
   if (x === "agen") download(`ringkasan-agen-${per}.csv`, csv([["Agen","Pekerja","Bruto","Iuran pemberi kerja","Fee %","Fee","PPN fee"], ...["MKS","STM"].map(a => { const r = payroll(a), g = r.reduce((s, p) => s + p.gross, 0); return [AG[a].n, r.length, Math.round(g), Math.round(r.reduce((s, p) => s + p.er, 0)), AG[a].fee * 100, Math.round(g * AG[a].fee), Math.round(g * AG[a].fee * R.ppn)]; })]));
@@ -679,7 +679,7 @@ PAGES.aturan = () => {
         <div class="field"><label for="cday">Hari</label><select id="cday"><option value="k">Hari kerja</option><option value="r">Hari istirahat</option><option value="h">Libur nasional</option></select></div>
         <div class="field"><label for="csh">Shift</label><select id="csh">${[..."PSM"].map(x => `<option value="${x}">${SH[x].n}</option>`).join("")}</select></div>
         <div class="field"><label for="cot">Jam lembur</label><input type="number" id="cot" min="0" max="4" value="2"></div>
-        <div class="field"><label for="cbal">Bal di atas target</label><input type="number" id="cbal" min="0" value="60"></div>
+        <div class="field"><label for="cbal">Karton di atas target</label><input type="number" id="cbal" min="0" value="60"></div>
         <div class="field"><label for="clate">Terlambat (menit)</label><input type="number" id="clate" min="0" value="0"></div>
       </div>
       <div id="calc" class="payslip"></div>
@@ -699,7 +699,7 @@ function calcRule(){
   }
   if (sh === "M" && on("night")) L.push(["Tunjangan shift malam", R.night]);
   if (on("meal")) L.push(["Uang makan", R.meal]);
-  if (bal && on("premi")) L.push([`Premi hasil (${bal} bal)`, bal * R.premi]);
+  if (bal && on("premi")) L.push([`Premi hasil (${bal} karton)`, bal * R.premi]);
   if (late > R.lateGrace && on("late")) L.push([`Potongan terlambat ${late} menit`, -h * late / 60]);
   if (ot > R.otDay) L.push(["Peringatan: lembur lebih dari " + R.otDay + " jam per hari", 0]);
   const t = L.reduce((a, x) => a + x[1], 0);
@@ -708,7 +708,7 @@ function calcRule(){
 PAGES.aturan.after = () => {
   ["cday","csh","cot","cbal","clate"].forEach(i => $("#" + i).oninput = calcRule); calcRule();
   $$("[data-rule]").forEach(c => c.onchange = () => { RULES.find(r => r.id === c.dataset.rule).on = c.checked; calcRule(); toast(c.checked ? "Aturan diaktifkan." : "Aturan dinonaktifkan. Berlaku untuk periode gaji berikutnya."); });
-  $("#redit").onclick = () => { modal("Ubah nilai aturan", `<div class="grid g2" style="gap:12px">${[["umk","UMK per bulan"],["phlDaily","Upah harian lepas"],["meal","Uang makan per hari"],["night","Tunjangan shift malam"],["premi","Premi per bal"],["lateGrace","Toleransi terlambat (menit)"]].map(([k, l]) => `<div class="field"><label for="v-${k}">${l}</label><input type="number" id="v-${k}" value="${R[k]}"></div>`).join("")}</div><div class="note">Perubahan dicatat dengan tanggal berlaku dan nama yang mengubah. Penggajian yang sudah disetujui tidak dihitung ulang.</div>`, `<button class="btn" data-close>Batal</button><button class="btn pri" id="vsave">Simpan</button>`);
+  $("#redit").onclick = () => { modal("Ubah nilai aturan", `<div class="grid g2" style="gap:12px">${[["umk","UMK per bulan"],["phlDaily","Upah harian lepas"],["meal","Uang makan per hari"],["night","Tunjangan shift malam"],["premi","Premi per karton"],["lateGrace","Toleransi terlambat (menit)"]].map(([k, l]) => `<div class="field"><label for="v-${k}">${l}</label><input type="number" id="v-${k}" value="${R[k]}"></div>`).join("")}</div><div class="note">Perubahan dicatat dengan tanggal berlaku dan nama yang mengubah. Penggajian yang sudah disetujui tidak dihitung ulang.</div>`, `<button class="btn" data-close>Batal</button><button class="btn pri" id="vsave">Simpan</button>`);
     $("#vsave").onclick = () => { ["umk","phlDaily","meal","night","premi","lateGrace"].forEach(k => { const v = +$("#v-" + k).value; if (v >= 0) R[k] = v; }); closeModal(); toast("Nilai disimpan. Roster, penggajian dan slip dihitung ulang."); rerender(); }; };
 };
 
