@@ -16,7 +16,8 @@ const ROLES = [
   {id:"S3", n:"Pak Hasan Basri", t:"Manajer Seksi 3", av:"HB"},
   {id:"MEK", n:"Pak Bambang Hartono", t:"Kepala Mekanik", av:"BH"},
   {id:"opr", n:"Operator mesin", t:"karyawan", av:"OP", worker:true},
-  {id:"os", n:"Packer alih daya", t:"alih daya", av:"AD", worker:true}
+  {id:"os", n:"Packer alih daya", t:"alih daya", av:"AD", worker:true},
+  {id:"stf", n:"Staf produksi", t:"QC, mekanik, gudang", av:"SP", worker:true}
 ];
 UI.role = "hr";
 const roleOf = () => ROLES.find(r => r.id === UI.role);
@@ -433,9 +434,11 @@ PAGES.volume.after = () => { bindAs(); $("#vsec").onchange = e => { UI.volSec = 
 
 /* ======================= Tampilan HP pekerja ======================= */
 UI.hpWho = null; UI.hpKind = "opr";
-const hpCands = kind => kind === "os"
-  ? [...W.filter(w => w.sec === "S3" && w.regu === "A" && w.ag !== "KRY").sort((x, y) => (y.role === "Packer") - (x.role === "Packer")).slice(0, 8), ...W.filter(w => w.sec === "S1" && w.regu === "B" && w.ag === "MKS").slice(0, 4), ...W.filter(w => w.ag === "PHL").slice(0, 3)]
-  : [...pool("S3").slice(0, 10), ...pool("MEK").slice(0, 4), ...pool("GDG").slice(0, 3)];
+const onP = w => shiftOf((w.ag === "KRY" ? empShift(w, 0) : code(w, 0))) === "P";
+const hpCands = kind => (kind === "os"
+  ? [...W.filter(w => w.sec === "S3" && w.ag !== "KRY" && onP(w)).sort((x, y) => (y.role === "Packer") - (x.role === "Packer")).slice(0, 8), ...W.filter(w => w.sec === "S1" && w.ag === "MKS" && onP(w)).slice(0, 4), ...W.filter(w => w.ag === "PHL").slice(0, 2)]
+  : kind === "stf" ? [...pool("QC").filter(onP).slice(0, 4), ...pool("MEK").filter(onP).slice(0, 4), ...pool("GDG").slice(0, 3)]
+  : [...pool("S3").filter(onP).slice(0, 7), ...pool("S1").filter(onP).slice(0, 4), ...pool("S3").filter(w => !onP(w)).slice(0, 3)]);
 const big = (v, l) => `<div><div style="font-size:22px;font-weight:650">${v}</div><div class="small muted">${l}</div></div>`;
 function phoneEmp(w){
   const mine = SPL.filter(s => s.people.some(p => p.id === w.id)), me = s => s.people.find(p => p.id === w.id);

@@ -152,6 +152,52 @@ details.pcard>summary::-webkit-details-marker{display:none}
 .ptabbar a[aria-current="true"]{color:var(--pri)}
 .pdemo{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pdemo select{min-height:28px;padding:2px 6px;font-size:12.5px;max-width:280px}
+/* Tugas & KPI */
+.tag.kpi{background:#eef2f8;color:#2c4566;font-weight:550}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.mtile{position:relative;display:grid;gap:2px;text-align:left;border:1px solid var(--line);border-left-width:4px;border-radius:5px;background:#fff;padding:9px 10px 12px;overflow:hidden}
+.mtile span{font-size:12px;color:var(--muted)}
+.mtile i{position:absolute;left:0;bottom:0;height:3px;background:var(--pri)}
+.mtile em{font-style:normal;font-size:11px;font-weight:600;color:var(--warn)}
+.mtile.ok{border-left-color:#2a9455}.mtile.warn{border-left-color:#d08a00;background:#fffaf0}.mtile.bad{border-left-color:#c8372c;background:#fff5f4}
+.mtile:hover{border-color:#a9b8cc}
+.tline{list-style:none;margin:0;padding:0}
+.tline li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line2);position:relative}
+.tline li:last-child{border-bottom:0}
+.tline .tdot{width:12px;height:12px;border-radius:50%;border:2px solid #b7c2cf;background:#fff;margin-top:4px;flex:none}
+.tline li.selesai .tdot{background:#2a9455;border-color:#2a9455}
+.tline li.terlewat .tdot{background:#c8372c;border-color:#c8372c}
+.tline li.jalan .tdot{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-l)}
+.tline li.jalan{background:#f6f9ff;margin:0 -10px;padding:9px 10px;border-radius:5px}
+.tline .tt b{font-variant-numeric:tabular-nums;margin-right:4px}
+.tline .meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.stopact{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.stopact input{width:130px}
+.pcard.rtop{padding:14px 16px}
+.rhead{display:flex;gap:14px;align-items:center}
+.ring{width:76px;height:76px;flex:none}
+.ok-note{background:var(--ok-l);color:var(--ok);border-color:#bfe3cb;margin-top:10px}
+.xbtn{width:100%;justify-content:center;padding:10px;margin-bottom:14px}
+.xbtn .ico{width:18px;height:18px}
+.kpilist{display:grid;gap:16px}
+.kpicard .hd{align-items:flex-start}
+.kpinow{display:flex;align-items:center;gap:8px}
+.kpinow b{font-size:20px;font-variant-numeric:tabular-nums}
+.okc{color:var(--ok)}.warnc{color:var(--warn)}
+.spark{width:80px;height:24px}
+.kpifoot{display:flex;gap:18px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line2);font-size:13px;color:var(--muted)}
+.kpifoot .btn{margin-left:auto}
+.medal{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-weight:700;font-size:12px}
+.medal.m1{background:#f6d77a}.medal.m2{background:#dfe3e8}.medal.m3{background:#efc29a}
+.rules{margin:0;padding-left:18px;display:grid;gap:8px}
+.badge{display:flex;gap:10px;align-items:flex-start}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.bico{width:34px;height:34px;border-radius:50%;background:#fff4d6;color:#a86b00;display:grid;place-items:center;flex:none}
+.bico .ico{width:18px;height:18px}
+.badge.off{opacity:.45}.badge.off .bico{background:#eef0f3;color:var(--faint)}
+.list li.mine{background:#f6f9ff}
+.pframe .badges{grid-template-columns:1fr 1fr}
+.pframe .stopact input{width:110px}
 main{max-width:1440px;margin:0 auto;padding:20px 20px 60px}
 .pagehead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;margin-bottom:16px}
 .pagehead .sub{color:var(--muted);margin-top:3px}
@@ -308,7 +354,7 @@ table.tbl{width:100%;border-collapse:collapse}
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="#beranda"><span class="mark" aria-hidden="true">PI</span>Tenaga Kerja</a>
+  <a class="brand" href="#beranda"><span class="mark" aria-hidden="true">PI</span>Kinerja & Lembur</a>
   <nav class="mainnav" id="mainnav" aria-label="Menu utama"></nav>
   <div class="topright">
     <a class="hide-sm" href="../">Monitor Produksi</a>
@@ -682,5 +728,6 @@ function dayCost(sec, d){
 <script src="lembur.js"></script>
 <script src="ui.js"></script>
 <script src="portal.js"></script>
+<script src="tugas.js"></script>
 </body>
 </html>

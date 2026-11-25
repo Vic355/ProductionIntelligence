@@ -5,9 +5,9 @@
    Used for the "Operator mesin" and "Packer alih daya" views.
    ===================================================================== */
 
-UI.ptab = "home"; UI.pview = "web"; UI.clock = {};
-const PTABS_M = ["home","jadwal","absen","cuti","profil"];   // phone tab bar; Gaji opens from Beranda and Profil
-const PTABS = [["home","Beranda","home"],["jadwal","Jadwal","cal"],["absen","Absen","clock"],["cuti","Cuti","leave"],["gaji","Gaji","pay"],["profil","Profil","users"]];
+UI.ptab = "tugas"; UI.pview = "hp"; UI.clock = {};
+const PTABS_M = ["tugas","jadwal","absen","poin","profil"];   // phone tab bar; Cuti and Gaji open from Profil
+const PTABS = [["tugas","Tugas","route"],["poin","Poin","star"],["jadwal","Jadwal","cal"],["absen","Absen","clock"],["cuti","Cuti","leave"],["gaji","Gaji","pay"],["profil","Profil","users"]];
 
 const isKry = w => w.ag === "KRY";
 const pShift = (w, d) => isKry(w) ? empShift(w, d) : code(w, d);
@@ -72,7 +72,7 @@ function pJadwal(w){
 
 /* ---------- Absen ---------- */
 function pAbsen(w){
-  const c = shiftOf(pShift(w, 0)), clk = UI.clock[w.id], now = 7 * 60 + 12;
+  const c = shiftOf(pShift(w, 0)), clk = UI.clock[w.id], now = NOWM;
   const rows = [-1,-2,-3,-4,-5,-6,-7].map(d => [d, pTime(w, d)]).filter(x => x[1]);
   return pHead("Absen", "Absen pakai HP hanya di area pabrik. Kartu di mesin dan wajah di gerbang tetap bisa dipakai.") + `
   <section class="card pcard clockcard">
@@ -130,18 +130,19 @@ function portalWorker(){
 function renderPortal(){
   const w = portalWorker(), t = UI.ptab, hp = UI.pview === "hp";
   document.body.classList.add("inportal");
-  const body = {home: pHome, jadwal: pJadwal, absen: pAbsen, cuti: pCuti, gaji: pGaji, profil: pProfil}[t](w);
+  if (!UI.clock[w.id] && shiftOf(pShift(w, 0)) === "P") UI.clock[w.id] = {in: 6 * 60 + 48 + Math.floor(hash(w.id + "ci") * 10)};
+  const body = {home: pTugas, tugas: pTugas, poin: pPoin, jadwal: pJadwal, absen: pAbsen, cuti: pCuti, gaji: pGaji, profil: pProfil}[t](w);
   $("#mainnav").innerHTML = hp ? "" : PTABS.map(([k, l]) => `<a href="#" data-ptab="${k}" aria-current="${k === t}">${l}</a>`).join("");
   $("#subnav").hidden = true;
   $(".who").innerHTML = `<span class="av" aria-hidden="true">${initials(w.name)}</span><span class="hide-sm">${esc(w.name)}</span>`;
   // demo controls live in the "Lihat sebagai" bar so the app itself stays clean
   $$("#viewas .pdemo").forEach(x => x.remove());
   $("#viewas").insertAdjacentHTML("beforeend", `<span class="pdemo"><label class="sr" for="pwho">Pekerja</label><select id="pwho">${hpCands(UI.role).map(x => `<option value="${x.id}" ${x === w ? "selected" : ""}>${esc(x.name)} · ${x.role}${x.ag !== "KRY" ? " · " + AG[x.ag].short : ""}</option>`).join("")}</select><span class="seg" role="group" aria-label="Tampilan"><button aria-pressed="${!hp}" data-pv="web">Web</button><button aria-pressed="${hp}" data-pv="hp">HP</button></span></span>`);
-  $("#app").innerHTML = (hp ? `<div class="phonewrap"><div class="phone pframe"><div class="ptop"><span class="mark">PI</span><b>Tenaga Kerja</b><span class="av sm" aria-hidden="true">${initials(w.name)}</span></div><div class="pscreen">${body}</div>
-      <nav class="ptabbar" aria-label="Menu aplikasi">${PTABS.filter(x => PTABS_M.includes(x[0])).map(([k, l, ic]) => `<a href="#" data-ptab="${k}" aria-current="${k === t || (t === "gaji" && k === "profil")}">${ico(ic)}<span>${l}</span></a>`).join("")}</nav></div></div>`
+  $("#app").innerHTML = (hp ? `<div class="phonewrap"><div class="phone pframe"><div class="ptop"><span class="mark">PI</span><b>Kinerja</b><span class="av sm" aria-hidden="true">${initials(w.name)}</span></div><div class="pscreen">${body}</div>
+      <nav class="ptabbar" aria-label="Menu aplikasi">${PTABS.filter(x => PTABS_M.includes(x[0])).map(([k, l, ic]) => `<a href="#" data-ptab="${k}" aria-current="${k === t || (["gaji","cuti"].includes(t) && k === "profil")}">${ico(ic)}<span>${l}</span></a>`).join("")}</nav></div></div>`
     : `<div class="portal"><div class="pscreen">${body}</div></div>`) + `
     <p class="foot">Mockup. Semua nama, angka, tarif dan aturan adalah contoh dan dibuat di browser.</p>`;
-  bindPortal(w);
+  bindPortal(w); bindTugas(w);
   const sc = hp ? $(".pframe .pscreen") : null;
   if (UI.psec) { const el = $("#ps-" + UI.psec); if (el) { if (sc) sc.scrollTop = el.offsetTop - sc.offsetTop - 8; else el.scrollIntoView({block: "start"}); } UI.psec = null; } else { window.scrollTo(0, 0); if (sc) sc.scrollTop = 0; }
 }
@@ -189,7 +190,7 @@ function bindPortal(w){
     _r();
   };
   const _set = setRole;
-  setRole = function(id){ if (ROLES.find(r => r.id === id && r.worker)) { UI.ptab = "home"; } _set(id); };
+  setRole = function(id){ if (ROLES.find(r => r.id === id && r.worker)) { UI.ptab = "tugas"; } _set(id); };
 }
 
 /* Lembur › "Portal pekerja": explains the login and opens it as either worker type */
