@@ -16,7 +16,8 @@ const ROLES = [
   {id:"S3", n:"Pak Hasan Basri", t:"Manajer Seksi 3", av:"HB"},
   {id:"MEK", n:"Pak Bambang Hartono", t:"Kepala Mekanik", av:"BH"},
   {id:"opr", n:"Operator mesin", t:"karyawan", av:"OP", worker:true},
-  {id:"os", n:"Packer alih daya", t:"alih daya", av:"AD", worker:true}
+  {id:"os", n:"Packer alih daya", t:"alih daya", av:"AD", worker:true},
+  {id:"stf", n:"Staf produksi", t:"QC, mekanik, gudang", av:"SP", worker:true}
 ];
 UI.role = "hr";
 const roleOf = () => ROLES.find(r => r.id === UI.role);
@@ -31,7 +32,7 @@ const DEPT = [
 ];
 const deptById = id => DEPT.find(x => x.id === id);
 const KPI = {
-  prod:{n:"Bal tambahan", u:"bal", main:"Hasil per jam kerja operator", mu:"% standar", good:"up"},
+  prod:{n:"Karton tambahan", u:"karton", main:"Hasil per jam kerja operator", mu:"% standar", good:"up"},
   mek:{n:"Downtime dicegah", u:"menit", main:"Downtime mesin karena kerusakan", mu:"menit/minggu", good:"down"},
   qc:{n:"Lot dicek", u:"lot", main:"Reject rate di pelanggan", mu:"%", good:"down"},
   gdg:{n:"Palet dimuat tepat waktu", u:"palet", main:"Pengiriman tepat waktu", mu:"%", good:"up"}
@@ -398,7 +399,7 @@ PAGES.kpi = () => {
       ${rows.map(r => `<tr><td>${wkLabel(r.k)}</td><td class="num">${kfmt(dp, r.v)}</td><td>${kGood(dp, r.v) ? '<span class="tag ok">Tercapai</span>' : '<span class="tag warn">Belum</span>'}</td><td class="num">${r.h}</td><td class="num">${rpS(r.c)}</td><td class="num">${r.n ? r.ok + "/" + r.n : "—"}</td></tr>`).join("")}
     </tbody></table></div></section>
     <section class="card" style="align-self:start"><div class="hd"><h2>Cara mengukur</h2></div><div class="bd small" style="display:grid;gap:8px">
-      ${{prod:"<p style='margin:0'>Hasil per jam kerja operator dari hitungan mesin, dibanding standar SKU yang jalan. Jam saat mesin rusak tidak dihitung, jadi operator tidak dirugikan oleh downtime. Rincian di <a href='#volume'>Volume operator</a>.</p><p style='margin:0'>Lembur produksi diukur dari bal tambahan yang dihasilkan selama jam lembur.</p>",
+      ${{prod:"<p style='margin:0'>Hasil per jam kerja operator dari hitungan mesin, dibanding standar SKU yang jalan. Jam saat mesin rusak tidak dihitung, jadi operator tidak dirugikan oleh downtime. Rincian di <a href='#volume'>Volume operator</a>.</p><p style='margin:0'>Lembur produksi diukur dari karton tambahan yang dihasilkan selama jam lembur.</p>",
         mek:"<p style='margin:0'>Downtime karena kerusakan, dari log stop mesin. Setiap jam lembur mekanik harus menunjuk ke tiket kerusakan (WO), dan hasilnya adalah menit downtime yang dicegah sebelum shift berikutnya.</p>",
         qc:"<p style='margin:0'>Reject rate dari keluhan dan retur pelanggan, plus jumlah lot yang dicek dibanding rencana. Lembur QC diukur dari lot yang selesai dicek sebelum kirim.</p>",
         gdg:"<p style='margin:0'>Pengiriman tepat waktu (truk berangkat sesuai jadwal) dan palet yang dipindah. Lembur gudang diukur dari palet yang dimuat tepat waktu.</p>"}[dp.kind]}</div></section>
@@ -421,11 +422,11 @@ PAGES.volume = () => {
   const t = teams.find(x => x.s.id === sec);
   return `<div class="pagehead"><div><h1>Volume operator</h1><div class="sub">${dShort(-7)} – ${dShort(-1)} · dari hitungan mesin, dikaitkan ke operator yang login di mesin tiap shift. Jam saat mesin rusak tidak dihitung.</div></div>
     <div class="actions"><label class="sr" for="vsec">Seksi</label>${selectSec(sec, 'id="vsec"', null)}</div></div>
-  <section class="card"><div class="hd"><h2>Per seksi</h2><span class="more small muted">% standar = hasil dibanding kecepatan standar SKU yang jalan</span></div><div class="bd flush tw"><table class="tbl"><thead><tr><th>Seksi</th><th class="num">Operator</th><th class="num">Jam di mesin</th><th class="num">Bal</th><th class="num">Bal per jam</th><th class="num">% standar</th><th class="num">Downtime tidak dihitung</th><th class="num">Lembur produksi</th></tr></thead><tbody>
+  <section class="card"><div class="hd"><h2>Per seksi</h2><span class="more small muted">% standar = hasil dibanding kecepatan standar SKU yang jalan</span></div><div class="bd flush tw"><table class="tbl"><thead><tr><th>Seksi</th><th class="num">Operator</th><th class="num">Jam di mesin</th><th class="num">Karton</th><th class="num">Karton per jam</th><th class="num">% standar</th><th class="num">Downtime tidak dihitung</th><th class="num">Lembur produksi</th></tr></thead><tbody>
     ${teams.map(x => `<tr ${x.s.id === sec ? 'style="background:#f5f8fd"' : ""}><td>${x.s.n}</td><td class="num">${x.n}</td><td class="num">${fmt(x.h)}</td><td class="num">${fmt(x.b)}</td><td class="num">${fmt(x.b / x.h)}</td><td class="num"><span class="tag ${x.pct >= .92 ? "ok" : "warn"}">${dec(x.pct * 100)}%</span></td><td class="num">${dec(x.dn)} j</td><td class="num">${SPL.filter(s => s.dept === x.s.id && s.d >= -7 && s.d < 0).reduce((a, s) => a + splHours(s), 0)} j</td></tr>`).join("")}
   </tbody></table></div></section>
   <section class="card" style="margin-top:16px"><div class="hd"><h2>Operator ${t.s.n}</h2></div>
-    ${canSee(sec) ? `<div class="bd flush tw"><table class="tbl"><thead><tr><th>Operator</th><th>Mesin</th><th>Regu</th><th class="num">Shift</th><th class="num">Jam di mesin</th><th class="num">Bal</th><th class="num">Bal per jam</th><th class="num">% standar</th><th class="num">Lembur</th><th>Catatan</th></tr></thead><tbody>
+    ${canSee(sec) ? `<div class="bd flush tw"><table class="tbl"><thead><tr><th>Operator</th><th>Mesin</th><th>Regu</th><th class="num">Shift</th><th class="num">Jam di mesin</th><th class="num">Karton</th><th class="num">Karton per jam</th><th class="num">% standar</th><th class="num">Lembur</th><th>Catatan</th></tr></thead><tbody>
       ${t.ops.sort((a, b) => b.pct - a.pct).map(x => `<tr><td>${personCell(x.w, x.w.id)}</td><td>${x.w.mach}</td><td>${x.w.oregu}</td><td class="num">${x.shifts}</td><td class="num">${dec(x.hrs)}</td><td class="num">${fmt(x.bales)}</td><td class="num">${fmt(x.perH)}</td><td class="num"><span class="tag ${x.pct >= .92 ? "ok" : x.pct >= .86 ? "" : "warn"}">${dec(x.pct * 100)}%</span></td><td class="num">${[-7,-6,-5,-4,-3,-2,-1].reduce((a, d) => a + otDayH(x.w.id, d), 0)} j</td><td class="small muted">${x.pct < .86 ? "Cek bersama: setting, bahan, atau perlu pelatihan" : x.down > 1 ? dec(x.down) + " j downtime tidak dihitung" : ""}</td></tr>`).join("")}
     </tbody></table></div><div class="bd small muted" style="border-top:1px solid var(--line2)">Hanya Anda dan operator yang bersangkutan yang melihat angka per orang. Pakai untuk coaching, bukan peringkat.</div>` : `<div class="bd">${lockNote(sec)}</div>`}</section>`;
 };
@@ -433,9 +434,11 @@ PAGES.volume.after = () => { bindAs(); $("#vsec").onchange = e => { UI.volSec = 
 
 /* ======================= Tampilan HP pekerja ======================= */
 UI.hpWho = null; UI.hpKind = "opr";
-const hpCands = kind => kind === "os"
-  ? [...W.filter(w => w.sec === "S3" && w.regu === "A" && w.ag !== "KRY").sort((x, y) => (y.role === "Packer") - (x.role === "Packer")).slice(0, 8), ...W.filter(w => w.sec === "S1" && w.regu === "B" && w.ag === "MKS").slice(0, 4), ...W.filter(w => w.ag === "PHL").slice(0, 3)]
-  : [...pool("S3").slice(0, 10), ...pool("MEK").slice(0, 4), ...pool("GDG").slice(0, 3)];
+const onP = w => shiftOf((w.ag === "KRY" ? empShift(w, 0) : code(w, 0))) === "P";
+const hpCands = kind => (kind === "os"
+  ? [...W.filter(w => w.sec === "S3" && w.ag !== "KRY" && onP(w)).sort((x, y) => (y.role === "Packer") - (x.role === "Packer")).slice(0, 8), ...W.filter(w => w.sec === "S1" && w.ag === "MKS" && onP(w)).slice(0, 4), ...W.filter(w => w.ag === "PHL").slice(0, 2)]
+  : kind === "stf" ? [...pool("QC").filter(onP).slice(0, 4), ...pool("MEK").filter(onP).slice(0, 4), ...pool("GDG").slice(0, 3)]
+  : [...pool("S3").filter(onP).slice(0, 7), ...pool("S1").filter(onP).slice(0, 4), ...pool("S3").filter(w => !onP(w)).slice(0, 3)]);
 const big = (v, l) => `<div><div style="font-size:22px;font-weight:650">${v}</div><div class="small muted">${l}</div></div>`;
 function phoneEmp(w){
   const mine = SPL.filter(s => s.people.some(p => p.id === w.id)), me = s => s.people.find(p => p.id === w.id);
@@ -449,7 +452,7 @@ function phoneEmp(w){
       ${weekCard(w, d => empShift(w, d))}
       <div class="card"><div class="bd"><div class="small muted">Lembur periode ini (21 Nov – 20 Des)</div><div style="display:flex;gap:18px;margin-top:4px">${big(appr + " j", "disetujui")}${big(wait + " j", "menunggu ditutup")}${big(otWeekH(w.id, 0) + " / " + R.otWeek, "jam minggu ini")}</div></div></div>
       ${up.length ? `<div class="card"><div class="hd"><h3>SPL untuk Anda</h3></div><ul class="list">${up.map(s => `<li><div class="grow"><b>${dShort(s.d)} · ${s.start}, ${me(s).plan} jam</b><div class="meta">${esc(s.task)}</div></div><button class="btn sm pri" data-hpok="${s.id}">${s.ok ? "Dikonfirmasi" : "Konfirmasi"}</button></li>`).join("")}</ul></div>` : ""}
-      ${op ? `<div class="card"><div class="bd"><div class="small muted">Hasil saya minggu lalu</div><div style="font-size:22px;font-weight:650;margin-top:2px">${dec(op.pct * 100)}% <span class="small muted" style="font-weight:500">dari standar</span></div><div class="bar" style="margin:8px 0 4px"><i style="width:${Math.min(100, op.pct * 100)}%"></i></div><div class="small muted">${fmt(op.bales)} bal di ${w.mach} · ${fmt(op.perH)} bal per jam · rata-rata tim ${dec(team * 100)}%${op.down ? ` · ${dec(op.down)} jam mesin rusak tidak dihitung` : ""}</div></div></div>` : ""}
+      ${op ? `<div class="card"><div class="bd"><div class="small muted">Hasil saya minggu lalu</div><div style="font-size:22px;font-weight:650;margin-top:2px">${dec(op.pct * 100)}% <span class="small muted" style="font-weight:500">dari standar</span></div><div class="bar" style="margin:8px 0 4px"><i style="width:${Math.min(100, op.pct * 100)}%"></i></div><div class="small muted">${fmt(op.bales)} karton di ${w.mach} · ${fmt(op.perH)} karton per jam · rata-rata tim ${dec(team * 100)}%${op.down ? ` · ${dec(op.down)} jam mesin rusak tidak dihitung` : ""}</div></div></div>` : ""}
       <div class="card"><div class="bd"><div class="small muted">Gaji 21 Okt – 20 Nov · dibayar 25 Nov</div><div style="font-size:20px;font-weight:650;margin-top:2px">${rp(payLine(w).net)}</div><div class="small muted">termasuk lembur ${last} jam, ${rp(lastPay)} · upah ${rp(w.rate)} per jam</div><button class="btn sm" style="margin-top:8px" data-hpslip>Lihat slip</button></div></div>
       <div class="card"><div class="hd"><h3>Riwayat lembur</h3></div><ul class="list">${mine.filter(s => s.status !== "rencana").slice(0, 5).map(s => `<li><div class="grow"><b>${dShort(s.d)} · ${me(s).actual ?? me(s).plan} jam</b><div class="meta">${esc(s.task)}</div></div><span class="tag ${STAT[s.status][0]}">${s.status === "tidak" ? "Dibayar, tugas belum selesai" : STAT[s.status][1]}</span></li>`).join("") || '<li class="muted">Belum ada lembur.</li>'}</ul></div>
       ${leaveCard(w)}
@@ -475,7 +478,7 @@ function phoneOS(w){
     <div class="pb">
       <div class="card"><div class="bd"><div class="small muted">Hari ini</div>${SH[s0] ? `<div style="font-size:18px;font-weight:650;margin-top:2px">${SH[s0].n} ${SH[s0].t}</div><div class="small muted">${secById(secOf(w, c0)) ? secById(secOf(w, c0)).n : ""} · ${t0 && t0.inM != null && s0 === "P" ? "sudah check-in " + hm(t0.inM) + " lewat " + t0.src : "check-in dengan kartu di mesin atau wajah di gerbang 2"}</div>` : `<div style="font-size:18px;font-weight:650;margin-top:2px">${w.ag === "PHL" ? "Tidak ada jadwal" : "Libur"}</div>${w.ag === "PHL" ? '<div class="small muted">Anda akan dapat pesan kalau ada shift kosong.</div>' : ""}`}</div></div>
       ${weekCard(w, d => code(w, d))}
-      <div class="card"><div class="bd"><div class="small muted">Minggu lalu</div><div style="display:flex;gap:18px;margin-top:4px">${big(hadir, "hari hadir")}${big(fmt(bales), "bal dipacking")}${big(late, "terlambat")}</div><div class="small muted" style="margin-top:6px">Jumlah bal dari sensor packing, dikonfirmasi leader line.</div></div></div>
+      <div class="card"><div class="bd"><div class="small muted">Minggu lalu</div><div style="display:flex;gap:18px;margin-top:4px">${big(hadir, "hari hadir")}${big(fmt(bales), "karton dipacking")}${big(late, "terlambat")}</div><div class="small muted" style="margin-top:6px">Jumlah karton dari sensor packing, dikonfirmasi leader line.</div></div></div>
       <div class="card"><div class="bd">${w.ag === "PHL" ? `<div class="small muted">Upah harian, dibayar setiap Sabtu</div><div style="font-size:20px;font-weight:650;margin-top:2px">${lastP ? rp(lastP.amt) : "—"}</div><div class="small muted">${lastP ? "dibayar " + lastP.b.date + " ke " + w.bank.bank + " " + maskNo(w.bank.no) : "Belum ada pembayaran"}</div>` : `<div class="small muted">Gaji 21 Okt – 20 Nov · dibayar 25 Nov</div><div style="font-size:20px;font-weight:650;margin-top:2px">${rp(payLine(w).net)}</div><div class="small muted">ke ${w.bank.bank} ${maskNo(w.bank.no)} · dibayar lewat ${AG[w.ag].n}</div>`}
         ${hold ? `<div class="note warn" style="margin-top:8px">${hold}. Gaji ditahan sampai diperbaiki. Buka menu Rekening untuk mengganti.</div>` : ""}<button class="btn sm" style="margin-top:8px" data-hpslip>Lihat slip</button></div></div>
       ${leaveCard(w)}

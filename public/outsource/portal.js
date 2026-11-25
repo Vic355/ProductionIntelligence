@@ -5,9 +5,9 @@
    Used for the "Operator mesin" and "Packer alih daya" views.
    ===================================================================== */
 
-UI.ptab = "home"; UI.pview = "web"; UI.clock = {};
-const PTABS_M = ["home","jadwal","absen","cuti","profil"];   // phone tab bar; Gaji opens from Beranda and Profil
-const PTABS = [["home","Beranda","home"],["jadwal","Jadwal","cal"],["absen","Absen","clock"],["cuti","Cuti","leave"],["gaji","Gaji","pay"],["profil","Profil","users"]];
+UI.ptab = "tugas"; UI.pview = "hp"; UI.clock = {};
+const PTABS_M = ["tugas","jadwal","absen","poin","profil"];   // phone tab bar; Cuti and Gaji open from Profil
+const PTABS = [["tugas","Tugas","route"],["poin","Poin","star"],["jadwal","Jadwal","cal"],["absen","Absen","clock"],["cuti","Cuti","leave"],["gaji","Gaji","pay"],["profil","Profil","users"]];
 
 const isKry = w => w.ag === "KRY";
 const pShift = (w, d) => isKry(w) ? empShift(w, d) : code(w, d);
@@ -48,7 +48,7 @@ function pHome(w){
   <div class="pgrid">
     <a class="card pstat" href="#" data-ptab="gaji"><span class="small muted">Gaji berikutnya · 25 Nov</span><b>${w.ag === "PHL" ? "Sabtu" : rp(payLine(w).net)}</b><span class="small muted">${w.ag === "PHL" ? "upah harian dibayar tiap Sabtu" : "lihat slip"}</span></a>
     <a class="card pstat" href="#" data-ptab="cuti"><span class="small muted">Saldo cuti</span><b>${w.ag === "PHL" ? "—" : w.leaveBal + " hari"}</b><span class="small muted">${pend ? pend + " pengajuan menunggu" : "ajukan cuti atau izin"}</span></a>
-    <a class="card pstat" href="#" data-ptab="absen"><span class="small muted">7 hari terakhir</span><b>${dec(hrs)} jam</b><span class="small muted">${last7.length} shift${bales ? " · " + fmt(bales) + " bal" : ""}</span></a>
+    <a class="card pstat" href="#" data-ptab="absen"><span class="small muted">7 hari terakhir</span><b>${dec(hrs)} jam</b><span class="small muted">${last7.length} shift${bales ? " · " + fmt(bales) + " karton" : ""}</span></a>
     ${op ? `<div class="card pstat"><span class="small muted">Hasil saya minggu lalu</span><b>${dec(op.pct * 100)}%</b><span class="small muted">dari standar ${w.mach}</span></div>` : isKry(w) ? `<div class="card pstat"><span class="small muted">Lembur minggu ini</span><b>${otWeekH(w.id, 0)} / ${R.otWeek} jam</b><span class="small muted">batas mingguan</span></div>` : ""}
   </div>
   <section class="card pcard"><div class="hd"><h2>Info pabrik</h2></div><ul class="list">
@@ -72,7 +72,7 @@ function pJadwal(w){
 
 /* ---------- Absen ---------- */
 function pAbsen(w){
-  const c = shiftOf(pShift(w, 0)), clk = UI.clock[w.id], now = 7 * 60 + 12;
+  const c = shiftOf(pShift(w, 0)), clk = UI.clock[w.id], now = NOWM;
   const rows = [-1,-2,-3,-4,-5,-6,-7].map(d => [d, pTime(w, d)]).filter(x => x[1]);
   return pHead("Absen", "Absen pakai HP hanya di area pabrik. Kartu di mesin dan wajah di gerbang tetap bisa dipakai.") + `
   <section class="card pcard clockcard">
@@ -82,7 +82,7 @@ function pAbsen(w){
       ${!clk ? `<button class="btn pri xl" data-clk="in">Mulai shift</button>` : clk.out == null ? `<div class="row" style="justify-content:center"><span class="tag ok">Masuk ${hm(clk.in)}</span>${clk.brk ? `<span class="tag">Istirahat ${hm(clk.brk)}</span>` : ""}</div><div class="row" style="justify-content:center;margin-top:10px">${clk.brk ? "" : `<button class="btn" data-clk="brk">Mulai istirahat</button>`}<button class="btn pri" data-clk="out">Selesai shift</button></div>` : `<span class="tag">Shift selesai ${hm(clk.out)}. Timesheet dikirim ke atasan.</span>`}`
     : `<div class="muted" style="margin-top:6px">Tidak ada shift hari ini.</div>`}
   </section>
-  <section class="card pcard"><div class="hd"><h2>Timesheet 7 hari terakhir</h2></div><ul class="list">${rows.map(([d, t]) => `<li><div class="grow"><b>${dShort(d)} · ${SH[t.s].n}</b><div class="meta">${hm(t.inM)} – ${hm(t.outM)}${t.worked != null ? " · " + dec(t.worked) + " jam" : ""}${t.bales ? " · " + fmt(t.bales) + " bal" : ""}${t.flag ? " · " + t.flag : ""}</div></div><span class="tag ${t.flag === "Mangkir" ? "bad" : d === -1 ? "warn" : "ok"}">${t.flag === "Mangkir" ? "Tidak hadir" : d === -1 ? "Menunggu cek" : "Disetujui"}</span></li>`).join("") || '<li class="muted">Belum ada timesheet.</li>'}</ul>
+  <section class="card pcard"><div class="hd"><h2>Timesheet 7 hari terakhir</h2></div><ul class="list">${rows.map(([d, t]) => `<li><div class="grow"><b>${dShort(d)} · ${SH[t.s].n}</b><div class="meta">${hm(t.inM)} – ${hm(t.outM)}${t.worked != null ? " · " + dec(t.worked) + " jam" : ""}${t.bales ? " · " + fmt(t.bales) + " karton" : ""}${t.flag ? " · " + t.flag : ""}</div></div><span class="tag ${t.flag === "Mangkir" ? "bad" : d === -1 ? "warn" : "ok"}">${t.flag === "Mangkir" ? "Tidak hadir" : d === -1 ? "Menunggu cek" : "Disetujui"}</span></li>`).join("") || '<li class="muted">Belum ada timesheet.</li>'}</ul>
     <div class="bd" style="border-top:1px solid var(--line2)"><button class="btn sm" id="pdispute">Laporkan jam yang salah</button></div></section>`;
 }
 
@@ -130,18 +130,19 @@ function portalWorker(){
 function renderPortal(){
   const w = portalWorker(), t = UI.ptab, hp = UI.pview === "hp";
   document.body.classList.add("inportal");
-  const body = {home: pHome, jadwal: pJadwal, absen: pAbsen, cuti: pCuti, gaji: pGaji, profil: pProfil}[t](w);
+  if (!UI.clock[w.id] && shiftOf(pShift(w, 0)) === "P") UI.clock[w.id] = {in: 6 * 60 + 48 + Math.floor(hash(w.id + "ci") * 10)};
+  const body = {home: pTugas, tugas: pTugas, poin: pPoin, jadwal: pJadwal, absen: pAbsen, cuti: pCuti, gaji: pGaji, profil: pProfil}[t](w);
   $("#mainnav").innerHTML = hp ? "" : PTABS.map(([k, l]) => `<a href="#" data-ptab="${k}" aria-current="${k === t}">${l}</a>`).join("");
   $("#subnav").hidden = true;
   $(".who").innerHTML = `<span class="av" aria-hidden="true">${initials(w.name)}</span><span class="hide-sm">${esc(w.name)}</span>`;
   // demo controls live in the "Lihat sebagai" bar so the app itself stays clean
   $$("#viewas .pdemo").forEach(x => x.remove());
   $("#viewas").insertAdjacentHTML("beforeend", `<span class="pdemo"><label class="sr" for="pwho">Pekerja</label><select id="pwho">${hpCands(UI.role).map(x => `<option value="${x.id}" ${x === w ? "selected" : ""}>${esc(x.name)} · ${x.role}${x.ag !== "KRY" ? " · " + AG[x.ag].short : ""}</option>`).join("")}</select><span class="seg" role="group" aria-label="Tampilan"><button aria-pressed="${!hp}" data-pv="web">Web</button><button aria-pressed="${hp}" data-pv="hp">HP</button></span></span>`);
-  $("#app").innerHTML = (hp ? `<div class="phonewrap"><div class="phone pframe"><div class="ptop"><span class="mark">PI</span><b>Tenaga Kerja</b><span class="av sm" aria-hidden="true">${initials(w.name)}</span></div><div class="pscreen">${body}</div>
-      <nav class="ptabbar" aria-label="Menu aplikasi">${PTABS.filter(x => PTABS_M.includes(x[0])).map(([k, l, ic]) => `<a href="#" data-ptab="${k}" aria-current="${k === t || (t === "gaji" && k === "profil")}">${ico(ic)}<span>${l}</span></a>`).join("")}</nav></div></div>`
+  $("#app").innerHTML = (hp ? `<div class="phonewrap"><div class="phone pframe"><div class="ptop"><span class="mark">PI</span><b>Kinerja</b><span class="av sm" aria-hidden="true">${initials(w.name)}</span></div><div class="pscreen">${body}</div>
+      <nav class="ptabbar" aria-label="Menu aplikasi">${PTABS.filter(x => PTABS_M.includes(x[0])).map(([k, l, ic]) => `<a href="#" data-ptab="${k}" aria-current="${k === t || (["gaji","cuti"].includes(t) && k === "profil")}">${ico(ic)}<span>${l}</span></a>`).join("")}</nav></div></div>`
     : `<div class="portal"><div class="pscreen">${body}</div></div>`) + `
     <p class="foot">Mockup. Semua nama, angka, tarif dan aturan adalah contoh dan dibuat di browser.</p>`;
-  bindPortal(w);
+  bindPortal(w); bindTugas(w);
   const sc = hp ? $(".pframe .pscreen") : null;
   if (UI.psec) { const el = $("#ps-" + UI.psec); if (el) { if (sc) sc.scrollTop = el.offsetTop - sc.offsetTop - 8; else el.scrollIntoView({block: "start"}); } UI.psec = null; } else { window.scrollTo(0, 0); if (sc) sc.scrollTop = 0; }
 }
@@ -189,12 +190,12 @@ function bindPortal(w){
     _r();
   };
   const _set = setRole;
-  setRole = function(id){ if (ROLES.find(r => r.id === id && r.worker)) { UI.ptab = "home"; } _set(id); };
+  setRole = function(id){ if (ROLES.find(r => r.id === id && r.worker)) { UI.ptab = "tugas"; } _set(id); };
 }
 
 /* Lembur › "Portal pekerja": explains the login and opens it as either worker type */
 PAGES.hp = () => `<div class="pagehead"><div><h1>Portal pekerja</h1><div class="sub">Setiap pekerja login dengan No. HP dan PIN, di HP atau komputer. Yang terlihat hanya data miliknya sendiri.</div></div></div>
-  <div class="grid g2">${[["opr","Operator mesin (karyawan per jam)","Jadwal dan regu, absen, perintah lembur untuk dikonfirmasi, hasil mesin, slip gaji, cuti dan data pribadi."],["os","Packer alih daya (Penukal atau Gemna)","Jadwal dan shift kosong yang bisa diambil, absen, jumlah bal, slip gaji dari agen, cuti dan data pribadi."]].map(([k, t, d]) => `<section class="card"><div class="bd"><h2>${t}</h2><p class="muted" style="margin:6px 0 12px">${d}</p><button class="btn pri" data-open="${k}" data-v="hp">Buka di HP</button> <button class="btn" data-open="${k}" data-v="web">Buka versi web</button></div></section>`).join("")}</div>`;
+  <div class="grid g2">${[["opr","Operator mesin (karyawan per jam)","Jadwal dan regu, absen, perintah lembur untuk dikonfirmasi, hasil mesin, slip gaji, cuti dan data pribadi."],["os","Packer alih daya (Penukal atau Gemna)","Jadwal dan shift kosong yang bisa diambil, absen, jumlah karton, slip gaji dari agen, cuti dan data pribadi."]].map(([k, t, d]) => `<section class="card"><div class="bd"><h2>${t}</h2><p class="muted" style="margin:6px 0 12px">${d}</p><button class="btn pri" data-open="${k}" data-v="hp">Buka di HP</button> <button class="btn" data-open="${k}" data-v="web">Buka versi web</button></div></section>`).join("")}</div>`;
 PAGES.hp.after = () => $$("[data-open]").forEach(b => b.onclick = () => { UI.pview = b.dataset.v; setRole(b.dataset.open); });
 NAV.forEach(g => g.pages.forEach(p => { if (p[0] === "hp") p[1] = "Portal pekerja"; }));
 if (typeof PAGEINFO !== "undefined") PAGEINFO.hp = ["phone", "Login pekerja untuk melihat data sendiri"];

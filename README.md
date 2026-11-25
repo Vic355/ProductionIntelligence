@@ -39,3 +39,15 @@ The repository is connected to the `productionintelligence` Worker. `wrangler.js
 | Deploy command | `npx wrangler deploy` |
 
 The earlier Blazor three-view prototype is in the git history (commit `eb47da0`).
+
+### Tugas & KPI (daily task routes)
+
+The app now opens on **Tugas & KPI**, modelled on sales route management:
+
+- **Rute hari ini**: every shop-floor worker (operators, outsourced packers and helpers, QC, mechanics, warehouse) gets a task route generated each day from their shift, machine, the production plan (SKU changeovers), open repair tickets, overtime orders and tasks managers add. A line map shows each machine's route progress; problems reported from the floor are listed; individuals are visible only to their direct manager.
+- **KPI & tugas**: each KPI with its 8-week trend, the tasks linked to it, their completion rate, the overtime spent on it and verified extra work. "Tambah tugas ke KPI" adds a task to the routes of the right people and can create a linked overtime order.
+- **Efektivitas lembur**: every closed overtime order compared with its KPI target (effective at 90% or more), summarised per KPI with cost.
+- **Poin & tim**: team league (points per person, so team size doesn't matter), leader verification of extra work, badges and the rules.
+- **Extra work ("zona baru")**: work outside the route (helping another line, fixing a recurring problem, kaizen ideas, safety reports) is logged from the phone with evidence and verified by the leader.
+- **Guardrails**: extra-work points count only once 80% of that day's route is done, are capped at 60 a week, overtime earns points for results not hours, a protected 1-hour improvement slot sits in the route every Wednesday, and only team rankings are public.
+- **Phone app**: Tugas (route with progress ring, start/finish with result, report a problem, log extra work), Poin (level, weekly points, team rank, badges, performance premium), plus roster, clock-in, leave, pay and profile. Available for "Operator mesin", "Packer alih daya" and "Staf produksi" (QC, mechanics, warehouse).
